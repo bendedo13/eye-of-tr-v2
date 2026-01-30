@@ -1,0 +1,8 @@
+venv/
+__pycache__/
+*.pyc
+tmp/
+uploads/
+eye_of_web/
+.env
+.DS_Store
