@@ -89,7 +89,7 @@ export default function OsintPage() {
 
           {/* Search Form */}
           <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl p-8 mb-8 border border-white/20">
-            <OsintSearchForm onSearch={handleSearch} isLoading={isGenerating} />
+ <OsintSearchForm onSearch={(input: any) => handleSearch(input)} isLoading={isGenerating} />
           </div>
 
           {/* Results */}
