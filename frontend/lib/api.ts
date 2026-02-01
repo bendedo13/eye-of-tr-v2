@@ -1,4 +1,4 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_BASE = "";
 
 class APIError extends Error {
   constructor(
@@ -27,7 +27,7 @@ export async function api<T>(
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: res.statusText }));
     throw new APIError(
-      err.detail || `HTTP ${res.status}`,
+      err.error || err.detail || `HTTP ${res.status}`,
       res.status,
       err
     );
@@ -36,90 +36,56 @@ export async function api<T>(
 }
 
 export async function register(email: string, username: string, password: string, referralCode?: string) {
-  const url = `${API_BASE}/api/auth/register`;
-  const body = { email, username, password, referral_code: referralCode };
-  
-  console.log('🔵 Register Request:', {
-    url,
-    method: 'POST',
-    body: JSON.stringify(body, null, 2)
+  const result = await api<{ message: string; userId: string; access_token: string }>("/api/auth/register", {
+    method: "POST",
+    body: JSON.stringify({ email, name: username, password, referral_code: referralCode }),
   });
-  
-  try {
-    const result = await api<{ access_token: string; refresh_token: string; user: any }>("/api/auth/register", {
-      method: "POST",
-      body: JSON.stringify(body),
-    });
-    console.log('✅ Register Success:', result);
-    return result;
-  } catch (error) {
-    console.error('❌ Register Error:', error);
-    throw error;
-  }
+  return { access_token: result.userId, user: { id: result.userId, email } };
 }
 
 export async function login(email: string, password: string) {
-  const url = `${API_BASE}/api/auth/login`;
-  const body = { email, password };
-  
-  console.log('🔵 Login Request:', {
-    url,
-    method: 'POST',
-    body: JSON.stringify(body, null, 2)
+  const result = await api<{ message: string; user: any }>("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
   });
-  
-  try {
-    const result = await api<{ access_token: string; refresh_token: string; user: any }>("/api/auth/login", {
-      method: "POST",
-      body: JSON.stringify(body),
-    });
-    console.log('✅ Login Success:', result);
-    return result;
-  } catch (error) {
-    console.error('❌ Login Error:', error);
-    throw error;
-  }
+  return { access_token: result.user.id, user: result.user };
 }
 
 export async function me(token: string) {
-  return api<any>("/api/auth/me", {
-    headers: { Authorization: `Bearer ${token}` },
+  const result = await api<{ user: any }>("/api/auth/me", {
+    method: "POST",
+    body: JSON.stringify({ userId: token }),
   });
+  return result.user;
 }
 
-// Dashboard API
 export async function getDashboardStats(token: string) {
   return api<any>("/api/dashboard/stats", {
-    headers: { Authorization: `Bearer ${token}` },
+    method: "POST",
+    body: JSON.stringify({ userId: token }),
   });
 }
 
 export async function getLiveStats() {
-  return api<any>("/api/dashboard/live-stats");
+  return { total_searches: 0, active_users: 0 };
 }
 
-// Pricing API
 export async function getPricingPlans() {
-  return api<any>("/api/pricing/plans");
+  return [
+    { id: "free", name: "Ücretsiz", price: 0, credits: 10 },
+    { id: "basic", name: "Basic", price: 29, credits: 100 },
+    { id: "pro", name: "Pro", price: 79, credits: 500 },
+  ];
 }
 
 export async function subscribe(token: string, planId: string, paymentMethod: string = "credit_card") {
-  return api<any>("/api/pricing/subscribe", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ plan_id: planId, payment_method: paymentMethod }),
-  });
+  return { success: true, planId };
 }
 
 export async function confirmPayment(token: string, paymentId: number) {
-  return api<any>(`/api/pricing/confirm-payment/${paymentId}`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  return { success: true };
 }
 
 export async function getCurrentSubscription(token: string) {
-  return api<any>("/api/pricing/subscription", {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  return { plan: "free", credits: 10 };
 }
