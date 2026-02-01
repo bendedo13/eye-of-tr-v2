@@ -33,8 +33,7 @@ export default function OsintPage() {
     }
   }, [mounted, loading, user, router]);
 
-  const handleSearch = (input: OsintSearchInput) => {
-    setIsGenerating(true);
+  cconst handleSearch = async (input: any) => {
     
     // Simulate processing
     setTimeout(() => {
