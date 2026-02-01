@@ -71,13 +71,13 @@ security = HTTPBearer()
 
 def get_current_user_email(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:
     """JWT token'dan user email al"""
-    from app.core.auth import decode_access_token
+    from app.core.security import decode_token
     
-    payload = decode_access_token(credentials.credentials)
-    if not payload:
+    user_id = decode_token(credentials.credentials)
+    if not user_id:
         raise HTTPException(status_code=401, detail="Invalid token")
     
-    return payload.get("sub")
+    return user_id
 
 
 # Health check endpoint
