@@ -1,6 +1,7 @@
-from fastapi import Depends, FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import uvicorn
 import os
 import uuid
@@ -9,10 +10,10 @@ from typing import Optional
 from pathlib import Path
 
 from app.core.config import settings
-from app.db.database import engine, Base
-from app.models.user import User  # noqa: F401 - register table with Base
 from app.services.search_service import get_search_service
-from app.routes.auth import get_current_user, router as auth_router
+from app.api.auth import router as auth_router
+from app.db.database import engine, Base, SessionLocal  # Use database.py directly
+from app.models.user import User  # Import User model for metadata
 
 # Logging ayarla
 logging.basicConfig(
@@ -21,36 +22,63 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# FastAPI app - Swagger'da Bearer JWT auth görünür
+# FastAPI app
 app = FastAPI(
     title=settings.API_TITLE,
     description="Multi-provider face search aggregation service",
     version=settings.API_VERSION,
-    debug=settings.DEBUG,
-    swagger_ui_parameters={"persistAuthorization": True},
+    debug=settings.DEBUG
 )
 
 # CORS ayarları
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# Request logging middleware
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    logger.info(f"🔵 REQUEST: {request.method} {request.url}")
+    response = await call_next(request)
+    logger.info(f"🟢 RESPONSE: {response.status_code}")
+    return response
+
 # Upload klasörü
 UPLOAD_DIR = Path(settings.UPLOAD_DIR)
 UPLOAD_DIR.mkdir(exist_ok=True)
 
-# DB tablolarını oluştur
-Base.metadata.create_all(bind=engine)
-
-# Auth router - /auth/register, /auth/login, /auth/me
-app.include_router(auth_router)
-
 # Search service
 search_service = get_search_service()
+
+# Database tablolarını oluştur
+Base.metadata.create_all(bind=engine)
+
+# Auth router'ı ekle
+logger.info("=" * 50)
+logger.info("AUTH ROUTER YÜKLENİYOR...")
+app.include_router(auth_router)
+logger.info(f"Auth router prefix: {auth_router.prefix}")
+logger.info(f"Auth router routes: {[route.path for route in auth_router.routes]}")
+logger.info("=" * 50)
+
+# Security
+security = HTTPBearer()
+
+
+def get_current_user_email(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:
+    """JWT token'dan user email al"""
+    from app.core.auth import decode_access_token
+    
+    payload = decode_access_token(credentials.credentials)
+    if not payload:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
+    return payload.get("sub")
+
 
 # Health check endpoint
 @app.get("/health")
@@ -58,34 +86,36 @@ async def health_check():
     """Sistem sağlık kontrolü"""
     return {
         "status": "healthy",
-        "service": "eye-of-tr-api",
+        "service": "faceseek-api",
         "version": settings.API_VERSION
     }
+
 
 # Root endpoint
 @app.get("/")
 async def root():
     """API bilgileri"""
     return {
-        "service": "Eye of TR Face Search API",
+        "service": "FaceSeek Face Search API",
         "version": settings.API_VERSION,
         "endpoints": {
             "health": "/health",
-            "auth": "/auth",
             "upload": "/api/upload",
             "search": "/api/search",
             "providers": "/api/providers",
+            "auth": "/api/auth",
             "docs": "/docs"
         }
     }
 
-# Upload endpoint - JWT zorunlu
+
+# Upload endpoint - JWT KORUMASLI
 @app.post("/api/upload")
 async def upload_image(
     file: UploadFile = File(...),
-    _: User = Depends(get_current_user),
+    user_email: str = Depends(get_current_user_email)
 ):
-    """Fotoğraf yükleme endpoint'i"""
+    """Fotoğraf yükleme endpoint'i - JWT korumalı"""
     try:
         # Dosya uzantısını kontrol et
         allowed_extensions = {".jpg", ".jpeg", ".png", ".webp"}
@@ -106,7 +136,7 @@ async def upload_image(
         with open(file_path, "wb") as f:
             f.write(contents)
         
-        logger.info(f"Dosya yüklendi: {unique_filename} ({len(contents)} bytes)")
+        logger.info(f"Dosya yüklendi: {unique_filename} ({len(contents)} bytes) - User: {user_email}")
         
         return {
             "status": "success",
@@ -119,26 +149,56 @@ async def upload_image(
         logger.error(f"Upload hatası: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Dosya yükleme hatası: {str(e)}")
 
-# Search endpoint - JWT zorunlu
+
+# Search endpoint - WATERFALL STRATEGY + CREDIT + BLUR
 @app.post("/api/search")
-async def search_face(
-    filename: str,
-    provider: Optional[str] = None,
-    _: User = Depends(get_current_user),
-):
-    """Yüz arama endpoint'i"""
+async def search_face(filename: str, user_email: Optional[str] = None):
+    """Waterfall yüz arama - Credit kontrolü + Blur"""
     try:
         file_path = UPLOAD_DIR / filename
         
         if not file_path.exists():
             raise HTTPException(status_code=404, detail="Dosya bulunamadı")
         
-        # Provider belirtilmişse sadece onda ara
-        if provider:
-            result = await search_service.search_provider(str(file_path), provider)
-        else:
-            # Tüm provider'larda ara
-            result = await search_service.search_all(str(file_path))
+        # Kullanıcı kontrolü
+        user_tier = "free"
+        blur_results = False
+        
+        if user_email:
+            from app.models.user import User
+            from app.services.credit_service import CreditService
+            
+            db = SessionLocal()
+            user = db.query(User).filter(User.email == user_email).first()
+            
+            if user:
+                user_tier = user.tier
+                
+                # Credit kontrolü (free tier için)
+                if user_tier == "free":
+                    if user.credits > 0:
+                        # İlk arama - full sonuç
+                        CreditService.consume_credit(user.id, db)
+                        blur_results = False
+                        logger.info(f"User {user.email}: Full sonuç. Kalan kredi: {user.credits}")
+                    else:
+                        # Kredi bitti - blur sonuç
+                        blur_results = True
+                        logger.info(f"User {user.email}: Blur sonuç (kredi yok)")
+            
+            db.close()
+        
+        # Waterfall search
+        result = await search_service.waterfall_search(str(file_path), user_tier)
+        
+        # Blur uygula
+        if blur_results and result.get("matches"):
+            for match in result["matches"]:
+                match["blurred"] = True
+                match["profile_url"] = None
+                match["image_url"] = None
+        
+        result["blurred"] = blur_results
         
         return result
         
@@ -148,6 +208,7 @@ async def search_face(
         logger.error(f"Search hatası: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Arama hatası: {str(e)}")
 
+
 # Provider listesi endpoint'i
 @app.get("/api/providers")
 async def get_providers():
@@ -156,6 +217,7 @@ async def get_providers():
         "status": "success",
         "providers": search_service.get_available_providers()
     }
+
 
 if __name__ == "__main__":
     uvicorn.run(

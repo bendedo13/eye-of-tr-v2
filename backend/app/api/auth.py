@@ -14,14 +14,23 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 @router.post("/register", response_model=Token)
 def register(data: UserRegister, db: Session = Depends(get_db)):
     """Yeni kullanıcı kaydı"""
-    existing = db.query(User).filter(User.email == data.email).first()
-    if existing:
+    # Email kontrolü
+    existing_email = db.query(User).filter(User.email == data.email).first()
+    if existing_email:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered",
         )
+    # Username kontrolü
+    existing_username = db.query(User).filter(User.username == data.username).first()
+    if existing_username:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username already taken",
+        )
     user = User(
         email=data.email,
+        username=data.username,
         hashed_password=get_password_hash(data.password),
     )
     db.add(user)

@@ -36,17 +36,49 @@ export async function api<T>(
 }
 
 export async function register(email: string, password: string) {
-  return api<{ access_token: string }>("/auth/register", {
-    method: "POST",
-    body: JSON.stringify({ email, password }),
+  const url = `${API_BASE}/auth/register`;
+  const body = { email, password };
+  
+  console.log('🔵 Register Request:', {
+    url,
+    method: 'POST',
+    body: JSON.stringify(body, null, 2)
   });
+  
+  try {
+    const result = await api<{ access_token: string }>("/auth/register", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+    console.log('✅ Register Success:', result);
+    return result;
+  } catch (error) {
+    console.error('❌ Register Error:', error);
+    throw error;
+  }
 }
 
 export async function login(email: string, password: string) {
-  return api<{ access_token: string }>("/auth/login", {
-    method: "POST",
-    body: JSON.stringify({ email, password }),
+  const url = `${API_BASE}/auth/login`;
+  const body = { email, password };
+  
+  console.log('🔵 Login Request:', {
+    url,
+    method: 'POST',
+    body: JSON.stringify(body, null, 2)
   });
+  
+  try {
+    const result = await api<{ access_token: string }>("/auth/login", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+    console.log('✅ Login Success:', result);
+    return result;
+  } catch (error) {
+    console.error('❌ Login Error:', error);
+    throw error;
+  }
 }
 
 export async function me(token: string) {
