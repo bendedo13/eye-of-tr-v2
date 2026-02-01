@@ -11,7 +11,7 @@ type AuthContextType = {
   loading: boolean;
   mounted: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string) => Promise<void>;
+  register: (email: string, username: string, password: string, referralCode?: string) => Promise<void>;
   logout: () => void;
 };
 
