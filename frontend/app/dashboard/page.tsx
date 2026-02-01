@@ -52,8 +52,7 @@ export default function DashboardPage() {
   }, [mounted, token]);
 
   if (!mounted || loading) {
-if (!dashboardData) return <div className="min-h-screen bg-slate-900 flex items-center justify-center text-white">Yükleniyor...</div>;    
-return (
+    return (
       <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
         <div className="spinner"></div>
       </div>
@@ -138,7 +137,7 @@ return (
                     {dashboardData?.referral?.total_referrals || 0}
                   </div>
                   <div className="text-sm text-slate-400">Referanslarım</div>
-                  {dashboardData?.referral?.next_credit_in > 0 && (
+                  {(dashboardData?.referral?.next_credit_in ?? 0) > 0 && (
                     <div className="mt-2 text-xs text-indigo-400">
                       {dashboardData?.referral?.next_credit_in} davet daha = 1 kredi
                     </div>
@@ -228,7 +227,7 @@ return (
               </div>
 
               {/* Recent Searches */}
-              {dashboardData?.search_stats?.recent_searches?.length > 0 && (
+              {(dashboardData?.search_stats?.recent_searches?.length ?? 0) > 0 && (
                 <div className="mt-6 card-dark">
                   <h2 className="text-xl font-bold text-white mb-4">📜 Son Aramalar</h2>
                   <div className="space-y-3">
