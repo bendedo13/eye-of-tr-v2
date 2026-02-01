@@ -1,114 +1,189 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import Link from "next/link";
+import ClientOnly from "@/components/ClientOnly";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
   const router = useRouter();
+  const { login, user, mounted, loading } = useAuth();
+  
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (mounted && !loading && user) {
+      router.push("/dashboard");
+    }
+  }, [mounted, loading, user, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    // Validation
-    if (!email || !password) {
-      setError("Email and password are required");
+    if (!formData.email || !formData.password) {
+      setError("Lütfen tüm alanları doldurun");
       return;
     }
 
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError("Please enter a valid email address");
-      return;
-    }
+    setIsLoading(true);
 
-    setLoading(true);
     try {
-      await login(email, password);
-      router.push("/");
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Login failed";
-      setError(errorMessage);
+      await login(formData.email, formData.password);
+      router.push("/dashboard");
+    } catch (err: any) {
+      console.error("Login error:", err);
+      setError(err.message || "Giriş başarısız. Email ve şifrenizi kontrol edin.");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
+  if (!mounted || loading) {
+    return (
+      <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
+        <div className="spinner"></div>
+      </div>
+    );
+  }
+
+  if (user) {
+    return null; // Will redirect
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 flex items-center justify-center px-4 py-12">
-      <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl p-8 w-full max-w-md border border-white/20">
-        <div className="text-center mb-8">
-          <div className="text-5xl mb-3">👁️</div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            Eye of TR
-          </h1>
-          <p className="text-gray-600 mt-2">Sign in</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
-              {error}
-            </div>
-          )}
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:outline-none transition-colors bg-white/50"
-              disabled={loading}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:outline-none transition-colors bg-white/50"
-              disabled={loading}
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-lg disabled:shadow-none mt-6"
-          >
-            {loading ? "Signing in..." : "Sign In"}
-          </button>
-        </form>
-
-        <div className="mt-6 text-center">
-          <p className="text-gray-600 text-sm">
-            Don't have an account?{" "}
-            <Link
-              href="/signup"
-              className="text-indigo-600 hover:text-indigo-700 font-semibold hover:underline"
-            >
-              Sign up
+    <ClientOnly>
+      <div className="min-h-screen bg-gradient-radial flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <Link href="/" className="inline-block">
+              <div className="text-6xl mb-4 animate-pulse-glow">👁️</div>
             </Link>
-          </p>
+            <h1 className="text-4xl md:text-5xl font-black text-white mb-2 neon-text">
+              Faceseek
+            </h1>
+            <p className="text-slate-400 text-sm md:text-base">Hesabınıza giriş yapın</p>
+          </div>
+
+          {/* Form */}
+          <div className="glass-dark rounded-2xl p-6 md:p-8 border border-white/10 shadow-2xl">
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Error Message */}
+              {error && (
+                <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
+                  <span className="text-xl">⚠️</span>
+                  <span>{error}</span>
+                </div>
+              )}
+
+              {/* Email */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-300 mb-2">
+                  <span className="inline-flex items-center gap-2">
+                    <span>📧</span>
+                    <span>Email</span>
+                  </span>
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition"
+                  placeholder="ornek@email.com"
+                  disabled={isLoading}
+                />
+              </div>
+
+              {/* Password */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-300 mb-2">
+                  <span className="inline-flex items-center gap-2">
+                    <span>🔒</span>
+                    <span>Şifre</span>
+                  </span>
+                </label>
+                <input
+                  type="password"
+                  required
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition"
+                  placeholder="••••••••"
+                  disabled={isLoading}
+                />
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full btn-primary py-3 md:py-4 text-base md:text-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    <span>Giriş yapılıyor...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>🚀</span>
+                    <span>Giriş Yap</span>
+                  </>
+                )}
+              </button>
+            </form>
+
+            {/* Register Link */}
+            <div className="mt-6 text-center">
+              <p className="text-slate-400 text-sm">
+                Hesabınız yok mu?{" "}
+                <Link
+                  href="/signup"
+                  className="text-indigo-400 hover:text-indigo-300 font-semibold transition inline-flex items-center gap-1"
+                >
+                  <span>🎁</span>
+                  <span>Kayıt Ol (1 Ücretsiz Kredi)</span>
+                </Link>
+              </p>
+            </div>
+
+            {/* Forgot Password */}
+            <div className="mt-4 text-center">
+              <Link
+                href="/forgot-password"
+                className="text-xs text-slate-500 hover:text-slate-400 transition"
+              >
+                Şifrenizi mi unuttunuz?
+              </Link>
+            </div>
+          </div>
+
+          {/* Trust Badges */}
+          <div className="mt-6 flex flex-wrap justify-center gap-4 text-xs text-slate-500">
+            <div className="flex items-center gap-1">
+              <span>🔒</span>
+              <span>SSL Güvenli</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span>🛡️</span>
+              <span>GDPR Uyumlu</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span>✨</span>
+              <span>Anında Erişim</span>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </ClientOnly>
   );
 }
