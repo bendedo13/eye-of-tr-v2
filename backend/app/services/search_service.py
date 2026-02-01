@@ -97,6 +97,36 @@ class SearchService:
             "result": result.to_dict()
         }
     
+    async def waterfall_search(self, image_path: str, user_tier: str = "free") -> Dict[str, Any]:
+        """Waterfall search stratejisi - tüm provider'ları kullan"""
+        logger.info(f"Waterfall search başlatıldı - User tier: {user_tier}, Image: {image_path}")
+        
+        # Tüm provider'larda arama yap
+        search_result = await self.search_all(image_path)
+        
+        # Sonuçları düzenle
+        all_matches = []
+        
+        for provider_name, provider_data in search_result.get("providers", {}).items():
+            if provider_data.get("status") == "success":
+                matches = provider_data.get("matches", [])
+                for match in matches:
+                    match["provider"] = provider_name
+                    all_matches.append(match)
+        
+        # Güven skoruna göre sırala
+        all_matches.sort(key=lambda x: x.get("confidence", 0), reverse=True)
+        
+        logger.info(f"Waterfall search tamamlandı: {len(all_matches)} sonuç bulundu")
+        
+        return {
+            "status": "success",
+            "query_file": search_result.get("query_file"),
+            "matches": all_matches,
+            "total_matches": len(all_matches),
+            "providers_used": list(search_result.get("providers", {}).keys())
+        }
+    
     def get_available_providers(self) -> List[str]:
         """Aktif provider'ların listesini döndür"""
         return list(self.adapters.keys())

@@ -45,6 +45,17 @@ export default function SearchPage() {
     }
   };
 
+  const handleChangeImage = () => {
+    // Dosya seçimini sıfırla (aynı dosya tekrar seçilebilsin)
+    const fileInput = document.getElementById("file-upload") as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = "";
+    }
+    setFile(null);
+    setPreview(null);
+    setResults(null);
+  };
+
   const handleSearch = async () => {
     if (!file || !token) {
       toast.error("Please select a file and sign in");
@@ -134,12 +145,12 @@ export default function SearchPage() {
                 </div>
 
                 <div className="flex gap-4">
-                  <label
-                    htmlFor="file-upload"
+                  <button
+                    onClick={handleChangeImage}
                     className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-4 px-6 rounded-xl transition-all text-center cursor-pointer"
                   >
                     Change Image
-                  </label>
+                  </button>
 
                   <button
                     onClick={handleSearch}
