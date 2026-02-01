@@ -1,0 +1,22 @@
+# FaceSeek Project Rules - DO NOT MODIFY THESE FILES WITHOUT APPROVAL
+
+## Protected Files (Core API - Never auto-modify):
+- frontend/app/api/auth/register/route.ts
+- frontend/app/api/auth/login/route.ts
+- frontend/app/api/auth/me/route.ts
+- frontend/app/api/dashboard/stats/route.ts
+- frontend/app/api/search/route.ts
+- frontend/app/api/credits/route.ts
+- frontend/lib/api.ts
+- frontend/context/AuthContext.tsx
+- frontend/prisma/schema.prisma
+
+## Database: Supabase PostgreSQL
+## Auth: Custom JWT-less session (userId based)
+## Credits: 10 free on signup, 1 per search
+
+## Rules:
+1. Never change API response formats
+2. Never modify Prisma schema without migration
+3. Always check credits before search
+4. Keep error messages in Turkish
