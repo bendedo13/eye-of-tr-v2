@@ -52,7 +52,8 @@ export default function DashboardPage() {
   }, [mounted, token]);
 
   if (!mounted || loading) {
-    return (
+if (!dashboardData) return <div className="min-h-screen bg-slate-900 flex items-center justify-center text-white">Yükleniyor...</div>;    
+return (
       <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
         <div className="spinner"></div>
       </div>
@@ -231,7 +232,7 @@ export default function DashboardPage() {
                 <div className="mt-6 card-dark">
                   <h2 className="text-xl font-bold text-white mb-4">📜 Son Aramalar</h2>
                   <div className="space-y-3">
-                    {dashboardData.search_stats.recent_searches.map((search: any, idx: number) => (
+                    {dashboardData?.search_stats?.recent_searches?.map((search: any, idx: number) => (
                       <div key={idx} className="flex items-center justify-between bg-slate-800 rounded-lg p-4">
                         <div className="flex items-center gap-4">
                           <div className="text-2xl">
