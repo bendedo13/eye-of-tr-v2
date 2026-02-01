@@ -8,12 +8,16 @@ export default function Navbar() {
   const [user, setUser] = useState<any>(null)
   const router = useRouter()
 
-  useEffect(() => {
-    const userData = localStorage.getItem('user')
-    if (userData) {
+useEffect(() => {
+  const userData = localStorage.getItem('user')
+  if (userData && userData !== 'undefined') {
+    try {
       setUser(JSON.parse(userData))
+    } catch (e) {
+      localStorage.removeItem('user')
     }
-  }, [])
+  }
+}, [])
 
   const handleLogout = () => {
     localStorage.removeItem('token')
