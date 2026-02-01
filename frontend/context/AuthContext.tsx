@@ -54,8 +54,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(u);
   };
 
-  const register = async (email: string, password: string) => {
-    const { access_token } = await apiRegister(email, password);
+  const register = async (email: string, username: string, password: string, referralCode?: string) => {
+    const { access_token } = await apiRegister(email, username, password, referralCode);
     localStorage.setItem(TOKEN_KEY, access_token);
     setToken(access_token);
     const u = await me(access_token);

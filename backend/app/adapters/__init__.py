@@ -30,17 +30,27 @@ class AdapterResponse:
     """Adapter'ların döndüreceği standart response"""
     provider: str
     status: str
-    execution_time: float
     matches: List[SearchMatch]
+    total_matches: int = 0
+    search_time_ms: int = 0
+    execution_time: float = 0.0
     error: Optional[str] = None
+    
+    def __post_init__(self):
+        """Auto-calculate total_matches if not provided"""
+        if self.total_matches == 0:
+            self.total_matches = len(self.matches)
+        if self.execution_time == 0.0 and self.search_time_ms > 0:
+            self.execution_time = self.search_time_ms / 1000.0
     
     def to_dict(self) -> Dict[str, Any]:
         return {
             "provider": self.provider,
             "status": self.status,
             "execution_time": round(self.execution_time, 2),
+            "search_time_ms": self.search_time_ms,
             "matches": [m.to_dict() for m in self.matches],
-            "total_matches": len(self.matches),
+            "total_matches": self.total_matches,
             "error": self.error
         }
 

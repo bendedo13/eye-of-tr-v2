@@ -5,27 +5,74 @@ from pathlib import Path
 
 from app.adapters import AdapterResponse
 from app.adapters.eyeofweb_adapter import get_eyeofweb_adapter
+from app.adapters.bing_adapter import get_bing_adapter
+from app.adapters.yandex_adapter import get_yandex_adapter
+from app.adapters.facecheck_adapter import get_facecheck_adapter
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
 
 class SearchService:
-    """Multi-provider yüz arama servisi"""
+    """Multi-provider yüz arama servisi - Bing, Yandex, Facecheck, EyeOfWeb"""
     
     def __init__(self):
         self.adapters = {}
         
+        # Bing adapter
+        if settings.BING_API_KEY:
+            try:
+                bing_config = {
+                    "api_key": settings.BING_API_KEY,
+                    "timeout": 30
+                }
+                self.adapters["bing"] = get_bing_adapter(bing_config)
+                logger.info("✅ Bing adapter yüklendi")
+            except Exception as e:
+                logger.warning(f"Bing adapter yüklenemedi: {e}")
+        else:
+            logger.info("Bing API key bulunamadı - atlandı")
+        
+        # Facecheck adapter
+        if settings.FACECHECK_API_KEY:
+            try:
+                facecheck_config = {
+                    "api_key": settings.FACECHECK_API_KEY,
+                    "api_url": settings.FACECHECK_API_URL,
+                    "timeout": 60
+                }
+                self.adapters["facecheck"] = get_facecheck_adapter(facecheck_config)
+                logger.info("✅ Facecheck adapter yüklendi")
+            except Exception as e:
+                logger.warning(f"Facecheck adapter yüklenemedi: {e}")
+        else:
+            logger.info("Facecheck API key bulunamadı - atlandı")
+        
+        # Yandex adapter (placeholder)
         try:
-            eyeofweb_config = {
-                "eyeofweb_path": settings.EYEOFWEB_PATH,
-                "python_path": settings.get_eyeofweb_python_path(),
-                "timeout": settings.EYEOFWEB_TIMEOUT
+            yandex_config = {
+                "api_key": getattr(settings, "YANDEX_API_KEY", None),
+                "timeout": 30
             }
-            self.adapters["eyeofweb"] = get_eyeofweb_adapter(eyeofweb_config)
-            logger.info("EyeOfWeb adapter yüklendi")
+            self.adapters["yandex"] = get_yandex_adapter(yandex_config)
+            logger.info("✅ Yandex adapter yüklendi (placeholder)")
+        except Exception as e:
+            logger.warning(f"Yandex adapter yüklenemedi: {e}")
+        
+        # EyeOfWeb adapter (eski)
+        try:
+            if hasattr(settings, "EYEOFWEB_PATH"):
+                eyeofweb_config = {
+                    "eyeofweb_path": settings.EYEOFWEB_PATH,
+                    "python_path": settings.get_eyeofweb_python_path(),
+                    "timeout": settings.EYEOFWEB_TIMEOUT
+                }
+                self.adapters["eyeofweb"] = get_eyeofweb_adapter(eyeofweb_config)
+                logger.info("✅ EyeOfWeb adapter yüklendi")
         except Exception as e:
             logger.warning(f"EyeOfWeb adapter yüklenemedi: {e}")
+        
+        logger.info(f"📊 Toplam {len(self.adapters)} adapter aktif: {list(self.adapters.keys())}")
     
     async def search_all(self, image_path: str) -> Dict[str, Any]:
         """Tüm aktif adapter'larda arama yap"""

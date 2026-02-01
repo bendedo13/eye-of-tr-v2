@@ -1,175 +1,204 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useAuth } from '@/context/AuthContext'
 import Link from 'next/link'
-import Navbar from '../components/Navbar'
-import Footer from '../components/Footer'
 
 export default function SignupPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const { register: authRegister } = useAuth()
+  
   const [formData, setFormData] = useState({
     email: '',
     username: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    referralCode: ''
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  // URL'den referral code'u al
+  useEffect(() => {
+    const refCode = searchParams.get('ref')
+    if (refCode) {
+      setFormData(prev => ({ ...prev, referralCode: refCode }))
+    }
+  }, [searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match')
+      setError('Şifreler eşleşmiyor')
       return
     }
 
     if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters')
+      setError('Şifre en az 6 karakter olmalı')
       return
     }
 
     setLoading(true)
 
     try {
-      console.log('Sending request to:', 'http://localhost:8000/api/auth/register')
-      console.log('Data:', { email: formData.email, username: formData.username, password: '***' })
-
-      const res = await fetch('http://localhost:8000/api/auth/register', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          username: formData.username,
-          password: formData.password
-        })
-      })
-
-      console.log('Response status:', res.status)
-
-      if (!res.ok) {
-        const errorData = await res.json()
-        console.error('Error response:', errorData)
-        throw new Error(errorData.detail || 'Registration failed')
-      }
-
-      const data = await res.json()
-      console.log('Success response:', data)
-
-      localStorage.setItem('token', data.access_token)
-      localStorage.setItem('user', JSON.stringify(data.user))
+      await authRegister(
+        formData.email,
+        formData.username,
+        formData.password,
+        formData.referralCode || undefined
+      )
       
-      router.push('/')
+      router.push('/dashboard')
     } catch (err: any) {
-      console.error('Fetch error:', err)
-      setError(err.message || 'Failed to connect to server')
+      setError(err.message || 'Kayıt başarısız')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <>
-      <Navbar />
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 flex items-center justify-center p-8">
-        <div className="max-w-md w-full">
-          <div className="text-center mb-8">
-            <div className="text-6xl mb-4">👁️</div>
-            <h1 className="text-4xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-              FaceSeek
-            </h1>
-            <p className="text-gray-600 mt-2">Create your account</p>
-          </div>
+    <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center p-4">
+      <div className="max-w-md w-full">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="text-6xl mb-4">👁️</div>
+          <h1 className="text-4xl font-black text-white mb-2 neon-text">
+            Faceseek
+          </h1>
+          <p className="text-slate-400">Hesap oluştur ve 1 ücretsiz kredi kazan!</p>
+        </div>
 
-          <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl p-8 border border-white/20">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
-                  {error}
-                </div>
-              )}
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:outline-none transition-colors"
-                  placeholder="you@example.com"
-                />
+        {/* Form */}
+        <div className="glass-dark rounded-2xl p-8 border border-white/10">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg text-sm">
+                {error}
               </div>
+            )}
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Username
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.username}
-                  onChange={(e) => setFormData({...formData, username: e.target.value})}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:outline-none transition-colors"
-                  placeholder="johndoe"
-                />
-              </div>
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-300 mb-2">
+                Email
+              </label>
+              <input
+                type="email"
+                required
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition"
+                placeholder="ornek@email.com"
+              />
+            </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  required
-                  value={formData.password}
-                  onChange={(e) => setFormData({...formData, password: e.target.value})}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:outline-none transition-colors"
-                  placeholder="••••••••"
-                />
-              </div>
+            {/* Username */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-300 mb-2">
+                Kullanıcı Adı
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.username}
+                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition"
+                placeholder="kullaniciadi"
+              />
+            </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Confirm Password
-                </label>
-                <input
-                  type="password"
-                  required
-                  value={formData.confirmPassword}
-                  onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:outline-none transition-colors"
-                  placeholder="••••••••"
-                />
-              </div>
+            {/* Password */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-300 mb-2">
+                Şifre
+              </label>
+              <input
+                type="password"
+                required
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition"
+                placeholder="••••••••"
+              />
+            </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-bold py-4 px-6 rounded-xl transition-all shadow-lg"
-              >
-                {loading ? 'Creating Account...' : 'Sign Up'}
-              </button>
-            </form>
+            {/* Confirm Password */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-300 mb-2">
+                Şifre Tekrar
+              </label>
+              <input
+                type="password"
+                required
+                value={formData.confirmPassword}
+                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition"
+                placeholder="••••••••"
+              />
+            </div>
 
-            <div className="mt-6 text-center">
-              <p className="text-gray-600">
-                Already have an account?{' '}
-                <Link href="/login" className="text-indigo-600 hover:text-indigo-800 font-semibold">
-                  Login
-                </Link>
+            {/* Referral Code */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-300 mb-2">
+                Referans Kodu (Opsiyonel)
+              </label>
+              <input
+                type="text"
+                value={formData.referralCode}
+                onChange={(e) => setFormData({ ...formData, referralCode: e.target.value.toUpperCase() })}
+                className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition uppercase"
+                placeholder="ABC12345"
+              />
+              <p className="text-xs text-slate-500 mt-1">
+                Referans kodunuz varsa girin
               </p>
             </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full btn-primary py-3 text-lg"
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  Kaydediliyor...
+                </span>
+              ) : (
+                '🎁 Kayıt Ol (1 Ücretsiz Kredi)'
+              )}
+            </button>
+          </form>
+
+          {/* Login Link */}
+          <div className="mt-6 text-center">
+            <p className="text-slate-400 text-sm">
+              Zaten hesabın var mı?{' '}
+              <Link href="/login" className="text-indigo-400 hover:text-indigo-300 font-semibold transition">
+                Giriş Yap
+              </Link>
+            </p>
           </div>
+
+          {/* Terms */}
+          <p className="mt-6 text-xs text-slate-500 text-center">
+            Kayıt olarak{' '}
+            <Link href="/privacy" className="text-indigo-400 hover:underline">
+              Gizlilik Politikası
+            </Link>{' '}
+            ve{' '}
+            <Link href="/security" className="text-indigo-400 hover:underline">
+              Güvenlik
+            </Link>{' '}
+            koşullarını kabul etmiş olursunuz.
+          </p>
         </div>
       </div>
-      <Footer />
-    </>
+    </div>
   )
 }

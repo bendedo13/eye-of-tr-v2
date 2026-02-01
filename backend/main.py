@@ -12,8 +12,14 @@ from pathlib import Path
 from app.core.config import settings
 from app.services.search_service import get_search_service
 from app.api.auth import router as auth_router
+from app.api.dashboard import router as dashboard_router
+from app.api.pricing import router as pricing_router
 from app.db.database import engine, Base, SessionLocal  # Use database.py directly
-from app.models.user import User  # Import User model for metadata
+
+# Import all models for DB table creation
+from app.models.user import User
+from app.models.subscription import Subscription, Payment
+from app.models.analytics import SiteVisit, SearchLog, ReferralLog
 
 # Logging ayarla
 logging.basicConfig(
@@ -57,12 +63,15 @@ search_service = get_search_service()
 # Database tablolarını oluştur
 Base.metadata.create_all(bind=engine)
 
-# Auth router'ı ekle
+# Routers
 logger.info("=" * 50)
-logger.info("AUTH ROUTER YÜKLENİYOR...")
+logger.info("ROUTERS YÜKLENİYOR...")
 app.include_router(auth_router)
-logger.info(f"Auth router prefix: {auth_router.prefix}")
-logger.info(f"Auth router routes: {[route.path for route in auth_router.routes]}")
+app.include_router(dashboard_router)
+app.include_router(pricing_router)
+logger.info(f"✅ Auth router: {auth_router.prefix}")
+logger.info(f"✅ Dashboard router: {dashboard_router.prefix}")
+logger.info(f"✅ Pricing router: {pricing_router.prefix}")
 logger.info("=" * 50)
 
 # Security
@@ -150,55 +159,99 @@ async def upload_image(
         raise HTTPException(status_code=500, detail=f"Dosya yükleme hatası: {str(e)}")
 
 
-# Search endpoint - WATERFALL STRATEGY + CREDIT + BLUR
+# Search endpoint - WATERFALL STRATEGY + CREDIT + BLUR + ANALYTICS
 @app.post("/api/search")
-async def search_face(filename: str, user_email: Optional[str] = None):
-    """Waterfall yüz arama - Credit kontrolü + Blur"""
+async def search_face(
+    filename: str,
+    user_email: Optional[str] = None,
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)
+):
+    """
+    Waterfall yüz arama
+    - Credit kontrolü (1 ücretsiz arama, sonra ücretli)
+    - Blur uygulama (kredi yoksa)
+    - Analytics tracking
+    """
+    import time
+    start_time = time.time()
+    
     try:
         file_path = UPLOAD_DIR / filename
         
         if not file_path.exists():
             raise HTTPException(status_code=404, detail="Dosya bulunamadı")
         
-        # Kullanıcı kontrolü
+        # JWT'den user ID al
+        from app.core.security import decode_token
+        from app.services.credit_service import CreditService
+        from app.services.analytics_service import AnalyticsService
+        
+        user_id = None
         user_tier = "free"
         blur_results = False
+        has_credit = False
         
-        if user_email:
-            from app.models.user import User
-            from app.services.credit_service import CreditService
-            
-            db = SessionLocal()
-            user = db.query(User).filter(User.email == user_email).first()
+        if credentials:
+            user_id = decode_token(credentials.credentials)
+        
+        db = SessionLocal()
+        
+        if user_id:
+            user = db.query(User).filter(User.id == user_id).first()
             
             if user:
                 user_tier = user.tier
                 
-                # Credit kontrolü (free tier için)
-                if user_tier == "free":
-                    if user.credits > 0:
-                        # İlk arama - full sonuç
-                        CreditService.consume_credit(user.id, db)
-                        blur_results = False
-                        logger.info(f"User {user.email}: Full sonuç. Kalan kredi: {user.credits}")
-                    else:
-                        # Kredi bitti - blur sonuç
-                        blur_results = True
-                        logger.info(f"User {user.email}: Blur sonuç (kredi yok)")
-            
-            db.close()
+                # Credit kontrolü
+                if user_tier == "unlimited":
+                    # Sınırsız kullanım
+                    has_credit = True
+                    blur_results = False
+                elif user.credits > 0:
+                    # Kredi var - kullan
+                    CreditService.consume_credit(user, db, 1)
+                    has_credit = True
+                    blur_results = False
+                    logger.info(f"User {user.email}: Kredi kullanıldı. Kalan: {user.credits}")
+                else:
+                    # Kredi yok - blur göster ve pricing sayfasına yönlendir
+                    has_credit = False
+                    blur_results = True
+                    logger.warning(f"User {user.email}: Kredi yok! Blur sonuç gösterilecek")
         
         # Waterfall search
         result = await search_service.waterfall_search(str(file_path), user_tier)
         
-        # Blur uygula
+        # Blur uygula (kredi yoksa)
         if blur_results and result.get("matches"):
             for match in result["matches"]:
                 match["blurred"] = True
-                match["profile_url"] = None
+                match["profile_url"] = "🔒 Premium için satın al"
                 match["image_url"] = None
+                match["username"] = "🔒 Gizli"
         
         result["blurred"] = blur_results
+        result["has_credit"] = has_credit
+        result["redirect_to_pricing"] = blur_results
+        
+        # Search duration
+        search_duration_ms = int((time.time() - start_time) * 1000)
+        
+        # Analytics log
+        AnalyticsService.log_search(
+            db=db,
+            user_id=user_id,
+            search_type="face",
+            results_found=result.get("total_matches", 0),
+            is_successful=result.get("total_matches", 0) > 0,
+            was_blurred=blur_results,
+            file_name=filename,
+            providers_used=",".join(result.get("providers_used", [])),
+            search_duration_ms=search_duration_ms,
+            credits_used=1 if has_credit else 0
+        )
+        
+        db.close()
         
         return result
         

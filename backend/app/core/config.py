@@ -1,63 +1,46 @@
 from pydantic_settings import BaseSettings
 from typing import Optional
-import os
 
 
 class Settings(BaseSettings):
-    """Uygulama ayarları"""
-    
-    API_TITLE: str = "Eye of TR - Face Search API"
+    # API Settings
+    API_TITLE: str = "FaceSeek API"
     API_VERSION: str = "1.0.0"
     API_HOST: str = "0.0.0.0"
     API_PORT: int = 8000
     DEBUG: bool = True
+    LOG_LEVEL: str = "INFO"
     
-    CORS_ORIGINS: list = ["*"]
+    # Upload Settings
+    UPLOAD_DIR: str = "uploads"
+    MAX_UPLOAD_SIZE: int = 10 * 1024 * 1024  # 10MB
     
-    UPLOAD_DIR: str = "tmp"
-    MAX_UPLOAD_SIZE: int = 10 * 1024 * 1024
-    ALLOWED_EXTENSIONS: set = {".jpg", ".jpeg", ".png", ".webp"}
+    # Database
+    DATABASE_URL: str = "sqlite:///./faceseek.db"
     
-    EYEOFWEB_PATH: str = r"C:\Users\Asus\Desktop\eye_of_web"
-    EYEOFWEB_PYTHON: Optional[str] = None
-    EYEOFWEB_TIMEOUT: int = 30
+    # Security
+    SECRET_KEY: str
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     
+    # CORS - String olarak, virgülle ayrılmış
+    CORS_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000"
+    
+    # API Keys
+    BING_API_KEY: Optional[str] = None
+    YANDEX_API_KEY: Optional[str] = None
     FACECHECK_API_KEY: Optional[str] = None
     FACECHECK_API_URL: str = "https://facecheck.id/api/v1"
     
-    PIMEYES_API_KEY: Optional[str] = None
-    PIMEYES_API_URL: str = "https://api.pimeyes.com/v1"
+    @property
+    def cors_origins_list(self):
+        """CORS origins'i liste olarak döndür"""
+        return [origin.strip() for origin in self.CORS_ORIGINS.split(",")]
     
-    LOG_LEVEL: str = "INFO"
-
-    # Auth / JWT
-    SECRET_KEY: str = "change-me-in-production-use-openssl-rand-hex-32"
-    ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60  # 1 hour
-
-    # Database (SQLite default, use Postgres in prod via DATABASE_URL)
-    DATABASE_URL: str = "sqlite:///./app.db"
-
     class Config:
         env_file = ".env"
         case_sensitive = True
-    
-    def get_eyeofweb_python_path(self) -> str:
-        """EyeOfWeb Python executable yolunu döndür"""
-        if self.EYEOFWEB_PYTHON:
-            return self.EYEOFWEB_PYTHON
-        
-        venv_python = os.path.join(
-            self.EYEOFWEB_PATH,
-            "venv",
-            "Scripts",
-            "python.exe"
-        )
-        
-        if os.path.exists(venv_python):
-            return venv_python
-        
-        return "python"
+        extra = "ignore"
 
 
 settings = Settings()
