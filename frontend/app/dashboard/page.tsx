@@ -139,7 +139,7 @@ export default function DashboardPage() {
                   <div className="text-sm text-slate-400">Referanslarım</div>
                   {dashboardData?.referral?.next_credit_in > 0 && (
                     <div className="mt-2 text-xs text-indigo-400">
-                      {dashboardData.referral.next_credit_in} davet daha = 1 kredi
+                      {dashboardData?.referral?.next_credit_in} davet daha = 1 kredi
                     </div>
                   )}
                 </div>
