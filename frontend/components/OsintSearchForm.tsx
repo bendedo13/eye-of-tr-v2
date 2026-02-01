@@ -4,13 +4,13 @@ import { useState } from "react";
 
 interface OsintSearchFormProps {
   onSearch: (query: string, searchType: "fullname" | "username") => void;
-  isSearching: boolean;
+  isLoading: boolean;
 }
 
 /**
  * OSINT Google Search Form
  */
-export default function OsintSearchForm({ onSearch, isSearching }: OsintSearchFormProps) {
+export default function OsintSearchForm({ onSearch, isLoading }: OsintSearchFormProps) {
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
   const [searchType, setSearchType] = useState<"fullname" | "username">("fullname");
@@ -76,7 +76,7 @@ export default function OsintSearchForm({ onSearch, isSearching }: OsintSearchFo
               ? "bg-indigo-600 text-white shadow-lg"
               : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-200"
           }`}
-          disabled={isSearching}
+          disabled={isLoading}
         >
           👤 Full Name
         </button>
@@ -88,7 +88,7 @@ export default function OsintSearchForm({ onSearch, isSearching }: OsintSearchFo
               ? "bg-indigo-600 text-white shadow-lg"
               : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-200"
           }`}
-          disabled={isSearching}
+          disabled={isLoading}
         >
           🔤 Username
         </button>
@@ -107,7 +107,7 @@ export default function OsintSearchForm({ onSearch, isSearching }: OsintSearchFo
               onChange={(e) => setFullName(e.target.value)}
               placeholder="John Doe"
               className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-lg"
-              disabled={isSearching}
+              disabled={isLoading}
               autoFocus
             />
             <p className="text-xs text-gray-500 mt-2">
@@ -125,7 +125,7 @@ export default function OsintSearchForm({ onSearch, isSearching }: OsintSearchFo
               onChange={(e) => setUsername(e.target.value)}
               placeholder="johndoe"
               className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-lg"
-              disabled={isSearching}
+              disabled={isLoading}
               autoFocus
             />
             <p className="text-xs text-gray-500 mt-2">
@@ -139,10 +139,10 @@ export default function OsintSearchForm({ onSearch, isSearching }: OsintSearchFo
       <div className="flex gap-4">
         <button
           type="submit"
-          disabled={isSearching}
+          disabled={isLoading}
           className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-bold py-4 px-6 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2"
         >
-          {isSearching ? (
+          {isLoading ? (
             <>
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
               Searching...
@@ -158,7 +158,7 @@ export default function OsintSearchForm({ onSearch, isSearching }: OsintSearchFo
         <button
           type="button"
           onClick={handleReset}
-          disabled={isSearching}
+          disabled={isLoading}
           className="px-6 py-4 bg-gray-100 hover:bg-gray-200 disabled:bg-gray-50 text-gray-700 font-medium rounded-xl transition-colors"
         >
           Reset

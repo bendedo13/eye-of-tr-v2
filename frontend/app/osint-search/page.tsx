@@ -165,7 +165,7 @@ export default function OsintSearchPage() {
 
           {/* Search Form */}
           <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl p-8 mb-8 border border-white/20">
-            <OsintSearchForm onSearch={handleSearch} isSearching={isSearching} />
+            <OsintSearchForm onSearch={handleSearch} isLoading={isSearching} />
           </div>
 
           {/* Loading State */}

@@ -11,10 +11,10 @@ interface PricingPlan {
   id: string;
   name: string;
   price: number;
-  currency: string;
   credits: number;
-  features: string[];
-  recommended: boolean;
+  currency?: string;  // Opsiyonel yapıldı
+  features?: string[];  // Opsiyonel yapıldı
+  recommended?: boolean;  // Opsiyonel yapıldı
   lifetime?: boolean;
 }
 
@@ -29,7 +29,16 @@ export default function PricingPage() {
     const fetchPlans = async () => {
       try {
         const data = await getPricingPlans();
-        setPlans(data.plans);
+        
+        // Eğer backend'den gelen veriler eksikse, bunları tamamlıyoruz.
+        const formattedData: PricingPlan[] = data.map((plan) => ({
+          ...plan,
+          currency: plan.currency || "USD",  // Varsayılan 'USD' ekliyoruz
+          features: plan.features || [],  // Eğer features boşsa, boş dizi ekliyoruz
+          recommended: plan.recommended || false,  // Varsayılan 'false' ekliyoruz
+        }));
+
+        setPlans(formattedData);  // Veriyi güncelliyoruz
       } catch (error) {
         console.error("Failed to fetch pricing plans:", error);
       } finally {

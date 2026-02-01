@@ -27,16 +27,22 @@ export default function OsintPage() {
   }, [mounted, loading, user, router]);
 
   const handleSearch = (query: string, searchType: "username" | "fullname") => {
-    setIsGenerating(true);
-    setTimeout(() => {
-      const input = { query, searchType };
-      const generatedQueries = generateOsintQueries(input);
-      setQueries(generatedQueries);
-      setActiveCategory("all");
-      setIsGenerating(false);
-      toast.success(`Generated ${generatedQueries.length} queries`);
-    }, 500);
-  };
+  setIsGenerating(true);
+
+  setTimeout(() => {
+    const input =
+      searchType === "username"
+        ? { username: query }
+        : { fullname: query };
+
+    const generatedQueries = generateOsintQueries(input);
+
+    setQueries(generatedQueries);
+    setActiveCategory("all");
+    setIsGenerating(false);
+    toast.success(`Generated ${generatedQueries.length} queries`);
+  }, 500);
+};
 
   if (!mounted || loading) {
     return (
