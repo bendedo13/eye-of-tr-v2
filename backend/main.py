@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import Depends, FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import uvicorn
@@ -9,7 +9,10 @@ from typing import Optional
 from pathlib import Path
 
 from app.core.config import settings
+from app.db.database import engine, Base
+from app.models.user import User  # noqa: F401 - register table with Base
 from app.services.search_service import get_search_service
+from app.routes.auth import get_current_user, router as auth_router
 
 # Logging ayarla
 logging.basicConfig(
@@ -18,12 +21,13 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# FastAPI app
+# FastAPI app - Swagger'da Bearer JWT auth görünür
 app = FastAPI(
     title=settings.API_TITLE,
     description="Multi-provider face search aggregation service",
     version=settings.API_VERSION,
-    debug=settings.DEBUG
+    debug=settings.DEBUG,
+    swagger_ui_parameters={"persistAuthorization": True},
 )
 
 # CORS ayarları
@@ -38,6 +42,12 @@ app.add_middleware(
 # Upload klasörü
 UPLOAD_DIR = Path(settings.UPLOAD_DIR)
 UPLOAD_DIR.mkdir(exist_ok=True)
+
+# DB tablolarını oluştur
+Base.metadata.create_all(bind=engine)
+
+# Auth router - /auth/register, /auth/login, /auth/me
+app.include_router(auth_router)
 
 # Search service
 search_service = get_search_service()
@@ -61,6 +71,7 @@ async def root():
         "version": settings.API_VERSION,
         "endpoints": {
             "health": "/health",
+            "auth": "/auth",
             "upload": "/api/upload",
             "search": "/api/search",
             "providers": "/api/providers",
@@ -68,9 +79,12 @@ async def root():
         }
     }
 
-# Upload endpoint
+# Upload endpoint - JWT zorunlu
 @app.post("/api/upload")
-async def upload_image(file: UploadFile = File(...)):
+async def upload_image(
+    file: UploadFile = File(...),
+    _: User = Depends(get_current_user),
+):
     """Fotoğraf yükleme endpoint'i"""
     try:
         # Dosya uzantısını kontrol et
@@ -105,9 +119,13 @@ async def upload_image(file: UploadFile = File(...)):
         logger.error(f"Upload hatası: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Dosya yükleme hatası: {str(e)}")
 
-# Search endpoint
+# Search endpoint - JWT zorunlu
 @app.post("/api/search")
-async def search_face(filename: str, provider: Optional[str] = None):
+async def search_face(
+    filename: str,
+    provider: Optional[str] = None,
+    _: User = Depends(get_current_user),
+):
     """Yüz arama endpoint'i"""
     try:
         file_path = UPLOAD_DIR / filename

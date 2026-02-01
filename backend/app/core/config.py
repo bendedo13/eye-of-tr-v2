@@ -29,7 +29,15 @@ class Settings(BaseSettings):
     PIMEYES_API_URL: str = "https://api.pimeyes.com/v1"
     
     LOG_LEVEL: str = "INFO"
-    
+
+    # Auth / JWT
+    SECRET_KEY: str = "change-me-in-production-use-openssl-rand-hex-32"
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60  # 1 hour
+
+    # Database (SQLite default, use Postgres in prod via DATABASE_URL)
+    DATABASE_URL: str = "sqlite:///./app.db"
+
     class Config:
         env_file = ".env"
         case_sensitive = True
