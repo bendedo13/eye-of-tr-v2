@@ -9,16 +9,10 @@ import ClientOnly from "@/components/ClientOnly";
 import OsintSearchForm from "@/components/OsintSearchForm";
 import QueryPreview from "@/components/QueryPreview";
 import OsintCategoryTabs from "@/components/OsintCategoryTabs";
-import type { OsintSearchInput, OsintQuery } from "@/lib/osintTypes";
+import type { OsintQuery } from "@/lib/osintTypes";
 import { generateOsintQueries, filterQueriesByCategory } from "@/lib/osintQueries";
 import { toast } from "@/lib/toast";
 
-/**
- * OSINT / Google Advanced Search sayfası
- * 
- * Bu modül face recognition'dan bağımsızdır.
- * Sadece Google dork query'leri oluşturur.
- */
 export default function OsintPage() {
   const { user, mounted, loading } = useAuth();
   const router = useRouter();
@@ -26,22 +20,20 @@ export default function OsintPage() {
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // Auth guard
   useEffect(() => {
     if (mounted && !loading && !user) {
       router.push("/login");
     }
   }, [mounted, loading, user, router]);
 
-  cconst handleSearch = async (input: any) => {
-    
-    // Simulate processing
+  const handleSearch = (query: string, searchType: "username" | "fullname") => {
+    setIsGenerating(true);
     setTimeout(() => {
+      const input = { query, searchType };
       const generatedQueries = generateOsintQueries(input);
       setQueries(generatedQueries);
       setActiveCategory("all");
       setIsGenerating(false);
-      
       toast.success(`Generated ${generatedQueries.length} queries`);
     }, 500);
   };
@@ -56,10 +48,8 @@ export default function OsintPage() {
 
   if (!user) return null;
 
-  // Filter queries
   const filteredQueries = filterQueriesByCategory(queries, activeCategory);
 
-  // Category counts
   const categoryCounts: Record<string, number> = {
     all: queries.length,
     "social-media": queries.filter((q) => q.category === "social-media").length,
@@ -75,7 +65,6 @@ export default function OsintPage() {
         <Navbar />
 
         <div className="max-w-7xl mx-auto px-4 py-12">
-          {/* Header */}
           <div className="text-center mb-8">
             <div className="text-6xl mb-4">🔍</div>
             <h1 className="text-4xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-3">
@@ -86,15 +75,12 @@ export default function OsintPage() {
             </p>
           </div>
 
-          {/* Search Form */}
           <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl p-8 mb-8 border border-white/20">
- <OsintSearchForm onSearch={(input: any) => handleSearch(input)} isLoading={isGenerating} />
+            <OsintSearchForm onSearch={handleSearch} isLoading={isGenerating} />
           </div>
 
-          {/* Results */}
           {queries.length > 0 && (
             <>
-              {/* Category Tabs */}
               <div className="mb-8">
                 <OsintCategoryTabs
                   activeCategory={activeCategory}
@@ -103,7 +89,6 @@ export default function OsintPage() {
                 />
               </div>
 
-              {/* Query Grid */}
               <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl p-8 border border-white/20">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-bold text-gray-800">
@@ -122,7 +107,7 @@ export default function OsintPage() {
                   </div>
                 ) : (
                   <div className="text-center py-12 text-gray-400">
-                    <div className="text-5xl mb-3">📭</div>
+                    <div className="text-5xl mb-3">🔭</div>
                     <p className="text-lg">No queries in this category</p>
                   </div>
                 )}
@@ -130,7 +115,6 @@ export default function OsintPage() {
             </>
           )}
 
-          {/* Empty State */}
           {queries.length === 0 && !isGenerating && (
             <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl p-12 border border-white/20 text-center">
               <div className="text-6xl mb-4">🎯</div>
