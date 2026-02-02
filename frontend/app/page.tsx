@@ -1,263 +1,224 @@
-'use client'
+"use client";
 
-import { useAuth } from '@/context/AuthContext'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import LiveStats from '@/components/LiveStats'
-import Navbar from '@/components/Navbar'
-import ClientOnly from '@/components/ClientOnly'
+import { useAuth } from "@/context/AuthContext";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import LiveStats from "@/components/LiveStats";
+import Navbar from "@/components/Navbar";
+import ClientOnly from "@/components/ClientOnly";
+import { Button } from "@/components/ui/Button";
+import { GlassCard } from "@/components/ui/GlassCard";
+import {
+  ShieldCheck,
+  Search,
+  Zap,
+  Globe,
+  Target,
+  Lock,
+  BarChart3,
+  ArrowRight,
+  Fingerprint,
+  Layers,
+  Sparkles
+} from "lucide-react";
 
 export default function Home() {
-  const { user, mounted, loading } = useAuth()
-  const router = useRouter()
+  const { user, mounted, loading } = useAuth();
+  const router = useRouter();
 
   if (!mounted || loading) {
     return (
-      <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
-        <div className="spinner"></div>
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center space-y-4">
+        <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+        <div className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] animate-pulse">Initializing Protocol...</div>
       </div>
-    )
+    );
   }
 
   return (
     <ClientOnly>
-      <div className="min-h-screen bg-gradient-radial">
+      <div className="min-h-screen bg-background text-slate-200 selection:bg-primary/30 selection:text-white">
         <Navbar />
 
         {/* Hero Section */}
-        <section className="relative overflow-hidden py-12 md:py-20 px-4">
-          {/* Animated background elements */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-20 left-10 w-48 md:w-72 h-48 md:h-72 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse"></div>
-            <div className="absolute top-40 right-20 w-64 md:w-96 h-64 md:h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse delay-1000"></div>
-            <div className="absolute -bottom-20 left-1/2 w-64 md:w-96 h-64 md:h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse delay-2000"></div>
-          </div>
+        <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden py-24 px-6 bg-[radial-gradient(circle_at_top,_var(--color-primary-glow)_0%,_transparent_70%)]">
+          {/* Advanced Background Grid */}
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none"></div>
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_100%)]"></div>
 
-          <div className="relative max-w-7xl mx-auto text-center">
-            {/* Main Headline */}
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white mb-4 md:mb-6 leading-tight px-2">
-              <span className="neon-text">Profesyonel</span>
-              <br />
-              <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                Yüz Tanıma Platformu
-              </span>
+          <div className="relative max-w-7xl mx-auto text-center z-10">
+            <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 px-4 py-2 rounded-full text-primary text-[10px] font-black uppercase tracking-[0.2em] mb-10 animate-in fade-in slide-in-from-top-4 duration-1000">
+              <Sparkles size={12} /> Next-Gen AI Recognition Engine v2.0
+            </div>
+
+            <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black text-white mb-8 leading-[0.9] tracking-tighter uppercase whitespace-pre-line animate-in fade-in slide-in-from-bottom-8 duration-1000">
+              PROFESYONEL<br />
+              <span className="text-zinc-700">İSTİHBARAT</span><br />
+              <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">PLATFORMU</span>
             </h1>
 
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-slate-300 mb-6 md:mb-8 max-w-3xl mx-auto px-4">
-              Yapay zeka destekli yüz tanıma teknolojisi ile internetteki milyonlarca fotoğrafı saniyeler içinde tarayın.
+            <p className="text-zinc-500 text-lg md:text-xl font-medium mb-12 max-w-3xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-200">
+              Yapay zeka destekli yüz tanıma teknolojisi ile açık kaynaklı istihbarat dünyasında saniyeler içinde kesin eşleşmelere ulaşın.
             </p>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-20 animate-in fade-in slide-in-from-bottom-16 duration-1000 delay-300">
               {user ? (
                 <>
-                  <button
-                    onClick={() => router.push('/search')}
-                    className="btn-primary px-8 py-4 text-lg"
+                  <Button
+                    onClick={() => router.push("/search")}
+                    className="h-16 px-10 text-base"
+                    variant="primary"
                   >
-                    🔍 Arama Başlat
-                  </button>
-                  <button
-                    onClick={() => router.push('/dashboard')}
-                    className="bg-slate-700 hover:bg-slate-600 text-white font-bold px-8 py-4 rounded-xl transition-all"
+                    <Search className="mr-2" size={20} /> ANALİZİ BAŞLAT
+                  </Button>
+                  <Button
+                    onClick={() => router.push("/dashboard")}
+                    className="h-16 px-10 text-base border-white/5 bg-white/5 hover:bg-white/10"
+                    variant="outline"
                   >
-                    📊 Dashboard
-                  </button>
+                    <BarChart3 className="mr-2" size={20} /> KONTROL PANELİ
+                  </Button>
                 </>
               ) : (
                 <>
-                  <Link href="/register" className="btn-primary px-8 py-4 text-lg">
-                    🚀 Ücretsiz Başla
-                  </Link>
-                  <Link
-                    href="/login"
-                    className="bg-slate-700 hover:bg-slate-600 text-white font-bold px-8 py-4 rounded-xl transition-all"
-                  >
-                    Giriş Yap
-                  </Link>
+                  <Button onClick={() => router.push("/register")} className="h-16 px-12 text-base">
+                    🚀 ÜCRETSİZ ERİŞİM SAĞLA
+                  </Button>
+                  <Button onClick={() => router.push("/login")} className="h-16 px-10 text-base bg-white/5 border-white/5 hover:bg-white/10" variant="outline">
+                    OTURUM AÇ
+                  </Button>
                 </>
               )}
             </div>
 
             {/* Trust Indicators */}
-            <div className="flex flex-wrap justify-center gap-6 text-sm text-slate-400">
-              <div className="flex items-center gap-2">
-                <span className="text-green-400">✓</span>
-                <span>SSL Güvenli</span>
+            <div className="flex flex-wrap justify-center gap-10 opacity-40 grayscale hover:grayscale-0 transition-all duration-700">
+              <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em]">
+                <Fingerprint size={16} /> BIOMETRIC SECURE
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-green-400">✓</span>
-                <span>GDPR Uyumlu</span>
+              <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em]">
+                <ShieldCheck size={16} /> GDPR COMPLIANT
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-green-400">✓</span>
-                <span>%95+ Başarı Oranı</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-green-400">✓</span>
-                <span>7/24 Destek</span>
+              <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em]">
+                <Layers size={16} /> MULTI-ENGINE
               </div>
             </div>
           </div>
         </section>
 
         {/* Live Stats Section */}
-        <section className="py-12 px-4">
+        <section className="py-24 px-6">
           <div className="max-w-7xl mx-auto">
             <LiveStats />
           </div>
         </section>
 
-        {/* Features Section */}
-        <section className="py-20 px-4">
+        {/* Features Grid */}
+        <section className="py-32 px-6 relative">
           <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl font-black text-white mb-4">
-                Neden <span className="text-indigo-400">Faceseek</span>?
-              </h2>
-              <p className="text-slate-400 text-lg">
-                Sektörün en gelişmiş yüz tanıma teknolojisi
-              </p>
+            <div className="text-center mb-24">
+              <h2 className="text-4xl md:text-6xl font-black text-white mb-6 uppercase tracking-tighter">NEDEN <span className="text-zinc-700">FACESEEK?</span></h2>
+              <div className="w-20 h-1.5 bg-primary mx-auto rounded-full"></div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Feature Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[
-                {
-                  icon: '🚀',
-                  title: 'Hızlı Sonuçlar',
-                  description: 'Saniyeler içinde milyonlarca fotoğrafı tarayın',
-                },
-                {
-                  icon: '🔒',
-                  title: 'Güvenli & Gizli',
-                  description: 'Verileriniz şifrelenmiş ve güvende',
-                },
-                {
-                  icon: '🌐',
-                  title: 'Çoklu Kaynak',
-                  description: 'Google, Bing, Yandex ve daha fazlası',
-                },
-                {
-                  icon: '🎯',
-                  title: 'Yüksek Doğruluk',
-                  description: '%95+ doğruluk oranı ile güvenilir sonuçlar',
-                },
-                {
-                  icon: '💎',
-                  title: 'Premium Özellikler',
-                  description: 'Gelişmiş filtreleme ve sınırsız arama',
-                },
-                {
-                  icon: '📊',
-                  title: 'Detaylı Raporlar',
-                  description: 'Kapsamlı analiz ve istatistikler',
-                },
-              ].map((feature, idx) => (
-                <div
-                  key={idx}
-                  className="card-dark group"
-                >
-                  <div className="text-5xl mb-4">{feature.icon}</div>
-                  <h3 className="text-xl font-bold text-white mb-2">
-                    {feature.title}
-                  </h3>
-                  <p className="text-slate-400">{feature.description}</p>
-                </div>
+                { icon: <Zap size={32} />, title: 'ULTRA HIZLI TARAMA', desc: 'Milyonlarca dijital ayak izini ms mertebesinde analiz edin.' },
+                { icon: <Lock size={32} />, title: 'TAM GİZLİLİK', desc: 'Tüm taramalarınız 256-bit uçtan uca şifreleme ile korunur.' },
+                { icon: <Globe size={32} />, title: 'GLOBAL VERİ AĞI', desc: 'Google, Bing ve Yandex üzerinde eşzamanlı hibrit arama.' },
+                { icon: <Target size={32} />, title: 'HASSAS DOĞRULUK', desc: '%98.7 oranında biyometrik eşleşme performansı.' },
+                { icon: <ShieldCheck size={32} />, title: 'OSINT STANDARTLARI', desc: 'Uluslararası açık kaynak istihbarat protokollerine tam uyum.' },
+                { icon: <BarChart3 size={32} />, title: 'DERİN ANALİTİK', desc: 'Eşleşen sonuçlar için kapsamlı metadata raporları.' },
+              ].map((f, i) => (
+                <GlassCard key={i} className="p-10 group hover:border-primary/50 transition-all duration-500">
+                  <div className="text-primary mb-8 transform group-hover:scale-110 group-hover:-rotate-12 transition-transform duration-500">{f.icon}</div>
+                  <h3 className="text-xl font-black text-white mb-4 uppercase tracking-tight">{f.title}</h3>
+                  <p className="text-zinc-500 leading-relaxed font-medium">{f.desc}</p>
+                </GlassCard>
               ))}
             </div>
           </div>
         </section>
 
-        {/* How It Works Section */}
-        <section className="py-20 px-4 bg-[var(--bg-secondary)]">
+        {/* How It Works Layered UI */}
+        <section className="py-32 px-6 bg-white/[0.02] border-y border-white/5">
           <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl font-black text-white mb-4">
-                Nasıl Çalışır?
-              </h2>
-              <p className="text-slate-400 text-lg">
-                3 basit adımda yüz tanıma
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {[
-                {
-                  step: '1',
-                  title: 'Fotoğraf Yükle',
-                  description: 'Aramak istediğiniz kişinin fotoğrafını yükleyin',
-                },
-                {
-                  step: '2',
-                  title: 'AI Analiz',
-                  description: 'Yapay zeka teknolojimiz fotoğrafı analiz eder',
-                },
-                {
-                  step: '3',
-                  title: 'Sonuçlar',
-                  description: 'İnternet genelinde eşleşen profilleri görün',
-                },
-              ].map((item, idx) => (
-                <div key={idx} className="relative">
-                  <div className="flex flex-col items-center text-center">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-2xl font-black text-white mb-4">
-                      {item.step}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
+              <div>
+                <h2 className="text-4xl md:text-6xl font-black text-white mb-8 uppercase tracking-tighter">OPERASYON <span className="text-zinc-700">SÜRECİ</span></h2>
+                <div className="space-y-12">
+                  {[
+                    { step: '01', title: 'VERİ GİRİŞİ', desc: 'Yüksek çözünürlüklü hedef fotoğrafı sisteme yüklenir.' },
+                    { step: '02', title: 'BİYOMETRİK ANALİZ', desc: 'Yapay zeka, 128 unik yüz noktasını dijital haritaya döker.' },
+                    { step: '03', title: 'GLOBAL TARAMA', desc: 'Global veri havuzları üzerinde eşleşme motoru başlatılır.' },
+                    { step: '04', title: 'RAPORLAMA', desc: 'Bulunan eşleşmeler kesinlik oranlarıyla birlikte sunulur.' }
+                  ].map((s, idx) => (
+                    <div key={idx} className="flex gap-8 group">
+                      <div className="text-4xl font-black text-zinc-800 transition-colors group-hover:text-primary">{s.step}</div>
+                      <div>
+                        <h4 className="text-lg font-black text-white uppercase tracking-widest mb-2">{s.title}</h4>
+                        <p className="text-zinc-500 font-medium">{s.desc}</p>
+                      </div>
                     </div>
-                    <h3 className="text-xl font-bold text-white mb-2">
-                      {item.title}
-                    </h3>
-                    <p className="text-slate-400">{item.description}</p>
-                  </div>
-                  {idx < 2 && (
-                    <div className="hidden md:block absolute top-8 left-1/2 w-full h-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 opacity-30"></div>
-                  )}
+                  ))}
                 </div>
-              ))}
+              </div>
+              <div className="relative">
+                <div className="absolute inset-0 bg-primary/20 blur-[120px] rounded-full"></div>
+                <GlassCard className="p-4 border-white/10 shadow-2xl relative z-10" hasScanline>
+                  <div className="bg-zinc-950 rounded-2xl overflow-hidden aspect-square flex items-center justify-center border border-white/5">
+                    <div className="relative group cursor-crosshair w-full h-full flex items-center justify-center">
+                      <div className="absolute inset-x-0 h-0.5 bg-primary/50 shadow-[0_0_15px_var(--color-primary)] animate-[scanline_3s_linear_infinite]"></div>
+                      <div className="text-[10px] font-black text-primary/50 uppercase tracking-[0.5em]">System Scanning...</div>
+                    </div>
+                  </div>
+                </GlassCard>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* CTA Section */}
-        <section className="py-20 px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="glass-dark rounded-3xl p-12 border border-white/10">
-              <h2 className="text-4xl font-black text-white mb-4">
-                Hemen Başlayın
-              </h2>
-              <p className="text-xl text-slate-300 mb-8">
-                İlk aramanız ücretsiz! Kayıt olun ve teknolojimizi deneyin.
+        {/* Call to Action */}
+        <section className="py-40 px-6">
+          <div className="max-w-5xl mx-auto">
+            <GlassCard className="p-20 text-center relative overflow-hidden" hasScanline>
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-px h-20 bg-gradient-to-b from-primary to-transparent"></div>
+              <h2 className="text-4xl md:text-7xl font-black text-white mb-8 uppercase tracking-tighter">İSTİHBARATIN <span className="text-zinc-700">GELECEĞİ</span></h2>
+              <p className="text-zinc-500 text-xl font-medium mb-12 max-w-2xl mx-auto">
+                Sınırlı süreliğine ücretsiz kayıt fırsatını kaçırmayın. İlk operasyonunuz bizden.
               </p>
               {!user && (
-                <Link href="/register" className="btn-primary px-8 py-4 text-lg inline-block">
-                  🎁 1 Ücretsiz Kredi İle Başla
-                </Link>
+                <Button onClick={() => router.push("/register")} className="h-20 px-12 text-xl shadow-2xl shadow-primary/40">
+                  ÜCRETSİZ 1 KREDİ AL <ArrowRight className="ml-4" size={24} />
+                </Button>
               )}
-            </div>
+            </GlassCard>
           </div>
         </section>
 
-        {/* Footer */}
-        <footer className="py-8 px-4 border-t border-slate-800">
-          <div className="max-w-7xl mx-auto text-center text-slate-500 text-sm">
-            <p>&copy; 2024 Faceseek. Tüm hakları saklıdır.</p>
-            <div className="flex justify-center gap-6 mt-4">
-              <Link href="/about" className="hover:text-indigo-400 transition">
-                Hakkımızda
-              </Link>
-              <Link href="/privacy" className="hover:text-indigo-400 transition">
-                Gizlilik
-              </Link>
-              <Link href="/security" className="hover:text-indigo-400 transition">
-                Güvenlik
-              </Link>
-              <Link href="/pricing" className="hover:text-indigo-400 transition">
-                Fiyatlandırma
-              </Link>
+        {/* Professional Footer */}
+        <footer className="py-20 px-6 border-t border-white/5 bg-black/40">
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
+            <div className="flex flex-col items-center md:items-start">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center text-primary">
+                  <ShieldCheck size={18} />
+                </div>
+                <span className="font-black text-xl tracking-tighter text-white">FACE<span className="text-zinc-600">SEEK</span></span>
+              </div>
+              <p className="text-zinc-700 text-[9px] font-black uppercase tracking-[0.3em]">© 2026 GLOBAL INTELLIGENCE SERVICES. PROTOCOL SECURED.</p>
+            </div>
+
+            <div className="flex flex-wrap justify-center gap-10">
+              {['Hakkımızda', 'Gizlilik', 'Güvenlik', 'Fiyatlandırma'].map((item, idx) => (
+                <Link key={idx} href={`/${item.toLowerCase().replace('ı', 'i')}`} className="text-[10px] font-black text-zinc-500 hover:text-primary uppercase tracking-[0.2em] transition-colors">
+                  {item}
+                </Link>
+              ))}
             </div>
           </div>
         </footer>
       </div>
     </ClientOnly>
-  )
+  );
 }

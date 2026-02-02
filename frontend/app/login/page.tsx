@@ -5,11 +5,14 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import ClientOnly from "@/components/ClientOnly";
+import { GlassCard } from "@/components/ui/GlassCard";
+import { Button } from "@/components/ui/Button";
+import { Mail, Key, ShieldCheck, Zap, ArrowRight, Layout } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
   const { login, user, mounted, loading } = useAuth();
-  
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -17,7 +20,6 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // Redirect if already logged in
   useEffect(() => {
     if (mounted && !loading && user) {
       router.push("/dashboard");
@@ -39,8 +41,7 @@ export default function LoginPage() {
       await login(formData.email, formData.password);
       router.push("/dashboard");
     } catch (err: any) {
-      console.error("Login error:", err);
-      setError(err.message || "Giriş başarısız. Email ve şifrenizi kontrol edin.");
+      setError(err.message || "Giriş başarısız. Kimlik bilgilerinizi kontrol edin.");
     } finally {
       setIsLoading(false);
     }
@@ -48,138 +49,97 @@ export default function LoginPage() {
 
   if (!mounted || loading) {
     return (
-      <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
-        <div className="spinner"></div>
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center space-y-4">
+        <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
       </div>
     );
   }
 
-  if (user) {
-    return null; // Will redirect
-  }
+  if (user) return null;
 
   return (
     <ClientOnly>
-      <div className="min-h-screen bg-gradient-radial flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <Link href="/" className="inline-block">
-              <div className="text-6xl mb-4 animate-pulse-glow">👁️</div>
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 bg-[radial-gradient(circle_at_center,_var(--color-primary-glow)_0%,_transparent_70%)] relative">
+        {/* Background Decoration */}
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none"></div>
+
+        <div className="w-full max-w-[480px] animate-in fade-in zoom-in duration-700">
+          <div className="text-center mb-12">
+            <Link href="/" className="inline-flex items-center gap-3 mb-8 group transition-transform hover:scale-105">
+              <div className="w-14 h-14 bg-primary/20 border border-primary/40 rounded-2xl flex items-center justify-center text-primary shadow-2xl shadow-primary/20 group-hover:rotate-6 transition-transform">
+                <ShieldCheck size={32} />
+              </div>
+              <span className="font-black text-3xl tracking-tighter text-white uppercase">FACE<span className="text-zinc-600">SEEK</span></span>
             </Link>
-            <h1 className="text-4xl md:text-5xl font-black text-white mb-2 neon-text">
-              Faceseek
-            </h1>
-            <p className="text-slate-400 text-sm md:text-base">Hesabınıza giriş yapın</p>
+            <h1 className="text-2xl font-black text-white uppercase tracking-tight mb-2">OPERASYONEL ERİŞİM</h1>
+            <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-2">
+              <Layout size={12} /> Secure Portal Entry Protocol
+            </p>
           </div>
 
-          {/* Form */}
-          <div className="glass-dark rounded-2xl p-6 md:p-8 border border-white/10 shadow-2xl">
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Error Message */}
+          <GlassCard className="p-10 border-t-4 border-t-primary/30" hasScanline>
+            <form onSubmit={handleSubmit} className="space-y-8">
               {error && (
-                <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
-                  <span className="text-xl">⚠️</span>
-                  <span>{error}</span>
+                <div className="bg-rose-500/10 border border-rose-500/20 text-rose-500 px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest text-center animate-in shake duration-500">
+                  {error}
                 </div>
               )}
 
-              {/* Email */}
-              <div>
-                <label className="block text-sm font-semibold text-slate-300 mb-2">
-                  <span className="inline-flex items-center gap-2">
-                    <span>📧</span>
-                    <span>Email</span>
-                  </span>
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition"
-                  placeholder="ornek@email.com"
-                  disabled={isLoading}
-                />
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest flex items-center gap-2 px-1">
+                    <Mail size={12} /> E-POSTA ADRESİ
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="input-field w-full h-14 bg-black/40 border-zinc-900 focus:border-primary/50"
+                    placeholder="analyst@faceseek.io"
+                    disabled={isLoading}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between px-1">
+                    <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest flex items-center gap-2">
+                      <Key size={12} /> PAROLA
+                    </label>
+                    <Link href="/forgot-password" size={10} className="text-[9px] font-black text-primary/60 hover:text-primary uppercase tracking-widest transition-colors">ŞİFREMİ UNUTTUM</Link>
+                  </div>
+                  <input
+                    type="password"
+                    required
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    className="input-field w-full h-14 bg-black/40 border-zinc-900 focus:border-primary/50"
+                    placeholder="••••••••"
+                    disabled={isLoading}
+                  />
+                </div>
               </div>
 
-              {/* Password */}
-              <div>
-                <label className="block text-sm font-semibold text-slate-300 mb-2">
-                  <span className="inline-flex items-center gap-2">
-                    <span>🔒</span>
-                    <span>Şifre</span>
-                  </span>
-                </label>
-                <input
-                  type="password"
-                  required
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition"
-                  placeholder="••••••••"
-                  disabled={isLoading}
-                />
-              </div>
-
-              {/* Submit Button */}
-              <button
+              <Button
                 type="submit"
-                disabled={isLoading}
-                className="w-full btn-primary py-3 md:py-4 text-base md:text-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                isLoading={isLoading}
+                className="w-full h-16 font-black uppercase tracking-[0.3em] shadow-xl shadow-primary/20"
               >
-                {isLoading ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    <span>Giriş yapılıyor...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>🚀</span>
-                    <span>Giriş Yap</span>
-                  </>
-                )}
-              </button>
+                SİSTEME GİRİŞ YAP <ArrowRight className="ml-3" size={18} />
+              </Button>
             </form>
+          </GlassCard>
 
-            {/* Register Link */}
-            <div className="mt-6 text-center">
-              <p className="text-slate-400 text-sm">
-                Hesabınız yok mu?{" "}
-                <Link
-                  href="/signup"
-                  className="text-indigo-400 hover:text-indigo-300 font-semibold transition inline-flex items-center gap-1"
-                >
-                  <span>🎁</span>
-                  <span>Kayıt Ol (1 Ücretsiz Kredi)</span>
-                </Link>
-              </p>
-            </div>
+          <p className="mt-10 text-center text-zinc-500 text-xs font-bold uppercase tracking-widest">
+            Hesabınız yok mu? <Link href="/register" className="text-primary hover:text-white transition-colors underline underline-offset-4 decoration-primary/40 hover:decoration-primary">OPERASYONA KATILIN</Link>
+          </p>
 
-            {/* Forgot Password */}
-            <div className="mt-4 text-center">
-              <Link
-                href="/forgot-password"
-                className="text-xs text-slate-500 hover:text-slate-400 transition"
-              >
-                Şifrenizi mi unuttunuz?
-              </Link>
+          <div className="mt-12 flex justify-center items-center gap-8 grayscale opacity-30">
+            <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-zinc-600">
+              <ShieldCheck size={14} /> 256-BIT AES
             </div>
-          </div>
-
-          {/* Trust Badges */}
-          <div className="mt-6 flex flex-wrap justify-center gap-4 text-xs text-slate-500">
-            <div className="flex items-center gap-1">
-              <span>🔒</span>
-              <span>SSL Güvenli</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <span>🛡️</span>
-              <span>GDPR Uyumlu</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <span>✨</span>
-              <span>Anında Erişim</span>
+            <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-zinc-600">
+              <Zap size={14} /> INSTANT SYNC
             </div>
           </div>
         </div>

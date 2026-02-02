@@ -5,6 +5,21 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import ClientOnly from "@/components/ClientOnly";
+import { GlassCard } from "@/components/ui/GlassCard";
+import { Button } from "@/components/ui/Button";
+import {
+  Upload,
+  Search,
+  RotateCcw,
+  ShieldCheck,
+  Zap,
+  Image as ImageIcon,
+  AlertCircle,
+  Clock,
+  ExternalLink,
+  Target
+} from "lucide-react";
+import { toast } from "@/lib/toast";
 
 export default function SearchPage() {
   const { user, token, mounted, loading } = useAuth();
@@ -25,9 +40,8 @@ export default function SearchPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
-      // Dosya boyutu kontrolü (max 10MB)
       if (selectedFile.size > 10 * 1024 * 1024) {
-        setError("Dosya boyutu 10MB'den küçük olmalı");
+        toast.error("Dosya boyutu 10MB'den küçük olmalı");
         return;
       }
 
@@ -42,10 +56,6 @@ export default function SearchPage() {
   };
 
   const handleChangeImage = () => {
-    const fileInput = document.getElementById("file-upload") as HTMLInputElement;
-    if (fileInput) {
-      fileInput.value = "";
-    }
     setFile(null);
     setPreview(null);
     setResults(null);
@@ -54,7 +64,7 @@ export default function SearchPage() {
 
   const handleSearch = async () => {
     if (!file || !token) {
-      setError("Lütfen bir fotoğraf seçin ve giriş yapın");
+      toast.error("Lütfen bir fotoğraf seçin.");
       return;
     }
 
@@ -65,11 +75,10 @@ export default function SearchPage() {
     formData.append("file", file);
 
     try {
-      const apiBase = typeof window !== 'undefined' 
+      const apiBase = typeof window !== 'undefined'
         ? process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
         : 'http://localhost:8000';
-      
-      // Upload
+
       const uploadRes = await fetch(`${apiBase}/api/upload`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
@@ -78,7 +87,6 @@ export default function SearchPage() {
       const uploadData = await uploadRes.json();
       if (!uploadRes.ok) throw new Error(uploadData.detail || "Upload failed");
 
-      // Search
       const searchRes = await fetch(`${apiBase}/api/search?filename=${uploadData.filename}`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
@@ -87,16 +95,13 @@ export default function SearchPage() {
       if (!searchRes.ok) throw new Error(searchData.detail || "Search failed");
 
       setResults(searchData);
-      
+
       if (searchData.redirect_to_pricing) {
-        setError("⚠️ Krediniz bitti! Sonuçları görmek için premium'a geçin.");
-      } else if (searchData.total_matches > 0) {
-        setError(null);
-      } else {
-        setError("ℹ️ Sonuç bulunamadı. Lütfen başka bir fotoğraf deneyin.");
+        setError("Krediniz bitti! Sonuçları görmek için premium'a geçin.");
       }
     } catch (err: any) {
       setError(err.message || "Arama başarısız");
+      toast.error("Sistem hatası: Sunucuya bağlanılamadı.");
     } finally {
       setSearching(false);
     }
@@ -104,8 +109,9 @@ export default function SearchPage() {
 
   if (!mounted || loading) {
     return (
-      <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
-        <div className="spinner"></div>
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center space-y-4">
+        <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+        <div className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] animate-pulse">Initializing Scan Engine...</div>
       </div>
     );
   }
@@ -114,26 +120,31 @@ export default function SearchPage() {
 
   return (
     <ClientOnly>
-      <div className="min-h-screen bg-gradient-radial">
+      <div className="min-h-screen bg-background text-slate-200">
         <Navbar />
 
-        <div className="max-w-4xl mx-auto px-4 py-8 md:py-12">
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-center mb-4 md:mb-8 text-white neon-text">
-            Yüz Arama
-          </h1>
+        <div className="max-w-6xl mx-auto px-6 py-12 md:py-24 animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <div className="text-center mb-16">
+            <h1 className="text-5xl md:text-7xl font-black text-white mb-4 tracking-tighter uppercase whitespace-pre-line">
+              YÜZ <span className="text-zinc-700">TARAMA</span> <span className="text-primary">MOTORU</span>
+            </h1>
+            <p className="text-zinc-500 text-sm font-black uppercase tracking-[0.3em] flex items-center justify-center gap-3">
+              <ShieldCheck size={16} className="text-primary" /> SECURED INTELLIGENCE INTERFACE V2.0
+            </p>
+          </div>
 
           {/* Error Message */}
           {error && (
-            <div className="mb-6 bg-orange-500/10 border border-orange-500/50 text-orange-400 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
-              <span className="text-xl">⚠️</span>
-              <span>{error}</span>
+            <div className="max-w-xl mx-auto mb-10 bg-rose-500/10 border border-rose-500/20 p-5 rounded-2xl flex items-center gap-4 animate-in zoom-in duration-300">
+              <AlertCircle className="text-rose-500 flex-shrink-0" size={24} />
+              <p className="text-rose-500 text-[11px] font-black uppercase tracking-widest">{error}</p>
             </div>
           )}
 
           {/* Upload Section */}
-          <div className="glass-dark rounded-2xl p-4 md:p-8 mb-6 md:mb-8 border border-white/10">
+          <GlassCard className="max-w-3xl mx-auto p-12 mb-16" hasScanline>
             {!preview ? (
-              <div className="border-2 border-dashed border-indigo-400/30 rounded-2xl p-8 md:p-16 text-center hover:border-indigo-500 transition-all cursor-pointer bg-gradient-to-br from-indigo-50/5 to-purple-50/5">
+              <div className="relative group">
                 <input
                   type="file"
                   accept="image/*"
@@ -141,131 +152,151 @@ export default function SearchPage() {
                   className="hidden"
                   id="file-upload"
                 />
-                <label htmlFor="file-upload" className="cursor-pointer">
-                  <div className="text-5xl md:text-7xl mb-4 md:mb-6">📸</div>
-                  <div className="text-xl md:text-2xl font-bold text-white mb-2 md:mb-3">
-                    Fotoğraf Yükle
+                <label
+                  htmlFor="file-upload"
+                  className="flex flex-col items-center justify-center border-2 border-dashed border-white/5 rounded-[40px] p-24 bg-white/[0.02] hover:bg-white/[0.05] hover:border-primary/40 transition-all cursor-pointer group"
+                >
+                  <div className="w-24 h-24 bg-primary/20 rounded-[32px] flex items-center justify-center text-primary mb-8 shadow-2xl shadow-primary/20 transform group-hover:scale-110 group-hover:rotate-6 transition-transform">
+                    <Upload size={40} />
                   </div>
-                  <div className="text-sm md:text-base text-slate-400">
-                    JPG, PNG, WEBP • Max 10MB
-                  </div>
+                  <h3 className="text-2xl font-black text-white mb-3 uppercase tracking-tight">HEDEF GÖRSELİ YÜKLE</h3>
+                  <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.2em]">JPG, PNG, WEBP • MAX 10MB</p>
                 </label>
               </div>
             ) : (
-              <div className="space-y-4 md:space-y-6">
-                <div className="relative rounded-2xl overflow-hidden border-4 border-indigo-300 max-w-md mx-auto">
-                  <img src={preview} alt="Preview" className="w-full h-auto" />
+              <div className="space-y-10">
+                <div className="relative max-w-sm mx-auto group">
+                  <div className="absolute inset-0 bg-primary/20 blur-[60px] rounded-full group-hover:bg-primary/30 transition-all"></div>
+                  <div className="relative rounded-[32px] overflow-hidden border-2 border-primary/40 shadow-2xl">
+                    <img src={preview} alt="Target Preview" className="w-full aspect-square object-cover" />
+                    {searching && (
+                      <div className="absolute inset-x-0 h-1 bg-primary/80 shadow-[0_0_20px_var(--color-primary)] animate-[scanline_2s_linear_infinite]"></div>
+                    )}
+                  </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
-                  <button
+                <div className="flex flex-col sm:flex-row gap-6 max-w-sm mx-auto">
+                  <Button
                     onClick={handleChangeImage}
-                    className="flex-1 flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold py-3 md:py-4 px-4 md:px-6 rounded-xl transition-all"
-                  >
-                    <span className="text-lg md:text-xl">🔄</span>
-                    <span>Değiştir</span>
-                  </button>
-
-                  <button
-                    onClick={handleSearch}
+                    variant="outline"
+                    className="flex-1 h-14 bg-white/5 border-white/5 hover:bg-white/10"
                     disabled={searching}
-                    className="flex-1 btn-primary py-3 md:py-4 px-4 md:px-6 text-base md:text-lg font-bold flex items-center justify-center gap-2"
                   >
-                    {searching ? (
-                      <>
-                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        <span>Aranıyor...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>🔍</span>
-                        <span>Ara</span>
-                      </>
-                    )}
-                  </button>
+                    <RotateCcw className="mr-2" size={18} /> DEĞİŞTİR
+                  </Button>
+
+                  <Button
+                    onClick={handleSearch}
+                    className="flex-1 h-14"
+                    isLoading={searching}
+                    disabled={searching}
+                  >
+                    <Target className="mr-2" size={18} /> TARAMAYI BAŞLAT
+                  </Button>
                 </div>
               </div>
             )}
-          </div>
+          </GlassCard>
 
-          {/* Loading */}
-          {searching && (
-            <div className="flex flex-col items-center justify-center py-12 md:py-16">
-              <div className="spinner mb-4"></div>
-              <p className="text-slate-400 text-sm md:text-base">Eşleşmeler aranıyor...</p>
-            </div>
-          )}
-
-          {/* Results */}
+          {/* Results Section */}
           {results && !searching && (
-            <div className="glass-dark rounded-2xl p-4 md:p-8 border border-white/10">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 md:mb-8 gap-4">
-                <h2 className="text-2xl md:text-3xl font-bold text-white">Sonuçlar</h2>
-                <div className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-4 md:px-6 py-2 rounded-full font-bold text-sm md:text-base">
-                  {results.total_matches || 0} Eşleşme
+            <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
+              <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-6 bg-white/5 p-8 rounded-[32px] border border-white/5">
+                <div>
+                  <h2 className="text-3xl font-black text-white uppercase tracking-tighter">TARAMA <span className="text-zinc-700">SONUÇLARI</span></h2>
+                  <p className="text-zinc-600 text-[10px] font-black uppercase tracking-[0.3em] mt-1 flex items-center gap-2">
+                    <Zap size={12} className="text-primary" /> {results.total_matches || 0} POTANSİYEL EŞLEŞME BULUNDU
+                  </p>
+                </div>
+                <div className="h-10 w-[1px] bg-white/5 hidden md:block"></div>
+                <div className="flex gap-4">
+                  <div className="text-right">
+                    <div className="text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-1">DATA PROVIDERS</div>
+                    <div className="flex gap-2">
+                      {results.providers_used?.map((p: string) => (
+                        <span key={p} className="px-3 py-1 bg-primary/10 border border-primary/20 rounded-lg text-[10px] font-black text-primary uppercase">{p}</span>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
 
               {results.matches && results.matches.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                   {results.matches.map((match: any, i: number) => (
-                    <div
+                    <GlassCard
                       key={i}
-                      className={`card-dark ${match.blurred ? 'blur-premium relative' : ''}`}
+                      className={`group hover:border-primary/40 transition-all duration-500 ${match.blurred ? 'relative overflow-hidden' : ''}`}
                     >
-                      {match.blurred && (
-                        <div className="premium-overlay">
-                          <div className="text-center p-4">
-                            <span className="text-4xl mb-2 block">🔒</span>
-                            <p className="text-white font-bold text-sm">Premium İçerik</p>
-                            <button
-                              onClick={() => router.push('/pricing')}
-                              className="mt-3 btn-primary px-4 py-2 text-sm"
-                            >
-                              Satın Al
-                            </button>
+                      {/* Match Detail */}
+                      <div className="p-8">
+                        <div className="flex items-center justify-between mb-8">
+                          <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-zinc-500 group-hover:text-primary transition-colors">
+                            {match.platform === 'google' ? <Globe size={24} /> : <Search size={24} />}
+                          </div>
+                          <div className="text-right">
+                            <div className="text-2xl font-black text-white tracking-tighter">{Math.round(match.confidence || 0)}%</div>
+                            <div className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">CONFIDENCE</div>
                           </div>
                         </div>
-                      )}
-                      <div className="text-4xl mb-3 text-center">{match.platform === 'google' ? '🌐' : match.platform === 'bing' ? '🔎' : '👤'}</div>
-                      <h3 className="font-bold text-white text-lg mb-1">{match.username || 'Bilinmiyor'}</h3>
-                      <p className="text-slate-400 text-sm mb-2">@{match.username || 'unknown'}</p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-slate-500">{match.platform}</span>
-                        <span className="text-sm font-semibold text-indigo-400">{Math.round(match.confidence || 0)}%</span>
+
+                        <div className={`space-y-4 ${match.blurred ? 'blur-md grayscale pointer-events-none' : ''}`}>
+                          <div className="aspect-square rounded-2xl bg-zinc-900 border border-white/5 overflow-hidden">
+                            {match.image_url && <img src={match.image_url} alt="Result" className="w-full h-full object-cover" />}
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-black text-white uppercase tracking-tight truncate">{match.username || 'BİLİNMEYEN ANALİST'}</h3>
+                            <p className="text-primary text-[10px] font-black uppercase tracking-widest mt-1">SOURCE: {match.platform.toUpperCase()}</p>
+                          </div>
+                        </div>
+
+                        {match.blurred ? (
+                          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-8 bg-black/60 backdrop-blur-sm">
+                            <div className="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center text-primary mb-6 shadow-2xl shadow-primary/20">
+                              <AlertCircle size={32} />
+                            </div>
+                            <h4 className="text-sm font-black text-white uppercase tracking-widest mb-2 text-center">İÇERİK KORUMALI</h4>
+                            <p className="text-[10px] text-zinc-400 font-bold text-center mb-8">TAM ERİŞİM VE PROFİL LİNKİ İÇİN OPERASYONEL KREDİ GEREKLİDİR.</p>
+                            <Button onClick={() => router.push('/pricing')} className="h-12 w-full text-[10px]">
+                              KREDİ SATIN AL <ArrowRight className="ml-2" size={14} />
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="mt-8 pt-8 border-t border-white/5">
+                            <button
+                              onClick={() => match.profile_url && window.open(match.profile_url, '_blank')}
+                              className="w-full h-14 bg-white/5 hover:bg-primary text-zinc-400 hover:text-white font-black uppercase tracking-[0.2em] rounded-2xl transition-all flex items-center justify-center gap-3 border border-white/5 hover:border-primary/50"
+                            >
+                              PROFİLİ GÖR <ExternalLink size={16} />
+                            </button>
+                          </div>
+                        )}
                       </div>
-                      {!match.blurred && match.profile_url && (
-                        <a
-                          href={match.profile_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="mt-3 block w-full text-center bg-indigo-500 hover:bg-indigo-600 text-white py-2 rounded-lg text-sm font-semibold transition"
-                        >
-                          🔗 Profili Gör
-                        </a>
-                      )}
-                    </div>
+                    </GlassCard>
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-12 text-slate-400">
-                  <div className="text-5xl md:text-6xl mb-4">🔍</div>
-                  <div className="text-xl md:text-2xl font-semibold mb-2 text-white">
-                    Eşleşme bulunamadı
+                <GlassCard className="p-20 text-center max-w-2xl mx-auto">
+                  <div className="w-20 h-20 bg-zinc-800 rounded-[28px] flex items-center justify-center text-zinc-600 mx-auto mb-8">
+                    <Search size={32} />
                   </div>
-                  <p className="text-sm md:text-base">Lütfen başka bir fotoğraf deneyin</p>
-                </div>
+                  <h3 className="text-2xl font-black text-white mb-4 uppercase tracking-tight">EŞLEŞME BULUNAMADI</h3>
+                  <p className="text-zinc-500 text-sm font-medium leading-relaxed">Sistem internet genelindeki açık kaynakları taradı ancak görselle eşleşen bir sonuç bulamadı. Lütfen farklı bir açıdan çekilmiş görsel deneyin.</p>
+                </GlassCard>
               )}
 
               {results.redirect_to_pricing && (
-                <div className="mt-6 text-center">
-                  <button
-                    onClick={() => router.push('/pricing')}
-                    className="btn-primary px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-bold inline-flex items-center gap-2"
-                  >
-                    <span>💎</span>
-                    <span>Premium'a Geç</span>
-                  </button>
+                <div className="mt-20 text-center">
+                  <div className="glass-dark inline-flex flex-col items-center p-12 rounded-[40px] border border-primary/20 relative">
+                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20 bg-primary/20 rounded-2xl flex items-center justify-center text-primary shadow-2xl shadow-primary/20 border border-primary/40">
+                      <Zap size={32} />
+                    </div>
+                    <h3 className="text-3xl font-black text-white mb-4 uppercase tracking-tight mt-6">SINIRSIZ TARAMA GEREKLİ</h3>
+                    <p className="text-zinc-500 font-medium mb-10 max-w-sm">Daha fazla sonuç görmek ve detaylara ulaşmak için Premium üyeliğe geçiş yapın.</p>
+                    <Button onClick={() => router.push('/pricing')} className="h-16 px-12 text-base shadow-2xl shadow-primary/30">
+                      PREMIUM'A GEÇ <Zap className="ml-3" size={20} />
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>

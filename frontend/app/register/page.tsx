@@ -1,19 +1,21 @@
 "use client";
 
-import { Suspense, useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import ClientOnly from "@/components/ClientOnly";
+import { GlassCard } from "@/components/ui/GlassCard";
+import { Button } from "@/components/ui/Button";
+import { UserPlus, Mail, Key, ShieldCheck, Zap, ArrowRight, Layout, User } from "lucide-react";
 
-function RegisterContent() {
+export default function RegisterPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const { register: authRegister, user, mounted, loading } = useAuth();
-  
+  const { register, user, mounted, loading } = useAuth();
+
   const [formData, setFormData] = useState({
-    email: "",
     username: "",
+    email: "",
     password: "",
     confirmPassword: "",
     referralCode: "",
@@ -22,24 +24,26 @@ function RegisterContent() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const refCode = searchParams.get("ref");
-    if (refCode) {
-      setFormData((prev) => ({ ...prev, referralCode: refCode }));
-    }
-  }, [searchParams]);
-
-  useEffect(() => {
     if (mounted && !loading && user) {
       router.push("/dashboard");
     }
   }, [mounted, loading, user, router]);
 
+  // Handle referral code from URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const ref = urlParams.get('ref');
+    if (ref) {
+      setFormData(prev => ({ ...prev, referralCode: ref }));
+    }
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    if (!formData.email || !formData.username || !formData.password) {
-      setError("Lütfen tüm zorunlu alanları doldurun");
+    if (!formData.username || !formData.email || !formData.password) {
+      setError("Lütfen gerekli alanları doldurun");
       return;
     }
 
@@ -48,18 +52,13 @@ function RegisterContent() {
       return;
     }
 
-    if (formData.password.length < 6) {
-      setError("Şifre en az 6 karakter olmalı");
-      return;
-    }
-
     setIsLoading(true);
 
     try {
-      await authRegister(formData.email, formData.username, formData.password, formData.referralCode || undefined);
+      await register(formData.username, formData.email, formData.password, formData.referralCode);
       router.push("/dashboard");
     } catch (err: any) {
-      setError(err.message || "Kayıt başarısız. Lütfen tekrar deneyin.");
+      setError(err.message || "Kayıt başarısız. Lütfen bilgilerinizi kontrol edin.");
     } finally {
       setIsLoading(false);
     }
@@ -67,8 +66,8 @@ function RegisterContent() {
 
   if (!mounted || loading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full"></div>
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center space-y-4">
+        <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -76,115 +75,130 @@ function RegisterContent() {
   if (user) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-block">
-            <div className="text-6xl mb-4">👁️</div>
-          </Link>
-          <h1 className="text-4xl font-black text-white mb-2">FaceSeek</h1>
-          <p className="text-slate-400">Hesap oluştur ve <span className="text-green-400 font-semibold">10 ücretsiz kredi</span> kazan!</p>
-        </div>
+    <ClientOnly>
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center py-12 px-6 bg-[radial-gradient(circle_at_center,_var(--color-primary-glow)_0%,_transparent_70%)] relative">
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none"></div>
 
-        <form onSubmit={handleSubmit} className="bg-slate-800 rounded-2xl p-8 border border-slate-700 shadow-2xl space-y-4">
-          {error && (
-            <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-xl text-sm">{error}</div>
-          )}
-
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Email *</label>
-            <input
-              type="email"
-              required
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500"
-              placeholder="ornek@email.com"
-              disabled={isLoading}
-            />
+        <div className="w-full max-w-[550px] animate-in fade-in zoom-in duration-700">
+          <div className="text-center mb-12">
+            <Link href="/" className="inline-flex items-center gap-3 mb-8 group transition-transform hover:scale-105">
+              <div className="w-14 h-14 bg-primary/20 border border-primary/40 rounded-2xl flex items-center justify-center text-primary shadow-2xl shadow-primary/20 group-hover:rotate-6 transition-transform">
+                <ShieldCheck size={32} />
+              </div>
+              <span className="font-black text-3xl tracking-tighter text-white uppercase">FACE<span className="text-zinc-600">SEEK</span></span>
+            </Link>
+            <h1 className="text-2xl font-black text-white uppercase tracking-tight mb-2">OPERASYONEL KAYIT</h1>
+            <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-2">
+              <Layout size={12} /> New Analyst Enlistment Protocol
+            </p>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Kullanıcı Adı *</label>
-            <input
-              type="text"
-              required
-              value={formData.username}
-              onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-              className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500"
-              placeholder="kullaniciadi"
-              disabled={isLoading}
-            />
-          </div>
+          <GlassCard className="p-10 border-t-4 border-t-primary/30" hasScanline>
+            <form onSubmit={handleSubmit} className="space-y-8">
+              {error && (
+                <div className="bg-rose-500/10 border border-rose-500/20 text-rose-500 px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest text-center animate-in shake duration-500">
+                  {error}
+                </div>
+              )}
 
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Şifre *</label>
-            <input
-              type="password"
-              required
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500"
-              placeholder="••••••••"
-              disabled={isLoading}
-            />
-          </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest flex items-center gap-2 px-1">
+                    <User size={12} /> ANALİST ADI
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.username}
+                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                    className="input-field w-full h-14 bg-black/40 border-zinc-900 focus:border-primary/50"
+                    placeholder="John Doe"
+                    disabled={isLoading}
+                  />
+                </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Şifre Tekrar *</label>
-            <input
-              type="password"
-              required
-              value={formData.confirmPassword}
-              onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-              className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500"
-              placeholder="••••••••"
-              disabled={isLoading}
-            />
-          </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest flex items-center gap-2 px-1">
+                    <Mail size={12} /> E-POSTA
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="input-field w-full h-14 bg-black/40 border-zinc-900 focus:border-primary/50"
+                    placeholder="analyst@faceseek.io"
+                    disabled={isLoading}
+                  />
+                </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Referans Kodu (Opsiyonel)</label>
-            <input
-              type="text"
-              value={formData.referralCode}
-              onChange={(e) => setFormData({ ...formData, referralCode: e.target.value.toUpperCase() })}
-              className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 uppercase"
-              placeholder="ABC12345"
-              disabled={isLoading}
-            />
-          </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest flex items-center gap-2 px-1">
+                    <Key size={12} /> PAROLA
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    className="input-field w-full h-14 bg-black/40 border-zinc-900 focus:border-primary/50"
+                    placeholder="••••••••"
+                    disabled={isLoading}
+                  />
+                </div>
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 rounded-xl transition-all disabled:opacity-50 mt-6"
-          >
-            {isLoading ? "Kaydediliyor..." : "Kayıt Ol"}
-          </button>
-        </form>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest flex items-center gap-2 px-1">
+                    <Key size={12} /> DOĞRULA
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    value={formData.confirmPassword}
+                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                    className="input-field w-full h-14 bg-black/40 border-zinc-900 focus:border-primary/50"
+                    placeholder="••••••••"
+                    disabled={isLoading}
+                  />
+                </div>
 
-        <div className="mt-6 text-center">
-          <p className="text-slate-400">
-            Zaten hesabınız var mı?{" "}
-            <Link href="/login" className="text-indigo-400 hover:text-indigo-300 font-semibold">Giriş Yap</Link>
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest flex items-center gap-2 px-1">
+                    <Zap size={12} /> DAVET KODU (OPSİYONEL)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.referralCode}
+                    onChange={(e) => setFormData({ ...formData, referralCode: e.target.value })}
+                    className="input-field w-full h-14 bg-black/40 border-zinc-900 focus:border-primary/50 font-mono tracking-widest p-6"
+                    placeholder="LOD-X92-2024"
+                    disabled={isLoading}
+                  />
+                </div>
+              </div>
+
+              <div className="p-6 bg-primary/5 border border-primary/10 rounded-2xl flex items-start gap-4">
+                <ShieldCheck className="text-primary flex-shrink-0 mt-1" size={18} />
+                <p className="text-[10px] text-zinc-500 font-medium leading-relaxed">
+                  Kayıt olarak <Link href="/terms" className="text-white hover:underline">Hizmet Şartlarını</Link> ve <Link href="/privacy" className="text-white hover:underline">Gizlilik Politikasını</Link> kabul etmiş sayılırsınız. Tüm verileriniz operasyonel gizlilik kuralları çerçevesinde saklanır.
+                </p>
+              </div>
+
+              <Button
+                type="submit"
+                isLoading={isLoading}
+                className="w-full h-16 font-black uppercase tracking-[0.3em] shadow-xl shadow-primary/20"
+              >
+                HESABI OLUŞTUR <ArrowRight className="ml-3" size={18} />
+              </Button>
+            </form>
+          </GlassCard>
+
+          <p className="mt-10 text-center text-zinc-500 text-xs font-bold uppercase tracking-widest">
+            Zaten bir hesabınız var mı? <Link href="/login" className="text-primary hover:text-white transition-colors underline underline-offset-4 decoration-primary/40 hover:decoration-primary">OTURUM AÇIN</Link>
           </p>
         </div>
       </div>
-    </div>
-  );
-}
-
-export default function RegisterPage() {
-  return (
-    <ClientOnly>
-      <Suspense fallback={
-        <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-          <div className="animate-spin w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full"></div>
-        </div>
-      }>
-        <RegisterContent />
-      </Suspense>
     </ClientOnly>
   );
 }

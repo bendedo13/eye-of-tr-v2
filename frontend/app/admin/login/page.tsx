@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { GlassCard } from "@/components/ui/GlassCard";
+import { Button } from "@/components/ui/Button";
+import { ShieldCheck, Mail, Key, Layout } from "lucide-react";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -23,7 +26,6 @@ export default function AdminLoginPage() {
       });
 
       const data = await res.json();
-
       if (!res.ok) throw new Error(data.error || "Giriş başarısız");
 
       localStorage.setItem("admin", JSON.stringify(data.admin));
@@ -36,51 +38,69 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center text-4xl mx-auto mb-4">🔐</div>
-          <h1 className="text-3xl font-bold text-white mb-2">Admin Panel</h1>
-          <p className="text-slate-400">FaceSeek Yönetim Paneli</p>
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 bg-[radial-gradient(circle_at_center,_var(--color-primary-glow)_0%,_transparent_70%)]">
+      <div className="w-full max-w-[450px] animate-in fade-in zoom-in duration-700">
+        <div className="text-center mb-10">
+          <div className="w-24 h-24 bg-primary/20 border-2 border-primary/40 rounded-[32px] flex items-center justify-center text-primary shadow-2xl shadow-primary/20 mx-auto mb-6 transform hover:rotate-6 transition-transform">
+            <ShieldCheck size={48} />
+          </div>
+          <h1 className="text-4xl font-black text-white mb-2 uppercase tracking-tight">KONTROL <span className="text-zinc-600">MERKEZİ</span></h1>
+          <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-2">
+            <Layout size={12} /> FaceSeek Administrative Protocol
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-slate-800 rounded-2xl p-8 border border-slate-700 shadow-2xl">
-          {error && (
-            <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-xl mb-6 text-sm">{error}</div>
-          )}
+        <GlassCard className="p-10 border-t-4 border-t-primary/20 shadow-[0_0_50px_rgba(0,0,0,0.8)]" hasScanline>
+          <form onSubmit={handleSubmit} className="space-y-8">
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-center">
+                {error}
+              </div>
+            )}
 
-          <div className="mb-6">
-            <label className="block text-slate-300 text-sm font-medium mb-2">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500"
-              placeholder="admin@example.com"
-              required
-            />
-          </div>
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest flex items-center gap-2 px-1">
+                  <Mail size={12} /> YÖNETİCİ E-POSTA
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="input-field w-full h-14 bg-black/40 border-zinc-800"
+                  placeholder="admin@faceseek.io"
+                  required
+                />
+              </div>
 
-          <div className="mb-6">
-            <label className="block text-slate-300 text-sm font-medium mb-2">Şifre</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500"
-              placeholder="••••••••"
-              required
-            />
-          </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest flex items-center gap-2 px-1">
+                  <Key size={12} /> ERİŞİM ANAHTARI
+                </label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="input-field w-full h-14 bg-black/40 border-zinc-800"
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
+            </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 rounded-xl transition-all disabled:opacity-50"
-          >
-            {loading ? "Giriş yapılıyor..." : "Giriş Yap"}
-          </button>
-        </form>
+            <Button
+              type="submit"
+              isLoading={loading}
+              className="w-full h-14 font-black uppercase tracking-[0.3em] shadow-xl shadow-primary/20"
+            >
+              OTURUM AÇ
+            </Button>
+          </form>
+        </GlassCard>
+
+        <p className="mt-8 text-center text-zinc-700 text-[9px] font-bold uppercase tracking-[0.2em]">
+          SECURED BY ENCRYPTED PROTOCOL-X9
+        </p>
       </div>
     </div>
   );
