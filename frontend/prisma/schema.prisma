@@ -8,14 +8,20 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  name      String?
-  credits   Int      @default(10)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  searches  Search[]
+  id           String        @id @default(cuid())
+  email        String        @unique
+  password     String
+  name         String?
+  credits      Int           @default(10)
+  role         String        @default("user")
+  status       String        @default("active")
+  language     String        @default("tr")
+  lastLogin    DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  searches     Search[]
+  dorkSearches DorkSearch[]
+  dorkLimit    DorkLimit?
 }
 
 model Search {
@@ -23,6 +29,53 @@ model Search {
   userId    String
   imageUrl  String
   results   Json?
+  status    String   @default("completed")
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+}
+
+model SiteSettings {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+model PricingPlan {
+  id             String   @id @default(cuid())
+  name           Json
+  price          Float
+  credits        Int
+  features       Json
+  isPopular      Boolean  @default(false)
+  isActive       Boolean  @default(true)
+  sortOrder      Int      @default(0)
+  lemonSqueezyId String?
+  updatedAt      DateTime @updatedAt
+}
+
+model DorkSearch {
+  id        String   @id @default(cuid())
+  userId    String
+  query     String
+  dorkType  String
+  results   Json?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model DorkLimit {
+  id     String   @id @default(cuid())
+  userId String   @unique
+  date   DateTime @default(now())
+  count  Int      @default(0)
+  user   User     @relation(fields: [userId], references: [id])
 }
