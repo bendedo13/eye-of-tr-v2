@@ -106,7 +106,7 @@ export default function LoginPage() {
                     <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest flex items-center gap-2">
                       <Key size={12} /> PAROLA
                     </label>
-                    <Link href="/forgot-password" size={10} className="text-[9px] font-black text-primary/60 hover:text-primary uppercase tracking-widest transition-colors">ŞİFREMİ UNUTTUM</Link>
+                    <Link href="/forgot-password" className="text-[9px] font-black text-primary/60 hover:text-primary uppercase tracking-widest transition-colors">ŞİFREMİ UNUTTUM</Link>
                   </div>
                   <input
                     type="password"

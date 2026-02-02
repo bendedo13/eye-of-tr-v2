@@ -17,7 +17,9 @@ import {
   AlertCircle,
   Clock,
   ExternalLink,
-  Target
+  Target,
+  Globe,
+  ArrowRight
 } from "lucide-react";
 import { toast } from "@/lib/toast";
 
