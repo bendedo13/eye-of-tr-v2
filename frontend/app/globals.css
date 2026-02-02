@@ -57,7 +57,7 @@
   }
 
   .card-premium {
-    @apply relative overflow-hidden rounded-[32px] bg-slate-900/40 border border-white/5 hover:border-primary/30 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 group;
+    @apply relative overflow-hidden rounded-[32px] bg-slate-900/40 border border-white/5 hover:border-primary/30 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10;
   }
 }
 
