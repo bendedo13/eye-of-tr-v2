@@ -5,6 +5,7 @@ import logging
 import secrets
 
 from app.api.deps import get_current_user
+from app.core.config import settings
 from app.core.security import get_password_hash, verify_password, create_access_token
 from app.db.database import get_db
 from app.models.user import User
@@ -106,11 +107,11 @@ def register(data: UserRegister, request: Request, db: Session = Depends(get_db)
         ReferralService.process_referral(user, data.referral_code, db)
     
     try:
-        create_or_replace_verification(db, user)
+        debug_code = create_or_replace_verification(db, user)
     except MailerError:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Email service is not configured")
     logger.info(f"New user registered (verification pending): {user.email}")
-    return RegisterResponse(verification_required=True)
+    return RegisterResponse(verification_required=True, debug_code=debug_code if settings.DEBUG else None)
 
 
 @router.post("/login", response_model=Token)
@@ -161,10 +162,13 @@ def resend_verification(data: ResendCodeRequest, db: Session = Depends(get_db)):
     except VerificationError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     try:
-        resend_code(db, user)
+        debug_code = resend_code(db, user)
     except VerificationError as e:
         raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail=str(e))
-    return {"status": "ok"}
+    out = {"status": "ok"}
+    if settings.DEBUG:
+        out["debug_code"] = debug_code
+    return out
 
 
 @router.post("/request-password-reset")
@@ -185,7 +189,10 @@ def request_password_reset(data: RequestPasswordReset, request: Request, db: Ses
         send_reset_email(user.email, reset_url)
     except MailerError:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Email service is not configured")
-    return {"status": "ok"}
+    out = {"status": "ok"}
+    if settings.DEBUG:
+        out["debug_reset_url"] = reset_url
+    return out
 
 
 @router.post("/reset-password")

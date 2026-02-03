@@ -26,6 +26,12 @@ export class LocationIntelligenceAPIError extends Error {
   }
 }
 
+function pickString(obj: unknown, key: string): string | undefined {
+  if (!obj || typeof obj !== "object") return undefined;
+  const v = (obj as Record<string, unknown>)[key];
+  return typeof v === "string" ? v : undefined;
+}
+
 function getOrCreateDeviceId() {
   if (typeof window === "undefined") return "server";
   const key = "face-seek-device-id";
@@ -57,9 +63,14 @@ export async function analyzeLocationIntelligence(params: {
   });
 
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ detail: res.statusText }));
+    const err: unknown = await res.json().catch(() => ({ detail: res.statusText }));
+    const message =
+      pickString(err, "error") ||
+      pickString(err, "detail") ||
+      (typeof err === "string" ? err : undefined) ||
+      `HTTP ${res.status}`;
     throw new LocationIntelligenceAPIError(
-      (err as any)?.error || (err as any)?.detail || `HTTP ${res.status}`,
+      message,
       res.status,
       err
     );
@@ -67,4 +78,3 @@ export async function analyzeLocationIntelligence(params: {
 
   return res.json();
 }
-

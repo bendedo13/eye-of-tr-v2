@@ -50,11 +50,11 @@ function getOrCreateDeviceId() {
 }
 
 export async function register(email: string, username: string, password: string, referralCode?: string) {
-  const result = await api<{ access_token?: string; verification_required?: boolean }>("/api/auth/register", {
+  const result = await api<{ access_token?: string; verification_required?: boolean; debug_code?: string }>("/api/auth/register", {
     method: "POST",
     body: JSON.stringify({ email, username, password, referral_code: referralCode, device_id: getOrCreateDeviceId() }),
   });
-  return { access_token: result.access_token, verification_required: !!result.verification_required };
+  return { access_token: result.access_token, verification_required: !!result.verification_required, debug_code: result.debug_code };
 }
 
 export async function login(email: string, password: string) {
@@ -78,7 +78,7 @@ export async function verifyEmail(email: string, code: string) {
 }
 
 export async function resendVerificationCode(email: string) {
-  return api<{ status: string }>("/api/auth/resend-code", {
+  return api<{ status: string; debug_code?: string }>("/api/auth/resend-code", {
     method: "POST",
     body: JSON.stringify({ email, device_id: getOrCreateDeviceId() }),
   });
@@ -122,7 +122,7 @@ export async function getCurrentSubscription(token: string) {
 export async function requestPasswordReset(email: string, locale: string) {
   const base =
     typeof window !== "undefined" ? `${window.location.origin}/${locale}/reset-password` : `/${locale}/reset-password`;
-  return api<{ status: string }>("/api/auth/request-password-reset", {
+  return api<{ status: string; debug_reset_url?: string }>("/api/auth/request-password-reset", {
     method: "POST",
     body: JSON.stringify({ email, device_id: getOrCreateDeviceId(), reset_url_base: base }),
   });

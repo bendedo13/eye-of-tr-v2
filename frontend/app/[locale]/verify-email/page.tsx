@@ -16,14 +16,14 @@ export default function VerifyEmailPage({
   searchParams
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: { email?: string };
+  searchParams: { email?: string; debug_code?: string };
 }) {
   const { locale } = use(params);
   const router = useRouter();
   const { user, mounted, loading, verifyEmail, resendCode } = useAuth();
 
   const email = searchParams.email || "";
-  const [code, setCode] = useState("");
+  const [code, setCode] = useState((searchParams.debug_code || "").replace(/\D/g, "").slice(0, 6));
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [resending, setResending] = useState(false);
@@ -64,7 +64,8 @@ export default function VerifyEmailPage({
     }
     setResending(true);
     try {
-      await resendCode(email);
+      const dbg = await resendCode(email);
+      if (dbg) setCode(dbg);
     } catch (err: any) {
       setError(err.message || "Kod tekrar gönderilemedi.");
     } finally {

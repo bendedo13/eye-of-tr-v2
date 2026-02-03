@@ -23,9 +23,9 @@ type AuthContextType = {
   loading: boolean;
   mounted: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, username: string, password: string, referralCode?: string) => Promise<{ needsVerification: boolean; email: string }>;
+  register: (email: string, username: string, password: string, referralCode?: string) => Promise<{ needsVerification: boolean; email: string; debugCode?: string }>;
   verifyEmail: (email: string, code: string) => Promise<void>;
-  resendCode: (email: string) => Promise<void>;
+  resendCode: (email: string) => Promise<string | undefined>;
   refresh: () => Promise<void>;
   logout: () => void;
 };
@@ -74,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = async (email: string, username: string, password: string, referralCode?: string) => {
     const result = await apiRegister(email, username, password, referralCode);
     if (!result.access_token) {
-      return { needsVerification: true, email };
+      return { needsVerification: true, email, debugCode: result.debug_code };
     }
     localStorage.setItem(TOKEN_KEY, result.access_token);
     setToken(result.access_token);
@@ -92,7 +92,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const resendCode = async (email: string) => {
-    await resendVerificationCode(email);
+    const res = await resendVerificationCode(email);
+    return res.debug_code;
   };
 
   const refresh = async () => {

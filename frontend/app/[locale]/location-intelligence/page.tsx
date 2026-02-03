@@ -42,7 +42,7 @@ export default function LocationIntelligencePage({
 
   useEffect(() => {
     if (mounted && user && creditsSnapshot === null) {
-      setCreditsSnapshot((user as any)?.credits ?? 0);
+      setCreditsSnapshot(user.credits ?? 0);
     }
   }, [mounted, user, creditsSnapshot]);
 
@@ -161,11 +161,11 @@ export default function LocationIntelligencePage({
     try {
       const data = await analyzeLocationIntelligence({ token, file, consent: acceptedConsent });
       setResult(data);
-      if ((user as any)?.tier !== "unlimited" && creditsSnapshot !== null) {
+      if (user && user.tier !== "unlimited" && creditsSnapshot !== null) {
         setCreditsSnapshot(Math.max(0, creditsSnapshot - 1));
       }
       me(token).catch(() => undefined);
-    } catch (e: any) {
+    } catch (e) {
       const err = e as LocationIntelligenceAPIError;
       if (err.statusCode === 402) {
         toast.error(locale === "tr" ? "Krediniz bitti. Fiyatlandırma sayfasına yönlendiriliyorsunuz." : "Out of credits. Redirecting to pricing.");
@@ -256,7 +256,7 @@ export default function LocationIntelligencePage({
               </div>
 
               <div className="px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-[10px] font-black uppercase tracking-widest text-white">
-                {(user as any)?.tier === "unlimited" ? "∞" : (creditsSnapshot ?? (user as any)?.credits ?? 0)} {locale === "tr" ? "KREDİ" : "CREDITS"}
+                {user.tier === "unlimited" ? "∞" : (creditsSnapshot ?? user.credits ?? 0)} {locale === "tr" ? "KREDİ" : "CREDITS"}
               </div>
             </div>
           </div>
@@ -456,4 +456,3 @@ export default function LocationIntelligencePage({
     </ClientOnly>
   );
 }
-

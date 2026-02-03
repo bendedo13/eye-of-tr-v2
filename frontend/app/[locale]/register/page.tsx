@@ -64,7 +64,9 @@ export default function RegisterPage({
     try {
       const res = await register(formData.email, formData.username, formData.password, formData.referralCode);
       if (res.needsVerification) {
-        router.push(`/${locale}/verify-email?email=${encodeURIComponent(res.email)}`);
+        const qp = new URLSearchParams({ email: res.email });
+        if (res.debugCode) qp.set("debug_code", res.debugCode);
+        router.push(`/${locale}/verify-email?${qp.toString()}`);
       } else {
         router.push(`/${locale}/dashboard`);
       }

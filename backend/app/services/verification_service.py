@@ -59,7 +59,7 @@ def ensure_device_bound(db: Session, user: User, device_id: str) -> None:
         raise VerificationError("Cihaz doğrulanamadı.")
 
 
-def create_or_replace_verification(db: Session, user: User) -> None:
+def create_or_replace_verification(db: Session, user: User) -> str:
     code = _generate_code()
     expires = _now() + timedelta(minutes=settings.EMAIL_VERIFICATION_CODE_TTL_MINUTES)
 
@@ -91,9 +91,10 @@ def create_or_replace_verification(db: Session, user: User) -> None:
     except MailerError:
         if not settings.DEBUG:
             raise
+    return code
 
 
-def resend_code(db: Session, user: User) -> None:
+def resend_code(db: Session, user: User) -> str:
     ev = db.query(EmailVerification).filter(EmailVerification.user_id == user.id).first()
     if not ev:
         create_or_replace_verification(db, user)
@@ -103,7 +104,7 @@ def resend_code(db: Session, user: User) -> None:
     cooldown_until = ev.last_sent_at + timedelta(seconds=settings.EMAIL_VERIFICATION_RESEND_COOLDOWN_SECONDS)
     if _now() < cooldown_until:
         raise VerificationError("Kod çok sık isteniyor. Lütfen biraz sonra tekrar deneyin.")
-    create_or_replace_verification(db, user)
+    return create_or_replace_verification(db, user)
 
 
 def verify_code(db: Session, user: User, code: str) -> None:

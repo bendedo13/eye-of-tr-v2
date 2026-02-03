@@ -17,6 +17,7 @@ export default function ForgotPasswordPage({
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [sent, setSent] = useState(false);
+  const [debugUrl, setDebugUrl] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
@@ -24,7 +25,8 @@ export default function ForgotPasswordPage({
     setError("");
     setBusy(true);
     try {
-      await requestPasswordReset(email, locale);
+      const res = await requestPasswordReset(email, locale);
+      setDebugUrl(res.debug_reset_url || null);
       setSent(true);
     } catch (err: any) {
       setError(err.message || "İstek başarısız.");
@@ -59,6 +61,14 @@ export default function ForgotPasswordPage({
                 <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest">
                   Mail kutunu kontrol et. Linkin süresi sınırlıdır.
                 </p>
+                {debugUrl && (
+                  <a
+                    href={debugUrl}
+                    className="block text-primary hover:text-white transition-colors underline underline-offset-4 decoration-primary/40 hover:decoration-primary text-xs font-bold break-all"
+                  >
+                    DEBUG RESET LINK
+                  </a>
+                )}
                 <Button className="h-14 w-full" onClick={() => (window.location.href = `/${locale}/login`)}>
                   GİRİŞE DÖN <ArrowRight size={16} className="ml-2" />
                 </Button>
@@ -104,4 +114,3 @@ export default function ForgotPasswordPage({
     </ClientOnly>
   );
 }
-

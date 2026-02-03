@@ -25,6 +25,7 @@ class Token(BaseModel):
 
 class RegisterResponse(BaseModel):
     verification_required: bool = True
+    debug_code: Optional[str] = None
 
 
 class VerifyEmailRequest(BaseModel):
