@@ -1,0 +1,122 @@
+{
+    "nav": {
+        "home": "Ana Sayfa",
+        "about": "Hakkımızda",
+        "blog": "Blog",
+        "pricing": "Fiyatlandırma",
+        "login": "Giriş Yap",
+        "register": "Kayıt Ol",
+        "dashboard": "Panel",
+        "credits": "Kredi"
+    },
+    "hero": {
+        "title": "PROFESYONELLER İÇİN YÜZ ARAMA MOTORU",
+        "subtitle": "OSINT araştırmacıları, araştırmacı gazeteciler ve güvenlik uzmanları için gelişmiş yapay zeka destekli yüz tanıma arama platformu. Gizlilik odaklı teknoloji ile milyarlarca indekslenmiş görüntüde arama yapın.",
+        "cta": "Ücretsiz Aramaya Başla",
+        "learnMore": "Daha Fazla Bilgi"
+    },
+    "features": {
+        "title": "PROFESYONEL YÜZ İSTİHBARATI",
+        "subtitle": "Kurumsal düzeyde yüz arama yetenekleri",
+        "feature1": {
+            "title": "Ters Görüntü Yüz Arama",
+            "description": "Herhangi bir fotoğraf yükleyin ve Google, Bing, Yandex ve özel OSINT veritabanlarında eşleşen yüzleri bulun. Yapay zeka yüz tanıma motorumuz milyarlarca görüntüyü işler."
+        },
+        "feature2": {
+            "title": "OSINT Yüz Arama",
+            "description": "Araştırmacı gazetecilik, siber güvenlik araştırması ve yasal kimlik tespiti amaçları için profesyonel düzeyde açık kaynak istihbarat araçları."
+        },
+        "feature3": {
+            "title": "Gizlilik Odaklı Yüz Arama",
+            "description": "GDPR ve KVKK uyumlu. Kalıcı biyometrik veritabanı yok. Görüntüler 24 saat içinde siliniyor. Yüz arama sorgularınız gizli kalır."
+        },
+        "feature4": {
+            "title": "Etik Yapay Zeka Yüz Tanıma",
+            "description": "Sıkı kabul edilebilir kullanım politikalarına sahip sorumlu yüz istihbarat platformu. Yalnızca kamu verileri. Kolluk kuvvetleri bağlantısı yok."
+        },
+        "feature5": {
+            "title": "Çoklu Motor Toplama",
+            "description": "Kapsamlı yüz istihbarat sonuçları için aynı anda birden fazla kaynakta arama yapın."
+        },
+        "feature6": {
+            "title": "Yüz Tanıma SaaS",
+            "description": "Her yerden erişilebilen bulut tabanlı yüz arama motoru. Kurulum gerektirmez. Kurumsal API mevcut."
+        }
+    },
+    "howItWorks": {
+        "title": "NASIL ÇALIŞIR",
+        "subtitle": "3 basit adımda profesyonel yüz arama",
+        "step1": {
+            "title": "Görüntü Yükle",
+            "description": "Yüz içeren bir fotoğraf yükleyin. Yüz arama motorumuz, gelişmiş yapay zeka yüz haritalama teknolojisini kullanarak yüz özelliklerini otomatik olarak algılar ve çıkarır."
+        },
+        "step2": {
+            "title": "Yapay Zeka İşleme",
+            "description": "Yüz tanıma algoritmalarımız benzersiz bir biyometrik imza oluşturur ve çoklu kaynak indeksleme yoluyla Google, Bing, Yandex ve OSINT veritabanlarından milyarlarca indekslenmiş görüntüde arama yapar."
+        },
+        "step3": {
+            "title": "Sonuçları Al",
+            "description": "Profesyonel doğrulama için eşleşme güven puanları, kaynak URL'leri ve bağlamsal bilgilerle kapsamlı yüz istihbarat raporları alın."
+        }
+    },
+    "cta": {
+        "title": "YÜZ ARAMANIZA BAŞLAYIN",
+        "description": "Etik yüz istihbaratı için FaceSeek kullanan binlerce profesyonele katılın. Yapay zeka yüz arama platformumuzu deneyimlemek için 3 ücretsiz arama hakkı alın.",
+        "button": "Ücretsiz Hesap Oluştur"
+    },
+    "footer": {
+        "tagline": "Profesyonel Yüz Arama Motoru",
+        "description": "FaceSeek, OSINT araştırması, araştırmacı gazetecilik ve güvenlik uzmanları için dünyanın önde gelen etik yüz tanıma arama platformudur.",
+        "product": "Ürün",
+        "company": "Şirket",
+        "legal": "Yasal",
+        "privacy": "Gizlilik Politikası",
+        "terms": "Hizmet Şartları",
+        "disclaimer": "Sorumluluk Reddi",
+        "kvkk": "KVKK",
+        "allRightsReserved": "Tüm hakları saklıdır."
+    },
+    "about": {
+        "title": "ETİK YÜZ İSTİHBARATI VE SORUMLU YAPAY ZEKA",
+        "intro": "FaceSeek, etik yapay zeka, şeffaflık ve sorumlu yüz tanıma teknolojisi ilkeleri üzerine inşa edilmiş, dünyanın önde gelen gizlilik odaklı yüz arama motorudur.",
+        "mission": {
+            "title": "MİSYONUMUZ",
+            "description": "Profesyonellere, en yüksek gizlilik, etik ve yasal uyumluluk standartlarını korurken güçlü yüz istihbarat araçları sağlamak. Yüz tanıma teknolojisinin bireysel hakları tehlikeye atmadan meşru soruşturmaları güçlendirmesi gerektiğine inanıyoruz."
+        },
+        "vision": {
+            "title": "VİZYONUMUZ",
+            "description": "Yüz arama teknolojisinin sorumlu yapay zeka destekli görüntü istihbaratı, sıkı gizlilik korumaları ve etik yüz tanıma uygulamalarına sarsılmaz bağlılık yoluyla topluma hizmet ettiği bir gelecek."
+        }
+    },
+    "blog": {
+        "title": "FACESEEK BLOG",
+        "subtitle": "Yüz tanıma arama, OSINT yüz istihbaratı ve etik yapay zeka konularında uzman görüşleri.",
+        "readMore": "Devamını Oku",
+        "allArticles": "Tüm Makaleler"
+    },
+    "auth": {
+        "login": "Giriş Yap",
+        "register": "Kayıt Ol",
+        "email": "E-posta",
+        "password": "Şifre",
+        "confirmPassword": "Şifreyi Onayla",
+        "forgotPassword": "Şifremi Unuttum?",
+        "noAccount": "Hesabınız yok mu?",
+        "hasAccount": "Zaten hesabınız var mı?",
+        "signIn": "Giriş Yap",
+        "signUp": "Kayıt Ol"
+    },
+    "common": {
+        "loading": "Yükleniyor...",
+        "error": "Hata",
+        "success": "Başarılı",
+        "cancel": "İptal",
+        "save": "Kaydet",
+        "delete": "Sil",
+        "edit": "Düzenle",
+        "search": "Ara",
+        "filter": "Filtrele",
+        "sort": "Sırala",
+        "back": "Geri"
+    }
+}

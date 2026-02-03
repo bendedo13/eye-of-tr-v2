@@ -1,22 +1,6 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import { Providers } from "@/app/providers";
+import { redirect } from 'next/navigation';
 
-export const metadata: Metadata = {
-  title: "Eye of TR",
-  description: "Advanced Face Recognition Platform",
-};
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-    <html lang="tr">
-      <body>
-        <Providers>{children}</Providers>
-      </body>
-    </html>
-  );
+export default function RootLayout() {
+  // Redirect to default locale
+  redirect('/en');
 }

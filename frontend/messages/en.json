@@ -1,0 +1,122 @@
+{
+    "nav": {
+        "home": "Home",
+        "about": "About",
+        "blog": "Blog",
+        "pricing": "Pricing",
+        "login": "Login",
+        "register": "Register",
+        "dashboard": "Dashboard",
+        "credits": "Credits"
+    },
+    "hero": {
+        "title": "FACIAL SEARCH ENGINE FOR PROFESSIONALS",
+        "subtitle": "Advanced AI-powered facial recognition search platform for OSINT researchers, investigative journalists, and security professionals. Search billions of indexed images with privacy-first technology.",
+        "cta": "Start Free Search",
+        "learnMore": "Learn More"
+    },
+    "features": {
+        "title": "PROFESSIONAL FACIAL INTELLIGENCE",
+        "subtitle": "Enterprise-grade facial search capabilities",
+        "feature1": {
+            "title": "Reverse Image Face Search",
+            "description": "Upload any photo and find matching faces across Google, Bing, Yandex, and specialized OSINT databases. Our AI facial recognition engine processes billions of images."
+        },
+        "feature2": {
+            "title": "OSINT Face Search",
+            "description": "Professional-grade open-source intelligence tools for investigative journalism, cybersecurity research, and lawful identification purposes."
+        },
+        "feature3": {
+            "title": "Privacy-Focused Facial Search",
+            "description": "GDPR and KVKK compliant. No permanent biometric databases. Images deleted within 24 hours. Your facial search queries remain private."
+        },
+        "feature4": {
+            "title": "Ethical AI Facial Recognition",
+            "description": "Responsible facial intelligence platform with strict acceptable use policies. Public data only. No law enforcement affiliations."
+        },
+        "feature5": {
+            "title": "Multi-Engine Aggregation",
+            "description": "Search across multiple sources simultaneously for comprehensive facial intelligence results."
+        },
+        "feature6": {
+            "title": "Facial Recognition SaaS",
+            "description": "Cloud-based facial search engine accessible from anywhere. No installation required. Enterprise API available."
+        }
+    },
+    "howItWorks": {
+        "title": "HOW IT WORKS",
+        "subtitle": "Professional facial search in 3 simple steps",
+        "step1": {
+            "title": "Upload Image",
+            "description": "Upload a photo containing a face. Our facial search engine automatically detects and extracts facial features using advanced AI facial mapping technology."
+        },
+        "step2": {
+            "title": "AI Processing",
+            "description": "Our facial recognition algorithms create a unique biometric signature and search across billions of indexed images from Google, Bing, Yandex, and OSINT databases through multi-source indexing."
+        },
+        "step3": {
+            "title": "Get Results",
+            "description": "Receive comprehensive facial intelligence reports with match confidence scores, source URLs, and contextual information for professional verification."
+        }
+    },
+    "cta": {
+        "title": "START YOUR FACIAL SEARCH",
+        "description": "Join thousands of professionals using FaceSeek for ethical facial intelligence. Get 3 free searches to experience our AI face lookup platform.",
+        "button": "Create Free Account"
+    },
+    "footer": {
+        "tagline": "Professional Facial Search Engine",
+        "description": "FaceSeek is the world's leading ethical facial recognition search platform for OSINT research, investigative journalism, and security professionals.",
+        "product": "Product",
+        "company": "Company",
+        "legal": "Legal",
+        "privacy": "Privacy Policy",
+        "terms": "Terms of Service",
+        "disclaimer": "Disclaimer",
+        "kvkk": "KVKK",
+        "allRightsReserved": "All rights reserved."
+    },
+    "about": {
+        "title": "ETHICAL FACIAL INTELLIGENCE & RESPONSIBLE AI",
+        "intro": "FaceSeek is the world's leading privacy-focused facial search engine, built on principles of ethical AI, transparency, and responsible facial recognition technology.",
+        "mission": {
+            "title": "OUR MISSION",
+            "description": "To provide professionals with powerful facial intelligence tools while maintaining the highest standards of privacy, ethics, and legal compliance. We believe facial recognition technology should empower legitimate investigation without compromising individual rights."
+        },
+        "vision": {
+            "title": "OUR VISION",
+            "description": "A future where facial search technology serves society through responsible AI-powered image intelligence, strict privacy safeguards, and unwavering commitment to ethical facial recognition practices."
+        }
+    },
+    "blog": {
+        "title": "FACESEEK BLOG",
+        "subtitle": "Expert insights on facial recognition search, OSINT facial intelligence, and ethical AI.",
+        "readMore": "Read More",
+        "allArticles": "All Articles"
+    },
+    "auth": {
+        "login": "Login",
+        "register": "Register",
+        "email": "Email",
+        "password": "Password",
+        "confirmPassword": "Confirm Password",
+        "forgotPassword": "Forgot Password?",
+        "noAccount": "Don't have an account?",
+        "hasAccount": "Already have an account?",
+        "signIn": "Sign In",
+        "signUp": "Sign Up"
+    },
+    "common": {
+        "loading": "Loading...",
+        "error": "Error",
+        "success": "Success",
+        "cancel": "Cancel",
+        "save": "Save",
+        "delete": "Delete",
+        "edit": "Edit",
+        "search": "Search",
+        "filter": "Filter",
+        "sort": "Sort",
+        "back": "Back"
+    }
+}
