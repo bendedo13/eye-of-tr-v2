@@ -38,13 +38,12 @@ export default function SearchPage({
   const [searching, setSearching] = useState(false);
   const [results, setResults] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
-
-  // Auth guard
-  useEffect(() => {
-    if (mounted && !loading && !user) {
-      router.push("/login");
-    }
-  }, [mounted, loading, user, router]);
+  const [includeFacecheck, setIncludeFacecheck] = useState(false);
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  const resolveUrl = (url?: string | null) => {
+    if (!url) return undefined;
+    return url.startsWith("/") ? `${apiBase}${url}` : url;
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -72,7 +71,7 @@ export default function SearchPage({
   };
 
   const handleSearch = async () => {
-    if (!file || !token) {
+    if (!file) {
       toast.error("Lütfen bir fotoğraf seçin.");
       return;
     }
@@ -84,30 +83,14 @@ export default function SearchPage({
     formData.append("file", file);
 
     try {
-      const apiBase = typeof window !== 'undefined'
-        ? process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-        : 'http://localhost:8000';
-
-      const uploadRes = await fetch(`${apiBase}/api/upload`, {
+      const searchRes = await fetch(`${apiBase}/search-face?top_k=3&include_facecheck=${includeFacecheck ? "true" : "false"}`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
         body: formData,
-      });
-      const uploadData = await uploadRes.json();
-      if (!uploadRes.ok) throw new Error(uploadData.detail || "Upload failed");
-
-      const searchRes = await fetch(`${apiBase}/api/search?filename=${uploadData.filename}`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
       });
       const searchData = await searchRes.json();
       if (!searchRes.ok) throw new Error(searchData.detail || "Search failed");
 
       setResults(searchData);
-
-      if (searchData.redirect_to_pricing) {
-        setError("Krediniz bitti! Sonuçları görmek için premium'a geçin.");
-      }
     } catch (err: any) {
       setError(err.message || "Arama başarısız");
       toast.error("Sistem hatası: Sunucuya bağlanılamadı.");
@@ -124,8 +107,6 @@ export default function SearchPage({
       </div>
     );
   }
-
-  if (!user) return null;
 
   return (
     <ClientOnly>
@@ -203,6 +184,19 @@ export default function SearchPage({
                     <Target className="mr-2" size={18} /> TARAMAYI BAŞLAT
                   </Button>
                 </div>
+
+                <div className="flex items-center justify-center gap-3 pt-2">
+                  <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-zinc-600">
+                    <input
+                      type="checkbox"
+                      checked={includeFacecheck}
+                      onChange={(e) => setIncludeFacecheck(e.target.checked)}
+                      className="accent-primary"
+                      disabled={searching}
+                    />
+                    FACECHECK DAHİL ET
+                  </label>
+                </div>
               </div>
             )}
           </GlassCard>
@@ -251,7 +245,7 @@ export default function SearchPage({
 
                         <div className={`space-y-4 ${match.blurred ? 'blur-md grayscale pointer-events-none' : ''}`}>
                           <div className="aspect-square rounded-2xl bg-zinc-900 border border-white/5 overflow-hidden">
-                            {match.image_url && <img src={match.image_url} alt="Result" className="w-full h-full object-cover" />}
+                            {match.image_url && <img src={resolveUrl(match.image_url)} alt="Result" className="w-full h-full object-cover" />}
                           </div>
                           <div>
                             <h3 className="text-lg font-black text-white uppercase tracking-tight truncate">{match.username || 'BİLİNMEYEN ANALİST'}</h3>
@@ -273,7 +267,10 @@ export default function SearchPage({
                         ) : (
                           <div className="mt-8 pt-8 border-t border-white/5">
                             <button
-                              onClick={() => match.profile_url && window.open(match.profile_url, '_blank')}
+                              onClick={() => {
+                                const url = resolveUrl(match.profile_url);
+                                if (url) window.open(url, "_blank");
+                              }}
                               className="w-full h-14 bg-white/5 hover:bg-primary text-zinc-400 hover:text-white font-black uppercase tracking-[0.2em] rounded-2xl transition-all flex items-center justify-center gap-3 border border-white/5 hover:border-primary/50"
                             >
                               PROFİLİ GÖR <ExternalLink size={16} />
@@ -294,20 +291,6 @@ export default function SearchPage({
                 </GlassCard>
               )}
 
-              {results.redirect_to_pricing && (
-                <div className="mt-20 text-center">
-                  <div className="glass-dark inline-flex flex-col items-center p-12 rounded-[40px] border border-primary/20 relative">
-                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20 bg-primary/20 rounded-2xl flex items-center justify-center text-primary shadow-2xl shadow-primary/20 border border-primary/40">
-                      <Zap size={32} />
-                    </div>
-                    <h3 className="text-3xl font-black text-white mb-4 uppercase tracking-tight mt-6">SINIRSIZ TARAMA GEREKLİ</h3>
-                    <p className="text-zinc-500 font-medium mb-10 max-w-sm">Daha fazla sonuç görmek ve detaylara ulaşmak için Premium üyeliğe geçiş yapın.</p>
-                    <Button onClick={() => router.push('/pricing')} className="h-16 px-12 text-base shadow-2xl shadow-primary/30">
-                      PREMIUM'A GEÇ <Zap className="ml-3" size={20} />
-                    </Button>
-                  </div>
-                </div>
-              )}
             </div>
           )}
         </div>
