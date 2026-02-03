@@ -2,11 +2,9 @@ import os
 import tempfile
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
+from fastapi import APIRouter, File, HTTPException, Query, Request, UploadFile, status
 
-from app.api.deps import get_current_user
 from app.core.config import settings
-from app.models.user import User
 from app.adapters.rapidapi_image_search_adapter import get_rapidapi_image_search_adapter
 from app.adapters.serpapi_lens_adapter import get_serpapi_lens_adapter
 
@@ -14,14 +12,18 @@ from app.adapters.serpapi_lens_adapter import get_serpapi_lens_adapter
 router = APIRouter(prefix="/api/external-search", tags=["external-search"])
 
 
-def _require_admin(user: User) -> None:
-    if user.role != "admin":
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+def _require_admin_key(request: Request) -> str:
+    key = request.headers.get("x-admin-key") or ""
+    if not settings.ADMIN_API_KEY:
+        raise HTTPException(status_code=503, detail="Admin API is not configured")
+    if key != settings.ADMIN_API_KEY:
+        raise HTTPException(status_code=401, detail="Invalid admin key")
+    return key
 
 
 @router.get("/status")
-async def external_search_status(user: User = Depends(get_current_user)):
-    _require_admin(user)
+async def external_search_status(request: Request):
+    _require_admin_key(request)
     return {
         "serpapi": {
             "configured": bool(settings.SERPAPI_API_KEY),
@@ -38,6 +40,7 @@ async def external_search_status(user: User = Depends(get_current_user)):
 
 @router.get("/rapidapi/images")
 async def rapidapi_image_search(
+    request: Request,
     q: str = Query(..., min_length=1, max_length=200),
     limit: int = Query(default=25, ge=1, le=100),
     size: str | None = Query(default=None, max_length=20),
@@ -49,9 +52,8 @@ async def rapidapi_image_search(
     aspect_ratio: str | None = Query(default=None, max_length=20),
     safe_search: str | None = Query(default=None, max_length=10),
     region: str | None = Query(default=None, max_length=8),
-    user: User = Depends(get_current_user),
 ):
-    _require_admin(user)
+    _require_admin_key(request)
     adapter = get_rapidapi_image_search_adapter(
         {
             "api_key": settings.RAPIDAPI_KEY,
@@ -80,10 +82,10 @@ async def rapidapi_image_search(
 
 @router.get("/serpapi/lens")
 async def serpapi_google_lens_from_url(
+    request: Request,
     image_url: str = Query(..., min_length=8, max_length=2000),
-    user: User = Depends(get_current_user),
 ):
-    _require_admin(user)
+    _require_admin_key(request)
     adapter = get_serpapi_lens_adapter(
         {
             "api_key": settings.SERPAPI_API_KEY,
@@ -99,10 +101,10 @@ async def serpapi_google_lens_from_url(
 
 @router.post("/serpapi/lens/file")
 async def serpapi_google_lens_from_file(
+    request: Request,
     file: UploadFile = File(...),
-    user: User = Depends(get_current_user),
 ):
-    _require_admin(user)
+    _require_admin_key(request)
     suffix = Path(file.filename or "upload.jpg").suffix.lower() or ".jpg"
     allowed = {".jpg", ".jpeg", ".png", ".webp"}
     if suffix not in allowed:
