@@ -33,7 +33,7 @@ export default function ReferralPromo({ locale }: { locale: string }) {
           <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full">
             <ShieldCheck size={14} className="text-primary" />
             <span className="text-[10px] font-black uppercase tracking-widest text-zinc-300">
-              {locale === "tr" ? "Trust + Monetization" : "Trust + Monetization"}
+              {locale === "tr" ? "Güven + Gelir" : "Trust + Monetization"}
             </span>
           </div>
           <h2 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tight flex items-center gap-3">
@@ -77,4 +77,3 @@ export default function ReferralPromo({ locale }: { locale: string }) {
     </GlassCard>
   );
 }
-

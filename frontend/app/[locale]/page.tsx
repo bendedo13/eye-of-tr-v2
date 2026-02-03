@@ -42,12 +42,19 @@ export default function Home({
   const tWhyFaceSeek = useTranslations('whyFaceSeek');
   const tFeatureCards = useTranslations('featureCards');
   const tHowItWorksSection = useTranslations('howItWorksSection');
+  const tCommon = useTranslations('common');
+  const tHome = useTranslations('home');
+  const tCta = useTranslations('cta');
+  const tFooter = useTranslations('footer');
+  const tNav = useTranslations('nav');
 
   if (!mounted || loading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center space-y-4">
         <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
-        <div className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] animate-pulse">Initializing Protocol...</div>
+        <div className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] animate-pulse">
+          {tCommon("initializingProtocol")}
+        </div>
       </div>
     );
   }
@@ -79,7 +86,7 @@ export default function Home({
             </div>
             <div className="flex justify-center mb-10 -mt-6">
               <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] text-zinc-300">
-                <ShieldCheck size={12} className="text-primary" /> We don’t store images
+                <ShieldCheck size={12} className="text-primary" /> {tHome("privacyBadge")}
               </div>
             </div>
 
@@ -134,13 +141,13 @@ export default function Home({
             {/* Trust Indicators */}
             <div className="flex flex-wrap justify-center gap-10 opacity-40 grayscale hover:grayscale-0 transition-all duration-700">
               <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em]">
-                <Fingerprint size={16} /> BIOMETRIC SECURE
+                <Fingerprint size={16} /> {tHome("trust.biometricSecure")}
               </div>
               <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em]">
-                <ShieldCheck size={16} /> GDPR COMPLIANT
+                <ShieldCheck size={16} /> {tHome("trust.gdprCompliant")}
               </div>
               <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em]">
-                <Layers size={16} /> MULTI-ENGINE
+                <Layers size={16} /> {tHome("trust.multiEngine")}
               </div>
             </div>
 
@@ -213,7 +220,9 @@ export default function Home({
                   <div className="bg-zinc-950 rounded-2xl overflow-hidden aspect-square flex items-center justify-center border border-white/5">
                     <div className="relative group cursor-crosshair w-full h-full flex items-center justify-center">
                       <div className="absolute inset-x-0 h-0.5 bg-primary/50 shadow-[0_0_15px_var(--color-primary)] animate-[scanline_3s_linear_infinite]"></div>
-                      <div className="text-[10px] font-black text-primary/50 uppercase tracking-[0.5em]">System Scanning...</div>
+                      <div className="text-[10px] font-black text-primary/50 uppercase tracking-[0.5em]">
+                        {tHome("systemScanning")}
+                      </div>
                     </div>
                   </div>
                 </GlassCard>
@@ -227,13 +236,15 @@ export default function Home({
           <div className="max-w-5xl mx-auto">
             <GlassCard className="p-20 text-center relative overflow-hidden" hasScanline>
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-px h-20 bg-gradient-to-b from-primary to-transparent"></div>
-              <h2 className="text-4xl md:text-7xl font-black text-white mb-8 uppercase tracking-tighter">START YOUR <span className="text-zinc-700">FACIAL SEARCH</span></h2>
+              <h2 className="text-4xl md:text-7xl font-black text-white mb-8 uppercase tracking-tighter">
+                {tCta("titlePart1")} <span className="text-zinc-700">{tCta("titlePart2")}</span>
+              </h2>
               <p className="text-zinc-500 text-xl font-medium mb-12 max-w-2xl mx-auto">
-                Join thousands of investigators, journalists, and security professionals using the world's most advanced facial recognition search platform. Get your first AI face lookup free.
+                {tCta("description")}
               </p>
               {!user && (
                 <Button onClick={() => router.push(`/${locale}/register`)} className="h-20 px-12 text-xl shadow-2xl shadow-primary/40">
-                  TRY FACIAL SEARCH FREE <ArrowRight className="ml-4" size={24} />
+                  {tCta("button")} <ArrowRight className="ml-4" size={24} />
                 </Button>
               )}
             </GlassCard>
@@ -250,51 +261,49 @@ export default function Home({
                 </div>
                 <span className="font-black text-2xl tracking-tighter text-white uppercase">FACE<span className="text-primary">SEEK</span></span>
               </div>
-              <p className="text-zinc-500 text-sm font-medium leading-relaxed mb-8">
-                The world's most advanced public-web facial search engine. Designed for investigators, journalists, and security researchers.
-              </p>
+              <p className="text-zinc-500 text-sm font-medium leading-relaxed mb-8">{tFooter("description")}</p>
               <div className="flex gap-4">
                 <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-lg border border-white/5">
                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                  <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">System Status: Online</span>
+                  <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">{tFooter("systemStatusOnline")}</span>
                 </div>
               </div>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-12 sm:gap-24">
               <div className="space-y-6">
-                <h4 className="text-[10px] font-black text-white uppercase tracking-[0.3em]">Platform</h4>
+                <h4 className="text-[10px] font-black text-white uppercase tracking-[0.3em]">{tFooter("product")}</h4>
                 <div className="flex flex-col gap-4">
-                  <Link href={`/${locale}/search`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Face Search</Link>
-                  <Link href={`/${locale}/pricing`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Pricing</Link>
-                  <Link href={`/${locale}/api`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Enterprise API</Link>
+                  <Link href={`/${locale}/search`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tFooter("links.faceSearch")}</Link>
+                  <Link href={`/${locale}/pricing`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tNav("pricing")}</Link>
+                  <Link href={`/${locale}/api`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tNav("enterpriseApi")}</Link>
                 </div>
               </div>
               <div className="space-y-6">
-                <h4 className="text-[10px] font-black text-white uppercase tracking-[0.3em]">Company</h4>
+                <h4 className="text-[10px] font-black text-white uppercase tracking-[0.3em]">{tFooter("company")}</h4>
                 <div className="flex flex-col gap-4">
-                  <Link href={`/${locale}/legal/about`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">About Us</Link>
-                  <Link href={`/${locale}/blog`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Blog</Link>
-                  <a href="mailto:contact@face-seek.com" className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Contact</a>
+                  <Link href={`/${locale}/legal/about`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tFooter("links.aboutUs")}</Link>
+                  <Link href={`/${locale}/blog`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tNav("blog")}</Link>
+                  <a href="mailto:contact@face-seek.com" className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tFooter("links.contact")}</a>
                 </div>
               </div>
               <div className="space-y-6">
-                <h4 className="text-[10px] font-black text-white uppercase tracking-[0.3em]">Legal</h4>
+                <h4 className="text-[10px] font-black text-white uppercase tracking-[0.3em]">{tFooter("legal")}</h4>
                 <div className="flex flex-col gap-4">
-                  <Link href={`/${locale}/legal`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Legal Hub</Link>
-                  <Link href={`/${locale}/legal/privacy`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Privacy Policy</Link>
-                  <Link href={`/${locale}/legal/kvkk`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">KVKK</Link>
-                  <Link href={`/${locale}/legal/terms`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Terms</Link>
-                  <Link href={`/${locale}/legal/disclaimer`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Disclaimer</Link>
+                  <Link href={`/${locale}/legal`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tFooter("links.legalHub")}</Link>
+                  <Link href={`/${locale}/legal/privacy`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tFooter("privacy")}</Link>
+                  <Link href={`/${locale}/legal/kvkk`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tFooter("kvkk")}</Link>
+                  <Link href={`/${locale}/legal/terms`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tFooter("terms")}</Link>
+                  <Link href={`/${locale}/legal/disclaimer`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tFooter("disclaimer")}</Link>
                 </div>
               </div>
             </div>
           </div>
           <div className="max-w-7xl mx-auto mt-24 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
-            <p className="text-zinc-600 text-[10px] font-black uppercase tracking-[0.3em]">© 2026 FaceSeek. All protocols reserved.</p>
+            <p className="text-zinc-600 text-[10px] font-black uppercase tracking-[0.3em]">{tFooter("copyright")}</p>
             <div className="flex items-center gap-6">
-              <span className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">WE DON'T STORE IMAGES</span>
-              <span className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">PRIVACY-FIRST</span>
+              <span className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">{tFooter("badges.noStoreImages")}</span>
+              <span className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">{tFooter("badges.privacyFirst")}</span>
             </div>
           </div>
         </footer>

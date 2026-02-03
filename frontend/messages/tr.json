@@ -4,6 +4,7 @@
         "about": "Hakkımızda",
         "blog": "Blog",
         "pricing": "Fiyatlandırma",
+        "enterpriseApi": "Kurumsal API",
         "login": "Giriş Yap",
         "register": "Kayıt Ol",
         "dashboard": "Panel",
@@ -121,6 +122,8 @@
     },
     "cta": {
         "title": "YÜZ ARAMANIZA BAŞLAYIN",
+        "titlePart1": "YÜZ ARAMANIZA",
+        "titlePart2": "BAŞLAYIN",
         "description": "Etik yüz istihbaratı için FaceSeek kullanan binlerce profesyonele katılın. Yapay zeka yüz arama platformumuzu deneyimlemek için 3 ücretsiz arama hakkı alın.",
         "button": "Ücretsiz Hesap Oluştur"
     },
@@ -130,6 +133,18 @@
         "product": "Ürün",
         "company": "Şirket",
         "legal": "Yasal",
+        "systemStatusOnline": "Sistem Durumu: Çevrimiçi",
+        "copyright": "© 2026 FaceSeek. Tüm hakları saklıdır.",
+        "links": {
+            "faceSearch": "Yüz Arama",
+            "aboutUs": "Hakkımızda",
+            "contact": "İletişim",
+            "legalHub": "Yasal Merkez"
+        },
+        "badges": {
+            "noStoreImages": "GÖRSEL SAKLAMIYORUZ",
+            "privacyFirst": "GİZLİLİK ÖNCELİKLİ"
+        },
         "privacy": "Gizlilik Politikası",
         "terms": "Hizmet Şartları",
         "disclaimer": "Sorumluluk Reddi",
@@ -168,6 +183,7 @@
     },
     "common": {
         "loading": "Yükleniyor...",
+        "initializingProtocol": "Protokol Başlatılıyor...",
         "error": "Hata",
         "success": "Başarılı",
         "cancel": "İptal",
@@ -178,6 +194,15 @@
         "filter": "Filtrele",
         "sort": "Sırala",
         "back": "Geri"
+    },
+    "home": {
+        "privacyBadge": "Görselleri saklamıyoruz",
+        "systemScanning": "Sistem Taranıyor...",
+        "trust": {
+            "biometricSecure": "BİYOMETRİK GÜVENLİ",
+            "gdprCompliant": "GDPR UYUMLU",
+            "multiEngine": "ÇOK MOTORLU"
+        }
     },
     "liveStats": {
         "title": "Canlı",

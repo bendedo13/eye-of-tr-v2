@@ -4,6 +4,7 @@
         "about": "About",
         "blog": "Blog",
         "pricing": "Pricing",
+        "enterpriseApi": "Enterprise API",
         "login": "Login",
         "register": "Register",
         "dashboard": "Dashboard",
@@ -121,6 +122,8 @@
     },
     "cta": {
         "title": "START YOUR FACIAL SEARCH",
+        "titlePart1": "START YOUR",
+        "titlePart2": "FACIAL SEARCH",
         "description": "Join thousands of professionals using FaceSeek for ethical facial intelligence. Get 3 free searches to experience our AI face lookup platform.",
         "button": "Create Free Account"
     },
@@ -130,6 +133,18 @@
         "product": "Product",
         "company": "Company",
         "legal": "Legal",
+        "systemStatusOnline": "System Status: Online",
+        "copyright": "© 2026 FaceSeek. All rights reserved.",
+        "links": {
+            "faceSearch": "Face Search",
+            "aboutUs": "About Us",
+            "contact": "Contact",
+            "legalHub": "Legal Hub"
+        },
+        "badges": {
+            "noStoreImages": "WE DON'T STORE IMAGES",
+            "privacyFirst": "PRIVACY-FIRST"
+        },
         "privacy": "Privacy Policy",
         "terms": "Terms of Service",
         "disclaimer": "Disclaimer",
@@ -168,6 +183,7 @@
     },
     "common": {
         "loading": "Loading...",
+        "initializingProtocol": "Initializing Protocol...",
         "error": "Error",
         "success": "Success",
         "cancel": "Cancel",
@@ -178,6 +194,15 @@
         "filter": "Filter",
         "sort": "Sort",
         "back": "Back"
+    },
+    "home": {
+        "privacyBadge": "We don’t store images",
+        "systemScanning": "System Scanning...",
+        "trust": {
+            "biometricSecure": "BIOMETRIC SECURE",
+            "gdprCompliant": "GDPR COMPLIANT",
+            "multiEngine": "MULTI-ENGINE"
+        }
     },
     "liveStats": {
         "title": "Live",
