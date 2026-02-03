@@ -1,5 +1,6 @@
 "use client";
 
+import { use } from "react";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -23,10 +24,12 @@ import {
 } from "lucide-react";
 
 export default function Home({
-  params: { locale }
+  params
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  // Unwrap params Promise using React 19 'use' hook
+  const { locale } = use(params);
   const { user, mounted, loading } = useAuth();
   const router = useRouter();
 
