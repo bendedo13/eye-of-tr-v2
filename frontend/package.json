@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "node scripts/next-dev.mjs",
     "prebuild": "npm run check:layouts && npm run check:i18n",
     "build": "next build",
     "start": "next start",
