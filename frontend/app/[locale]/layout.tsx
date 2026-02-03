@@ -10,11 +10,6 @@ export function generateStaticParams() {
     return locales.map((locale) => ({ locale }));
 }
 
-export const metadata: Metadata = {
-    title: "FaceSeek - Facial Search Engine for Professionals",
-    description: "Advanced AI-powered facial recognition search platform for OSINT researchers, investigative journalists, and security professionals.",
-};
-
 export default async function LocaleLayout({
     children,
     params: { locale }
@@ -31,14 +26,10 @@ export default async function LocaleLayout({
     const messages = await getMessages({ locale });
 
     return (
-        <html lang={locale}>
-            <body>
-                <NextIntlClientProvider messages={messages}>
-                    <Providers>
-                        {children}
-                    </Providers>
-                </NextIntlClientProvider>
-            </body>
-        </html>
+        <NextIntlClientProvider messages={messages}>
+            <Providers>
+                {children}
+            </Providers>
+        </NextIntlClientProvider>
     );
 }

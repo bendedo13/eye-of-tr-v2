@@ -1,22 +1,34 @@
 import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
   title: "FaceSeek - Facial Search Engine for Professionals",
   description: "Advanced AI-powered facial recognition search platform for OSINT researchers, investigative journalists, and security professionals.",
 };
 
-// Root layout - minimal structure
-// Actual app layout is in app/[locale]/layout.tsx
-// Middleware handles locale detection and routing
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html>
-      <body>{children}</body>
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        {children}
+      </body>
     </html>
   );
 }
