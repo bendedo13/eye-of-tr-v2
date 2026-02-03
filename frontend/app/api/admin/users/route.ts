@@ -19,12 +19,12 @@ export async function GET(request: Request) {
         }
 
         const [users, total] = await Promise.all([
-            prisma.users.findMany({
+            prisma.user.findMany({
                 where,
                 orderBy: { created_at: "desc" },
                 include: { _count: { select: { search_logs: true } } }
             }),
-            prisma.users.count({ where })
+            prisma.user.count({ where })
         ]);
 
         return NextResponse.json({ users, total });
@@ -43,16 +43,16 @@ export async function PATCH(request: Request) {
         }
 
         let updateData: any = {};
-        if (action === "ban") updateData.status = "banned";
-        if (action === "activate") updateData.status = "active";
+        if (action === "ban") updateData.is_active = false;
+        if (action === "activate") updateData.is_active = true;
         if (action === "addCredits") {
-            const user = await prisma.user.findUnique({ where: { id: userId } });
+            const user = await prisma.user.findUnique({ where: { id: Number(userId) } });
             updateData.credits = (user?.credits || 0) + parseInt(value || "0");
         }
         if (action === "setCredits") updateData.credits = parseInt(value || "0");
 
         await prisma.user.update({
-            where: { id: userId },
+            where: { id: Number(userId) },
             data: updateData
         });
 
@@ -72,7 +72,7 @@ export async function DELETE(request: Request) {
             return NextResponse.json({ error: "User ID gerekli" }, { status: 400 });
         }
 
-        await prisma.user.delete({ where: { id: userId } });
+        await prisma.user.delete({ where: { id: Number(userId) } });
 
         return NextResponse.json({ success: true });
     } catch (error) {

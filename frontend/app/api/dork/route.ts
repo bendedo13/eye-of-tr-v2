@@ -19,13 +19,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "User ID ve sorgu gerekli" }, { status: 400 });
     }
 
-    const user = await prisma.users.findUnique({ where: { id: Number(userId) } });
+    const user = await prisma.user.findUnique({ where: { id: Number(userId) } });
     if (!user) return NextResponse.json({ error: "Kullanıcı bulunamadı" }, { status: 404 });
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    let dorkLimit = await prisma.dorkLimit.findUnique({ where: { userId } });
+    let dorkLimit = await prisma.dorkLimit.findUnique({ where: { userId: Number(userId) } });
 
     if (dorkLimit) {
       const limitDate = new Date(dorkLimit.date);
@@ -36,16 +36,16 @@ export async function POST(request: Request) {
           return NextResponse.json({ error: "Günlük ücretsiz limitiniz doldu", needsCredits: true }, { status: 429 });
         }
       } else {
-        await prisma.dorkLimit.update({ where: { userId }, data: { date: today, count: 0 } });
+        await prisma.dorkLimit.update({ where: { userId: Number(userId) }, data: { date: today, count: 0 } });
         dorkLimit.count = 0;
       }
     } else {
-      dorkLimit = await prisma.dorkLimit.create({ data: { userId, date: today, count: 0 } });
+      dorkLimit = await prisma.dorkLimit.create({ data: { userId: Number(userId), date: today, count: 0 } });
     }
 
     const isOverLimit = dorkLimit.count >= DAILY_FREE_LIMIT;
     if (isOverLimit) {
-      await prisma.user.update({ where: { id: userId }, data: { credits: user.credits - 1 } });
+      await prisma.user.update({ where: { id: Number(userId) }, data: { credits: user.credits - 1 } });
     }
 
     const templateFn = DORK_TEMPLATES[dorkType] || DORK_TEMPLATES.general;
@@ -57,8 +57,8 @@ export async function POST(request: Request) {
       googleUrl: `https://www.google.com/search?q=${encodeURIComponent(dork)}`,
     }));
 
-    await prisma.dorkSearch.create({ data: { userId, query, dorkType, results } });
-    await prisma.dorkLimit.update({ where: { userId }, data: { count: dorkLimit.count + 1 } });
+    await prisma.dorkSearch.create({ data: { userId: Number(userId), query, dorkType, results } });
+    await prisma.dorkLimit.update({ where: { userId: Number(userId) }, data: { count: dorkLimit.count + 1 } });
 
     return NextResponse.json({
       success: true,
@@ -79,7 +79,7 @@ export async function GET(request: Request) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const dorkLimit = await prisma.dorkLimit.findUnique({ where: { userId } });
+    const dorkLimit = await prisma.dorkLimit.findUnique({ where: { userId: Number(userId) } });
     let used = 0;
     if (dorkLimit) {
       const limitDate = new Date(dorkLimit.date);
@@ -88,7 +88,7 @@ export async function GET(request: Request) {
     }
 
     const recentSearches = await prisma.dorkSearch.findMany({
-      where: { userId },
+      where: { userId: Number(userId) },
       orderBy: { createdAt: "desc" },
       take: 10,
     });

@@ -4,12 +4,16 @@ import prisma from "@/lib/prisma";
 export async function POST(request: Request) {
   try {
     const { userId, imageUrl } = await request.json();
+    console.log(`[SEARCH API] userId: ${userId}, type: ${typeof userId}`);
+    const numericUserId = Number(userId);
+    console.log(`[SEARCH API] numericUserId: ${numericUserId}`);
 
     if (!userId || !imageUrl) {
       return NextResponse.json({ error: "User ID ve resim gerekli" }, { status: 400 });
     }
 
-    const user = await prisma.users.findUnique({ where: { id: Number(userId) } });
+    const user = await prisma.user.findUnique({ where: { id: numericUserId } });
+    console.log(`[SEARCH API] User found: ${!!user}`);
 
     if (!user) {
       return NextResponse.json({ error: "Kullanıcı bulunamadı" }, { status: 404 });
@@ -20,7 +24,7 @@ export async function POST(request: Request) {
     }
 
     // Krediyi düş
-    await prisma.users.update({
+    await prisma.user.update({
       where: { id: Number(userId) },
       data: { credits: user.credits - 1 },
     });
@@ -28,7 +32,7 @@ export async function POST(request: Request) {
     // Arama kaydı oluştur
     const search = await prisma.search.create({
       data: {
-        userId,
+        userId: Number(userId),
         imageUrl,
         results: { matches: [], status: "pending" },
       },
