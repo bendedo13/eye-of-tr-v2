@@ -22,7 +22,11 @@ import {
   Sparkles
 } from "lucide-react";
 
-export default function Home() {
+export default function Home({
+  params: { locale }
+}: {
+  params: { locale: string };
+}) {
   const { user, mounted, loading } = useAuth();
   const router = useRouter();
 
