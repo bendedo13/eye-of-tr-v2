@@ -52,8 +52,17 @@ class Settings(BaseSettings):
     RAPIDAPI_KEY: Optional[str] = None
     RAPIDAPI_HOST: str = "real-time-image-search.p.rapidapi.com"
     RAPIDAPI_IMAGE_SEARCH_ENDPOINT: str = "https://real-time-image-search.p.rapidapi.com/search"
+    RAPIDAPI_IMAGE_SEARCH_SIZE: str = "any"
+    RAPIDAPI_IMAGE_SEARCH_COLOR: str = "any"
+    RAPIDAPI_IMAGE_SEARCH_TYPE: str = "any"
+    RAPIDAPI_IMAGE_SEARCH_TIME: str = "any"
+    RAPIDAPI_IMAGE_SEARCH_USAGE_RIGHTS: str = "any"
+    RAPIDAPI_IMAGE_SEARCH_FILE_TYPE: str = "any"
+    RAPIDAPI_IMAGE_SEARCH_ASPECT_RATIO: str = "any"
+    RAPIDAPI_IMAGE_SEARCH_SAFE_SEARCH: str = "off"
+    RAPIDAPI_IMAGE_SEARCH_REGION: str = "us"
 
-    PUBLIC_BASE_URL: Optional[str] = None
+    PUBLIC_BASE_URL: str = "https://www.face-seek.com"
 
     # Face Embedding
     FACE_EMBEDDER_BACKEND: str = "insightface"  # insightface | mock

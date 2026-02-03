@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import time
 from typing import Any, Dict, List, Optional
 
 import httpx
@@ -17,6 +18,17 @@ class RapidApiRealTimeImageSearchAdapter:
         self.endpoint = config.get("endpoint") or settings.RAPIDAPI_IMAGE_SEARCH_ENDPOINT
         self.timeout = int(config.get("timeout") or 30)
         self.transport = config.get("transport")
+        self.default_params = config.get("default_params") or {
+            "size": settings.RAPIDAPI_IMAGE_SEARCH_SIZE,
+            "color": settings.RAPIDAPI_IMAGE_SEARCH_COLOR,
+            "type": settings.RAPIDAPI_IMAGE_SEARCH_TYPE,
+            "time": settings.RAPIDAPI_IMAGE_SEARCH_TIME,
+            "usage_rights": settings.RAPIDAPI_IMAGE_SEARCH_USAGE_RIGHTS,
+            "file_type": settings.RAPIDAPI_IMAGE_SEARCH_FILE_TYPE,
+            "aspect_ratio": settings.RAPIDAPI_IMAGE_SEARCH_ASPECT_RATIO,
+            "safe_search": settings.RAPIDAPI_IMAGE_SEARCH_SAFE_SEARCH,
+            "region": settings.RAPIDAPI_IMAGE_SEARCH_REGION,
+        }
 
     def _extract_items(self, data: Any) -> List[Dict[str, Any]]:
         if isinstance(data, list):
@@ -48,7 +60,7 @@ class RapidApiRealTimeImageSearchAdapter:
             )
         return matches
 
-    async def search(self, query: str, *, limit: int = 25) -> AdapterResponse:
+    async def search(self, query: str, *, limit: int = 25, params_override: Optional[Dict[str, str]] = None) -> AdapterResponse:
         if not self.api_key:
             return AdapterResponse(provider="rapidapi", status="error", error="RapidAPI key not configured", matches=[])
 
@@ -57,8 +69,17 @@ class RapidApiRealTimeImageSearchAdapter:
             return AdapterResponse(provider="rapidapi", status="error", error="Empty query", matches=[])
 
         headers = {"x-rapidapi-host": self.host, "x-rapidapi-key": self.api_key}
-        params = {"query": q, "limit": str(int(max(1, min(100, limit))))}
+        params: Dict[str, str] = {"query": q, "limit": str(int(max(1, min(100, limit))))}
+        for k, v in (self.default_params or {}).items():
+            if v is None:
+                continue
+            params[str(k)] = str(v)
+        for k, v in (params_override or {}).items():
+            if v is None:
+                continue
+            params[str(k)] = str(v)
 
+        started = time.perf_counter()
         try:
             async with httpx.AsyncClient(timeout=self.timeout, transport=self.transport) as client:
                 resp = await client.get(self.endpoint, headers=headers, params=params)
@@ -67,12 +88,13 @@ class RapidApiRealTimeImageSearchAdapter:
 
             items = self._extract_items(data)
             matches = self._to_matches(items)
+            elapsed_ms = int((time.perf_counter() - started) * 1000)
             return AdapterResponse(
                 provider="rapidapi",
                 status="success",
                 matches=matches,
                 total_matches=len(matches),
-                search_time_ms=int(resp.elapsed.total_seconds() * 1000),
+                search_time_ms=elapsed_ms,
             )
         except httpx.HTTPStatusError as e:
             return AdapterResponse(

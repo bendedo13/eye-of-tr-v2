@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import time
 import uuid
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -85,6 +86,7 @@ class SerpApiGoogleLensAdapter:
             "hl": self.hl,
         }
 
+        started = time.perf_counter()
         try:
             async with httpx.AsyncClient(timeout=self.timeout, transport=self.transport) as client:
                 resp = await client.get(self.endpoint, params=params)
@@ -97,12 +99,13 @@ class SerpApiGoogleLensAdapter:
                 return AdapterResponse(provider="serpapi", status="error", error=str(err), matches=[], search_time_ms=0)
 
             matches = self._parse_visual_matches(data)
+            elapsed_ms = int((time.perf_counter() - started) * 1000)
             return AdapterResponse(
                 provider="serpapi",
                 status="success",
                 matches=matches,
                 total_matches=len(matches),
-                search_time_ms=int(resp.elapsed.total_seconds() * 1000),
+                search_time_ms=elapsed_ms,
             )
         except httpx.HTTPStatusError as e:
             return AdapterResponse(

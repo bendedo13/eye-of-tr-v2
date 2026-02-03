@@ -40,6 +40,15 @@ async def external_search_status(user: User = Depends(get_current_user)):
 async def rapidapi_image_search(
     q: str = Query(..., min_length=1, max_length=200),
     limit: int = Query(default=25, ge=1, le=100),
+    size: str | None = Query(default=None, max_length=20),
+    color: str | None = Query(default=None, max_length=20),
+    type: str | None = Query(default=None, max_length=20),
+    time: str | None = Query(default=None, max_length=20),
+    usage_rights: str | None = Query(default=None, max_length=30),
+    file_type: str | None = Query(default=None, max_length=20),
+    aspect_ratio: str | None = Query(default=None, max_length=20),
+    safe_search: str | None = Query(default=None, max_length=10),
+    region: str | None = Query(default=None, max_length=8),
     user: User = Depends(get_current_user),
 ):
     _require_admin(user)
@@ -51,7 +60,21 @@ async def rapidapi_image_search(
             "timeout": 30,
         }
     )
-    res = await adapter.search(q, limit=limit)
+    res = await adapter.search(
+        q,
+        limit=limit,
+        params_override={
+            "size": size,
+            "color": color,
+            "type": type,
+            "time": time,
+            "usage_rights": usage_rights,
+            "file_type": file_type,
+            "aspect_ratio": aspect_ratio,
+            "safe_search": safe_search,
+            "region": region,
+        },
+    )
     return res.to_dict()
 
 

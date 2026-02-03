@@ -1,12 +1,25 @@
-import { ReactNode } from 'react';
-import './globals.css';
+import "./globals.css";
+import type { ReactNode } from "react";
+import { Geist, Geist_Mono } from "next/font/google";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
 
 type Props = {
-    children: ReactNode;
+  children: ReactNode;
 };
 
-// Since we have a root layout, but we want our localized layout to handle
-// most of the configuration, we keep this as minimal as possible.
 export default function RootLayout({ children }: Props) {
-    return children;
+  return (
+    <html suppressHydrationWarning>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
+    </html>
+  );
 }

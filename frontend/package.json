@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "check:i18n": "node scripts/check-locales.mjs"
+    "check:i18n": "node scripts/check-locales.mjs",
+    "check:layouts": "node scripts/check-layout-tags.mjs"
   },
   "dependencies": {
     "@prisma/client": "5.22.0",
