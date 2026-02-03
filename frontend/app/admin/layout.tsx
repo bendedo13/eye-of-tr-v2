@@ -32,10 +32,10 @@ export default function AdminLayout({
     const adminData = localStorage.getItem("admin");
     if (!adminData && pathname !== "/admin/login") {
       router.push("/admin/login");
-    } else if (adminData) {
+    } else if (adminData && !isAdmin) {
       setIsAdmin(true);
     }
-  }, [pathname, router]);
+  }, [pathname, router, isAdmin]);
 
   if (pathname === "/admin/login") {
     return <>{children}</>;

@@ -9,15 +9,19 @@ export default function Navbar() {
   const router = useRouter()
 
 useEffect(() => {
-  const userData = localStorage.getItem('user')
-  if (userData && userData !== 'undefined') {
-    try {
-      setUser(JSON.parse(userData))
-    } catch (e) {
-      localStorage.removeItem('user')
+    const userData = localStorage.getItem('user')
+    if (userData && userData !== 'undefined') {
+      try {
+        const parsed = JSON.parse(userData)
+        if (JSON.stringify(user) !== JSON.stringify(parsed)) {
+           setUser(parsed)
+        }
+      } catch (e) {
+        console.error('Failed to parse user data:', e)
+        localStorage.removeItem('user')
+      }
     }
-  }
-}, [])
+  }, [])
 
   const handleLogout = () => {
     localStorage.removeItem('token')

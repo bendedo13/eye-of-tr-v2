@@ -29,7 +29,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const stored = localStorage.getItem(TOKEN_KEY);
     if (stored) {
-      setToken(stored);
+      if (token !== stored) {
+        setToken(stored);
+      }
       me(stored)
         .then((u) => setUser(u))
         .catch(() => {

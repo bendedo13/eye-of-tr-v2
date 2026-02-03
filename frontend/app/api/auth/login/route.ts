@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 export async function POST(request: Request) {
   try {
@@ -34,7 +35,6 @@ export async function POST(request: Request) {
     }
 
     // JWT token oluştur (Backend ile uyumlu)
-    const jwt = require("jsonwebtoken");
     const token = jwt.sign(
       { sub: String(user.id) },
       process.env.NEXTAUTH_SECRET || "eye-of-tr-v2-super-secret-key-2026",

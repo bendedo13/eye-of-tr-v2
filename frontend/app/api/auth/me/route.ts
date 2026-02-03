@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import jwt from "jsonwebtoken";
 
 export async function POST(request: Request) {
   try {
@@ -10,7 +11,6 @@ export async function POST(request: Request) {
     }
 
     // JWT doğrula
-    const jwt = require("jsonwebtoken");
     let decoded;
     try {
       decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET || "eye-of-tr-v2-super-secret-key-2026");

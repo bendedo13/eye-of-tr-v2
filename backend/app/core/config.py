@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     # API Keys
     BING_API_KEY: Optional[str] = None
     YANDEX_API_KEY: Optional[str] = None
+    YANDEX_FOLDER_ID: Optional[str] = None
     FACECHECK_API_KEY: Optional[str] = None
     FACECHECK_API_URL: str = "https://facecheck.id/api/v1"
     

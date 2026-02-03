@@ -16,13 +16,20 @@ export default function Toast({ message, type = "info", duration = 3000, onClose
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    setIsVisible(true);
+    // Use requestAnimationFrame or setTimeout to ensure state update happens after mount
+    const animTimer = setTimeout(() => {
+        setIsVisible(true);
+    }, 10);
+
     const timer = setTimeout(() => {
       setIsVisible(false);
       setTimeout(onClose, 300); // Animasyon bittikten sonra kaldır
     }, duration);
 
-    return () => clearTimeout(timer);
+    return () => {
+        clearTimeout(animTimer);
+        clearTimeout(timer);
+    };
   }, [duration, onClose]);
 
   const typeStyles = {

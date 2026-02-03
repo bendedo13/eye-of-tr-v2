@@ -48,14 +48,18 @@ class SearchService:
         else:
             logger.info("Facecheck API key bulunamadı - atlandı")
         
-        # Yandex adapter (placeholder)
+        # Yandex adapter
         try:
-            yandex_config = {
-                "api_key": getattr(settings, "YANDEX_API_KEY", None),
-                "timeout": 30
-            }
-            self.adapters["yandex"] = get_yandex_adapter(yandex_config)
-            logger.info("✅ Yandex adapter yüklendi (placeholder)")
+            if settings.YANDEX_API_KEY:
+                yandex_config = {
+                    "api_key": settings.YANDEX_API_KEY,
+                    "folder_id": getattr(settings, "YANDEX_FOLDER_ID", None),
+                    "timeout": 30
+                }
+                self.adapters["yandex"] = get_yandex_adapter(yandex_config)
+                logger.info("✅ Yandex adapter yüklendi")
+            else:
+                logger.info("Yandex API key bulunamadı - atlandı")
         except Exception as e:
             logger.warning(f"Yandex adapter yüklenemedi: {e}")
         
