@@ -29,7 +29,7 @@ class SearchLog(Base):
     __tablename__ = "search_logs"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)  # Anonim aramalar için nullable
+    user_id = Column(String(50), ForeignKey("users.id"), nullable=True)  # Anonim aramalar için nullable
     
     # Search details
     search_type = Column(String(50), nullable=False)  # face, name, osint
@@ -59,11 +59,11 @@ class ReferralLog(Base):
     id = Column(Integer, primary_key=True, index=True)
     
     # Referrer (davet eden)
-    referrer_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    referrer_user_id = Column(String(50), ForeignKey("users.id"), nullable=False)
     referrer_code = Column(String(10), nullable=False)
     
     # Referee (davet edilen)
-    referee_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    referee_user_id = Column(String(50), ForeignKey("users.id"), nullable=False)
     referee_email = Column(String(255), nullable=False)
     
     # Reward
