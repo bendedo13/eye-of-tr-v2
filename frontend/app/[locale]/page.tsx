@@ -4,10 +4,12 @@ import { use } from "react";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from 'next-intl';
 import LiveStats from "@/components/LiveStats";
 import Navbar from "@/components/Navbar";
 import ClientOnly from "@/components/ClientOnly";
 import { Button } from "@/components/ui/Button";
+import FacialRecognitionDemo from "@/components/brand/FacialRecognitionDemo";
 import { GlassCard } from "@/components/ui/GlassCard";
 import {
   ShieldCheck,
@@ -32,6 +34,12 @@ export default function Home({
   const { locale } = use(params);
   const { user, mounted, loading } = useAuth();
   const router = useRouter();
+  const t = useTranslations('hero');
+  const tFeatures = useTranslations('features');
+  const tHowItWorks = useTranslations('howItWorks');
+  const tWhyFaceSeek = useTranslations('whyFaceSeek');
+  const tFeatureCards = useTranslations('featureCards');
+  const tHowItWorksSection = useTranslations('howItWorksSection');
 
   if (!mounted || loading) {
     return (
@@ -47,52 +55,69 @@ export default function Home({
       <div className="min-h-screen bg-background text-slate-200 selection:bg-primary/30 selection:text-white">
         <Navbar />
 
-        {/* Hero Section */}
-        <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden py-24 px-6 bg-[radial-gradient(circle_at_top,_var(--color-primary-glow)_0%,_transparent_70%)]">
-          {/* Advanced Background Grid */}
-          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none"></div>
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_100%)]"></div>
+        {/* Face Seek Hero Section */}
+        <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden py-24 px-6 circuit-pattern">
+          {/* Animated Background */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0a0e27] via-[#1a1f3a]/50 to-[#0a0e27] pointer-events-none"></div>
+          <div className="absolute inset-0 data-stream opacity-30"></div>
+
+          {/* Biometric Grid Pattern */}
+          <div className="absolute inset-0 opacity-20">
+            <div className="absolute top-1/4 left-1/4 w-2 h-2 rounded-full bg-[#00d9ff] animate-pulse"></div>
+            <div className="absolute top-1/3 right-1/3 w-2 h-2 rounded-full bg-[#0ea5e9] animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+            <div className="absolute bottom-1/4 left-1/3 w-2 h-2 rounded-full bg-[#8b5cf6] animate-pulse" style={{ animationDelay: '1s' }}></div>
+            <div className="absolute bottom-1/3 right-1/4 w-2 h-2 rounded-full bg-[#00d9ff] animate-pulse" style={{ animationDelay: '1.5s' }}></div>
+          </div>
 
           <div className="relative max-w-7xl mx-auto text-center z-10">
-            <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 px-4 py-2 rounded-full text-primary text-[10px] font-black uppercase tracking-[0.2em] mb-10 animate-in fade-in slide-in-from-top-4 duration-1000">
-              <Sparkles size={12} /> Next-Gen AI Recognition Engine v2.0
+            {/* Status Badge */}
+            <div className="inline-flex items-center gap-2 bg-[#00d9ff]/10 border border-[#00d9ff]/30 px-4 py-2 rounded-full text-[#00d9ff] text-[10px] font-black uppercase tracking-[0.2em] mb-10 glow-cyan">
+              <Sparkles size={12} className="animate-pulse" /> {t('badge')}
             </div>
 
-            <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black text-white mb-8 leading-[0.9] tracking-tighter uppercase whitespace-pre-line animate-in fade-in slide-in-from-bottom-8 duration-1000">
-              FACIAL SEARCH<br />
-              <span className="text-zinc-700">ENGINE FOR</span><br />
-              <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">PROFESSIONALS</span>
+            {/* Main Heading with Face Seek Branding */}
+            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white mb-6 leading-[1.1] tracking-tight uppercase">
+              {t('title')}
             </h1>
 
-            <p className="text-zinc-500 text-lg md:text-xl font-medium mb-12 max-w-3xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-200">
-              FaceSeek is the world's most advanced facial search engine and image intelligence platform. Discover where any face appears across the public web using AI-powered face recognition search technology trusted by investigators, journalists, and security professionals worldwide.
+            {/* Tagline */}
+            <p className="text-slate-400 text-base sm:text-lg md:text-xl font-medium mb-12 max-w-4xl mx-auto leading-relaxed">
+              {t('subtitle')}
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-20 animate-in fade-in slide-in-from-bottom-16 duration-1000 delay-300">
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-20">
               {user ? (
                 <>
                   <Button
                     onClick={() => router.push(`/${locale}/search`)}
-                    className="h-16 px-10 text-base"
+                    className="h-16 px-10 text-base face-seek-gradient hover:opacity-90 transition-opacity"
                     variant="primary"
                   >
-                    <Search className="mr-2" size={20} /> START ANALYSIS
+                    <Search className="mr-2" size={20} /> {t('ctaSearch')}
                   </Button>
                   <Button
                     onClick={() => router.push(`/${locale}/dashboard`)}
-                    className="h-16 px-10 text-base border-white/5 bg-white/5 hover:bg-white/10"
+                    className="h-16 px-10 text-base border-[#00d9ff]/30 bg-[#00d9ff]/5 hover:bg-[#00d9ff]/10"
                     variant="outline"
                   >
-                    <BarChart3 className="mr-2" size={20} /> DASHBOARD
+                    <BarChart3 className="mr-2" size={20} /> {t('ctaDashboard')}
                   </Button>
                 </>
               ) : (
                 <>
-                  <Button onClick={() => router.push(`/${locale}/register`)} className="h-16 px-12 text-base">
-                    🚀 START RECOGNITION FREE
+                  <Button
+                    onClick={() => router.push(`/${locale}/register`)}
+                    className="h-16 px-12 text-base face-seek-gradient hover:opacity-90 transition-opacity"
+                  >
+                    🚀 {t('ctaPrimary')}
                   </Button>
-                  <Button onClick={() => router.push(`/${locale}/login`)} className="h-16 px-10 text-base bg-white/5 border-white/5 hover:bg-white/10" variant="outline">
-                    LOG IN
+                  <Button
+                    onClick={() => router.push(`/${locale}/login`)}
+                    className="h-16 px-10 text-base bg-[#00d9ff]/5 border-[#00d9ff]/30 hover:bg-[#00d9ff]/10"
+                    variant="outline"
+                  >
+                    {t('ctaSecondary')}
                   </Button>
                 </>
               )}
@@ -110,6 +135,11 @@ export default function Home({
                 <Layers size={16} /> MULTI-ENGINE
               </div>
             </div>
+
+            {/* Animated Facial Recognition Demo */}
+            <div className="mt-20 max-w-2xl mx-auto">
+              <FacialRecognitionDemo />
+            </div>
           </div>
         </section>
 
@@ -124,23 +154,23 @@ export default function Home({
         <section className="py-32 px-6 relative">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-24">
-              <h2 className="text-4xl md:text-6xl font-black text-white mb-6 uppercase tracking-tighter">WHY <span className="text-primary">FACESEEK?</span></h2>
+              <h2 className="text-4xl md:text-6xl font-black text-white mb-6 uppercase tracking-tighter">{tWhyFaceSeek('title')} <span className="text-primary">{tWhyFaceSeek('titleHighlight')}</span></h2>
               <div className="w-20 h-1.5 bg-primary mx-auto rounded-full"></div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[
-                { icon: <Zap size={32} />, title: 'LIGHTNING-FAST FACIAL SEARCH', desc: 'Our reverse image face search technology scans millions of indexed images in milliseconds. Advanced AI face lookup algorithms deliver instant results across global data clusters.' },
-                { icon: <Lock size={32} />, title: 'PRIVACY-FOCUSED FACIAL SEARCH', desc: 'Industry-leading 256-bit encryption protects every facial recognition search. Your image data is never permanently stored, ensuring complete privacy in facial intelligence operations.' },
-                { icon: <Globe size={32} />, title: 'MULTI-ENGINE OSINT FACE SEARCH', desc: 'Simultaneous queries across Google, Bing, Yandex, and specialized OSINT databases. Our facial search engine aggregates results from the world\'s largest public web indexes.' },
-                { icon: <Target size={32} />, title: 'PRECISION BIOMETRIC MATCHING', desc: 'State-of-the-art facial recognition algorithms achieve 98.7% accuracy. Our image intelligence platform uses 128-point facial mapping for unmatched precision in face recognition search.' },
-                { icon: <ShieldCheck size={32} />, title: 'ETHICAL AI FACIAL RECOGNITION', desc: 'Full GDPR and KVKK compliance for responsible facial intelligence. Our platform adheres to international standards for ethical AI and open-source intelligence protocols.' },
-                { icon: <BarChart3 size={32} />, title: 'COMPREHENSIVE FACIAL ANALYTICS', desc: 'Detailed metadata reports for every facial search result. Track confidence scores, source URLs, and image context with our advanced facial recognition SaaS platform.' },
+                { icon: <Zap size={32} />, key: 'card1' },
+                { icon: <Lock size={32} />, key: 'card2' },
+                { icon: <Globe size={32} />, key: 'card3' },
+                { icon: <Target size={32} />, key: 'card4' },
+                { icon: <ShieldCheck size={32} />, key: 'card5' },
+                { icon: <BarChart3 size={32} />, key: 'card6' },
               ].map((f, i) => (
                 <GlassCard key={i} className="p-10 group hover:border-primary/50 transition-all duration-500">
                   <div className="text-primary mb-8 transform group-hover:scale-110 group-hover:-rotate-12 transition-transform duration-500">{f.icon}</div>
-                  <h3 className="text-xl font-black text-white mb-4 uppercase tracking-tight">{f.title}</h3>
-                  <p className="text-zinc-500 leading-relaxed font-medium">{f.desc}</p>
+                  <h3 className="text-xl font-black text-white mb-4 uppercase tracking-tight">{tFeatureCards(`${f.key}.title`)}</h3>
+                  <p className="text-zinc-500 leading-relaxed font-medium">{tFeatureCards(`${f.key}.desc`)}</p>
                 </GlassCard>
               ))}
             </div>
@@ -152,19 +182,14 @@ export default function Home({
           <div className="max-w-7xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
               <div>
-                <h2 className="text-4xl md:text-6xl font-black text-white mb-8 uppercase tracking-tighter">HOW OUR <span className="text-zinc-700">FACIAL SEARCH</span> WORKS</h2>
+                <h2 className="text-4xl md:text-6xl font-black text-white mb-8 uppercase tracking-tighter">{tHowItWorksSection('title')} <span className="text-zinc-700">{tHowItWorksSection('titleGray')}</span></h2>
                 <div className="space-y-12">
-                  {[
-                    { step: '01', title: 'IMAGE UPLOAD', desc: 'Upload your target image to our secure facial search engine. Our platform accepts all standard formats and automatically optimizes resolution for maximum face recognition accuracy.' },
-                    { step: '02', title: 'AI FACIAL MAPPING', desc: 'Advanced biometric algorithms extract 128 unique facial landmarks. Our image intelligence system creates a mathematical signature for precise facial recognition search across billions of indexed images.' },
-                    { step: '03', title: 'MULTI-SOURCE INDEXING', desc: 'Your facial search query is simultaneously processed across Google, Bing, Yandex, and specialized OSINT databases. Our reverse image face search technology aggregates results from global web indexes in real-time.' },
-                    { step: '04', title: 'RESULTS & ANALYTICS', desc: 'Receive comprehensive facial intelligence reports with confidence scores, source URLs, and contextual metadata. Every face recognition search includes detailed analytics for professional verification.' }
-                  ].map((s, idx) => (
+                  {['step1', 'step2', 'step3', 'step4'].map((stepKey, idx) => (
                     <div key={idx} className="flex gap-8 group">
-                      <div className="text-4xl font-black text-zinc-800 transition-colors group-hover:text-primary">{s.step}</div>
+                      <div className="text-4xl font-black text-zinc-800 transition-colors group-hover:text-primary">{tHowItWorksSection(`${stepKey}.number`)}</div>
                       <div>
-                        <h4 className="text-lg font-black text-white uppercase tracking-widest mb-2">{s.title}</h4>
-                        <p className="text-zinc-500 font-medium">{s.desc}</p>
+                        <h4 className="text-lg font-black text-white uppercase tracking-widest mb-2">{tHowItWorksSection(`${stepKey}.title`)}</h4>
+                        <p className="text-zinc-500 font-medium">{tHowItWorksSection(`${stepKey}.desc`)}</p>
                       </div>
                     </div>
                   ))}

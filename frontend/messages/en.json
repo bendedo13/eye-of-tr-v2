@@ -12,10 +12,68 @@
         "logout": "Logout"
     },
     "hero": {
-        "title": "FACIAL SEARCH ENGINE FOR PROFESSIONALS",
-        "subtitle": "Advanced AI-powered facial recognition search platform for OSINT researchers, investigative journalists, and security professionals. Search billions of indexed images with privacy-first technology.",
-        "cta": "Start Free Search",
+        "badge": "Next-Gen AI Recognition Engine v2.0",
+        "title": "ADVANCED FACIAL SEARCH TECHNOLOGY",
+        "subtitle": "Uncover identities securely with Face Seek's AI-powered facial recognition platform. Trusted by investigators, journalists, and security professionals worldwide for ethical OSINT research.",
+        "ctaPrimary": "START RECOGNITION FREE",
+        "ctaSecondary": "LOG IN",
+        "ctaSearch": "START ANALYSIS",
+        "ctaDashboard": "DASHBOARD",
         "learnMore": "Learn More"
+    },
+    "whyFaceSeek": {
+        "title": "WHY",
+        "titleHighlight": "FACESEEK?"
+    },
+    "featureCards": {
+        "card1": {
+            "title": "LIGHTNING-FAST FACIAL SEARCH",
+            "desc": "Our reverse image face search technology scans millions of indexed images in milliseconds. Advanced AI face lookup algorithms deliver instant results across global data clusters."
+        },
+        "card2": {
+            "title": "PRIVACY-FOCUSED FACIAL SEARCH",
+            "desc": "Industry-leading 256-bit encryption protects every facial recognition search. Your image data is never permanently stored, ensuring complete privacy in facial intelligence operations."
+        },
+        "card3": {
+            "title": "MULTI-ENGINE OSINT FACE SEARCH",
+            "desc": "Simultaneous queries across Google, Bing, Yandex, and specialized OSINT databases. Our facial search engine aggregates results from the world's largest public web indexes."
+        },
+        "card4": {
+            "title": "PRECISION BIOMETRIC MATCHING",
+            "desc": "State-of-the-art facial recognition algorithms achieve 98.7% accuracy. Our image intelligence platform uses 128-point facial mapping for unmatched precision in face recognition search."
+        },
+        "card5": {
+            "title": "ETHICAL AI FACIAL RECOGNITION",
+            "desc": "Full GDPR and KVKK compliance for responsible facial intelligence. Our platform adheres to international standards for ethical AI and open-source intelligence protocols."
+        },
+        "card6": {
+            "title": "COMPREHENSIVE FACIAL ANALYTICS",
+            "desc": "Detailed metadata reports for every facial search result. Track confidence scores, source URLs, and image context with our advanced facial recognition SaaS platform."
+        }
+    },
+    "howItWorksSection": {
+        "title": "HOW OUR",
+        "titleGray": "FACIAL SEARCH WORKS",
+        "step1": {
+            "number": "01",
+            "title": "IMAGE UPLOAD",
+            "desc": "Upload your target image to our secure facial search engine. Our platform accepts all standard formats and automatically optimizes resolution for maximum face recognition accuracy."
+        },
+        "step2": {
+            "number": "02",
+            "title": "AI FACIAL MAPPING",
+            "desc": "Advanced biometric algorithms extract 128 unique facial landmarks. Our image intelligence system creates a mathematical signature for precise facial recognition search across billions of indexed images."
+        },
+        "step3": {
+            "number": "03",
+            "title": "MULTI-SOURCE INDEXING",
+            "desc": "Your facial search query is simultaneously processed across Google, Bing, Yandex, and specialized OSINT databases. Our reverse image face search technology aggregates results from global web indexes in real-time."
+        },
+        "step4": {
+            "number": "04",
+            "title": "RESULTS & ANALYTICS",
+            "desc": "Receive comprehensive facial intelligence reports with confidence scores, source URLs, and contextual metadata. Every face recognition search includes detailed analytics for professional verification."
+        }
     },
     "features": {
         "title": "PROFESSIONAL FACIAL INTELLIGENCE",

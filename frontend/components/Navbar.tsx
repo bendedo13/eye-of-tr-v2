@@ -19,6 +19,7 @@ import {
   Globe
 } from "lucide-react";
 import { Button } from "./ui/Button";
+import FaceSeekLogo from "./brand/FaceSeekLogo";
 
 export default function Navbar() {
   const { user, logout, mounted } = useAuth();
@@ -59,19 +60,13 @@ export default function Navbar() {
 
   return (
     <nav className={`h-24 sticky top-0 z-[100] transition-all duration-500 ${scrolled
-      ? "bg-background/80 backdrop-blur-3xl border-b border-white/5 py-2"
+      ? "bg-background/80 backdrop-blur-3xl border-b border-[#00d9ff]/10 py-2"
       : "bg-transparent border-b border-transparent"
       }`}>
       <div className="max-w-[1600px] mx-auto px-6 h-full flex items-center justify-between">
-        {/* Logo */}
-        <Link href={`/${locale}`} className="flex items-center gap-3 group">
-          <div className="relative">
-            <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full group-hover:bg-primary/30 transition-all"></div>
-            <Sparkles className="text-primary relative z-10" size={32} />
-          </div>
-          <span className="text-2xl font-black tracking-tighter text-white group-hover:text-primary transition-colors">
-            FACE<span className="text-primary">SEEK</span>
-          </span>
+        {/* Face Seek Logo */}
+        <Link href={`/${locale}`} className="group">
+          <FaceSeekLogo size="md" animated={true} />
         </Link>
 
         {/* Desktop Navigation */}

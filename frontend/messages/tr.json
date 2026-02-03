@@ -12,10 +12,68 @@
         "logout": "Çıkış Yap"
     },
     "hero": {
-        "title": "PROFESYONELLER İÇİN YÜZ ARAMA MOTORU",
-        "subtitle": "OSINT araştırmacıları, araştırmacı gazeteciler ve güvenlik uzmanları için gelişmiş yapay zeka destekli yüz tanıma arama platformu. Gizlilik odaklı teknoloji ile milyarlarca indekslenmiş görüntüde arama yapın.",
-        "cta": "Ücretsiz Aramaya Başla",
+        "badge": "Yeni Nesil Yapay Zeka Tanıma Motoru v2.0",
+        "title": "GELİŞMİŞ YÜZ ARAMA TEKNOLOJİSİ",
+        "subtitle": "Face Seek'in yapay zeka destekli yüz tanıma platformu ile kimlikleri güvenli bir şekilde ortaya çıkarın. Etik OSINT araştırmaları için dünya çapında araştırmacılar, gazeteciler ve güvenlik uzmanları tarafından güvenilir.",
+        "ctaPrimary": "ÜCRETSİZ TANIMA BAŞLAT",
+        "ctaSecondary": "GİRİŞ YAP",
+        "ctaSearch": "ANALİZE BAŞLA",
+        "ctaDashboard": "PANEL",
         "learnMore": "Daha Fazla Bilgi"
+    },
+    "whyFaceSeek": {
+        "title": "NEDEN",
+        "titleHighlight": "FACESEEK?"
+    },
+    "featureCards": {
+        "card1": {
+            "title": "YILDIRIM HIZINDA YÜZ ARAMA",
+            "desc": "Ters görüntü yüz arama teknolojimiz milisaniyeler içinde milyonlarca indekslenmiş görüntüyü tarar. Gelişmiş yapay zeka yüz arama algoritmaları küresel veri kümelerinde anında sonuç verir."
+        },
+        "card2": {
+            "title": "GİZLİLİK ODAKLI YÜZ ARAMA",
+            "desc": "Sektör lideri 256-bit şifreleme her yüz tanıma aramasını korur. Görüntü verileriniz asla kalıcı olarak saklanmaz, yüz istihbarat operasyonlarında tam gizlilik sağlanır."
+        },
+        "card3": {
+            "title": "ÇOK MOTORLU OSINT YÜZ ARAMA",
+            "desc": "Google, Bing, Yandex ve özel OSINT veritabanlarında eşzamanlı sorgular. Yüz arama motorumuz dünyanın en büyük kamu web indekslerinden sonuçları toplar."
+        },
+        "card4": {
+            "title": "HASSAS BİYOMETRİK EŞLEŞTIRME",
+            "desc": "Son teknoloji yüz tanıma algoritmaları %98.7 doğruluk elde eder. Görüntü istihbarat platformumuz yüz tanıma aramasında eşsiz hassasiyet için 128 noktalı yüz haritalama kullanır."
+        },
+        "card5": {
+            "title": "ETİK YAPAY ZEKA YÜZ TANIMA",
+            "desc": "Sorumlu yüz istihbaratı için tam GDPR ve KVKK uyumluluğu. Platformumuz etik yapay zeka ve açık kaynak istihbarat protokolleri için uluslararası standartlara uyar."
+        },
+        "card6": {
+            "title": "KAPSAMLI YÜZ ANALİTİĞİ",
+            "desc": "Her yüz arama sonucu için detaylı metadata raporları. Gelişmiş yüz tanıma SaaS platformumuzla güven skorlarını, kaynak URL'leri ve görüntü bağlamını takip edin."
+        }
+    },
+    "howItWorksSection": {
+        "title": "YÜZ ARAMASI",
+        "titleGray": "NASIL ÇALIŞIR",
+        "step1": {
+            "number": "01",
+            "title": "GÖRÜNTÜ YÜKLEME",
+            "desc": "Hedef görüntünüzü güvenli yüz arama motorumuza yükleyin. Platformumuz tüm standart formatları kabul eder ve maksimum yüz tanıma doğruluğu için çözünürlüğü otomatik olarak optimize eder."
+        },
+        "step2": {
+            "number": "02",
+            "title": "YAPAY ZEKA YÜZ HARİTALAMA",
+            "desc": "Gelişmiş biyometrik algoritmalar 128 benzersiz yüz işaretini çıkarır. Görüntü istihbarat sistemimiz milyarlarca indekslenmiş görüntüde hassas yüz tanıma araması için matematiksel bir imza oluşturur."
+        },
+        "step3": {
+            "number": "03",
+            "title": "ÇOK KAYNAKLI İNDEKSLEME",
+            "desc": "Yüz arama sorgunuz Google, Bing, Yandex ve özel OSINT veritabanlarında eşzamanlı olarak işlenir. Ters görüntü yüz arama teknolojimiz gerçek zamanlı olarak küresel web indekslerinden sonuçları toplar."
+        },
+        "step4": {
+            "number": "04",
+            "title": "SONUÇLAR VE ANALİTİK",
+            "desc": "Güven skorları, kaynak URL'leri ve bağlamsal metadata ile kapsamlı yüz istihbarat raporları alın. Her yüz tanıma araması profesyonel doğrulama için detaylı analitik içerir."
+        }
     },
     "features": {
         "title": "PROFESYONEL YÜZ İSTİHBARATI",

@@ -204,6 +204,16 @@ export default function RegisterPage({
           <p className="mt-10 text-center text-zinc-500 text-xs font-bold uppercase tracking-widest">
             Zaten bir hesabınız var mı? <Link href={`/${locale}/login`} className="text-primary hover:text-white transition-colors underline underline-offset-4 decoration-primary/40 hover:decoration-primary">OTURUM AÇIN</Link>
           </p>
+
+          {/* Professional Developer Credit */}
+          <div className="mt-8 text-center">
+            <p className="text-slate-500 text-xs">
+              © 2017-2026 Face Seek. All Rights Reserved.
+            </p>
+            <p className="text-slate-600 text-xs mt-2">
+              Developed by <span className="text-[#00d9ff] font-semibold">ALAN</span>
+            </p>
+          </div>
         </div>
       </div>
     </ClientOnly>

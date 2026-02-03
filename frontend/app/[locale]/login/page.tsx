@@ -149,6 +149,16 @@ export default function LoginPage({
               <Zap size={14} /> INSTANT SYNC
             </div>
           </div>
+
+          {/* Professional Developer Credit */}
+          <div className="mt-8 text-center">
+            <p className="text-slate-500 text-xs">
+              © 2017-2026 Face Seek. All Rights Reserved.
+            </p>
+            <p className="text-slate-600 text-xs mt-2">
+              Developed by <span className="text-[#00d9ff] font-semibold">ALAN</span>
+            </p>
+          </div>
         </div>
       </div>
     </ClientOnly>

@@ -1,142 +1,139 @@
 "use client";
 
 import Link from "next/link";
+import FaceSeekLogo from "./brand/FaceSeekLogo";
+import TrustBadges from "./brand/TrustBadges";
 
-/**
- * Footer component with About, Privacy, Security links
- */
 export default function Footer() {
-  const currentYear = new Date().getFullYear();
-
   return (
-    <footer className="bg-gradient-to-r from-gray-900 to-gray-800 text-white mt-auto">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid md:grid-cols-4 gap-8">
-          {/* Brand */}
+    <footer className="bg-[#0a0e27] border-t border-[#00d9ff]/10 circuit-pattern">
+      <div className="max-w-[1600px] mx-auto px-6 py-16">
+        {/* Main Footer Content */}
+        <div className="grid md:grid-cols-4 gap-12 mb-12">
+          {/* Brand Section */}
           <div className="col-span-1">
-            <Link href="/" className="flex items-center gap-2 mb-4">
-              <span className="text-3xl">👁️</span>
-              <span className="font-bold text-xl bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
-                Faceseek
-              </span>
-            </Link>
-            <p className="text-gray-400 text-sm">
-              Professional OSINT and facial recognition tools for digital investigations.
+            <FaceSeekLogo size="md" animated={false} showText={true} />
+            <p className="text-slate-400 text-sm mt-4 leading-relaxed">
+              Advanced Facial Search Technology. Professional OSINT and facial recognition tools for digital investigations.
             </p>
+            <div className="mt-6">
+              <TrustBadges />
+            </div>
           </div>
 
-          {/* Quick Links */}
+          {/* Product Links */}
           <div>
-            <h3 className="font-bold text-lg mb-4">Quick Links</h3>
-            <ul className="space-y-2">
+            <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4">Product</h3>
+            <ul className="space-y-3">
               <li>
-                <Link href="/" className="text-gray-400 hover:text-white transition-colors">
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link href="/search" className="text-gray-400 hover:text-white transition-colors">
+                <Link href="/search" className="text-slate-400 hover:text-[#00d9ff] transition-colors text-sm">
                   Face Search
                 </Link>
               </li>
               <li>
-                <Link href="/osint-search" className="text-gray-400 hover:text-white transition-colors">
-                  Google Search
+                <Link href="/pricing" className="text-slate-400 hover:text-[#00d9ff] transition-colors text-sm">
+                  Pricing
                 </Link>
               </li>
               <li>
-                <Link href="/history" className="text-gray-400 hover:text-white transition-colors">
+                <Link href="/dashboard" className="text-slate-400 hover:text-[#00d9ff] transition-colors text-sm">
+                  Dashboard
+                </Link>
+              </li>
+              <li>
+                <Link href="/history" className="text-slate-400 hover:text-[#00d9ff] transition-colors text-sm">
                   Search History
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Company */}
+          {/* Company Links */}
           <div>
-            <h3 className="font-bold text-lg mb-4">Company</h3>
-            <ul className="space-y-2">
+            <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4">Company</h3>
+            <ul className="space-y-3">
               <li>
-                <Link href="/about" className="text-gray-400 hover:text-white transition-colors">
+                <Link href="/about" className="text-slate-400 hover:text-[#00d9ff] transition-colors text-sm">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href="/privacy" className="text-gray-400 hover:text-white transition-colors">
-                  Privacy Policy
+                <Link href="/blog" className="text-slate-400 hover:text-[#00d9ff] transition-colors text-sm">
+                  Blog
                 </Link>
               </li>
               <li>
-                <Link href="/security" className="text-gray-400 hover:text-white transition-colors">
-                  Security
-                </Link>
-              </li>
-              <li>
-                <a href="mailto:contact@faceseek.com" className="text-gray-400 hover:text-white transition-colors">
+                <a href="mailto:contact@face-seek.com" className="text-slate-400 hover:text-[#00d9ff] transition-colors text-sm">
                   Contact
                 </a>
               </li>
             </ul>
           </div>
 
-          {/* Legal */}
+          {/* Legal Links */}
           <div>
-            <h3 className="font-bold text-lg mb-4">Legal</h3>
-            <ul className="space-y-2">
+            <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4">Legal</h3>
+            <ul className="space-y-3">
               <li>
-                <Link href="/privacy" className="text-gray-400 hover:text-white transition-colors">
+                <Link href="/privacy" className="text-slate-400 hover:text-[#00d9ff] transition-colors text-sm">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms" className="text-slate-400 hover:text-[#00d9ff] transition-colors text-sm">
                   Terms of Service
                 </Link>
               </li>
               <li>
-                <Link href="/privacy" className="text-gray-400 hover:text-white transition-colors">
+                <Link href="/security" className="text-slate-400 hover:text-[#00d9ff] transition-colors text-sm">
+                  Security
+                </Link>
+              </li>
+              <li>
+                <Link href="/cookies" className="text-slate-400 hover:text-[#00d9ff] transition-colors text-sm">
                   Cookie Policy
                 </Link>
-              </li>
-              <li>
-                <Link href="/security" className="text-gray-400 hover:text-white transition-colors">
-                  Data Protection
-                </Link>
-              </li>
-              <li>
-                <a href="mailto:legal@faceseek.com" className="text-gray-400 hover:text-white transition-colors">
-                  Legal Notice
-                </a>
               </li>
             </ul>
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-gray-700 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-400 text-sm">
-            © {currentYear} Faceseek.com. All rights reserved.
-          </p>
-          <div className="flex gap-6 mt-4 md:mt-0">
-            <a
-              href="https://twitter.com/faceseek"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-400 hover:text-white transition-colors"
-            >
-              Twitter
-            </a>
-            <a
-              href="https://linkedin.com/company/faceseek"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-400 hover:text-white transition-colors"
-            >
-              LinkedIn
-            </a>
-            <a
-              href="https://github.com/faceseek"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-400 hover:text-white transition-colors"
-            >
-              GitHub
-            </a>
+        <div className="border-t border-[#00d9ff]/10 pt-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-slate-500 text-xs">
+              © 2017-2026 Face Seek. All Rights Reserved.{" "}
+              <span className="text-slate-600">|</span>{" "}
+              <span className="text-slate-400">
+                Powered by <span className="text-[#00d9ff] font-semibold">Alan</span>
+              </span>
+            </p>
+            <div className="flex items-center gap-4">
+              <a
+                href="https://twitter.com/faceseek"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-slate-500 hover:text-[#00d9ff] transition-colors text-xs"
+              >
+                Twitter
+              </a>
+              <a
+                href="https://linkedin.com/company/faceseek"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-slate-500 hover:text-[#00d9ff] transition-colors text-xs"
+              >
+                LinkedIn
+              </a>
+              <a
+                href="https://github.com/faceseek"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-slate-500 hover:text-[#00d9ff] transition-colors text-xs"
+              >
+                GitHub
+              </a>
+            </div>
           </div>
         </div>
       </div>
