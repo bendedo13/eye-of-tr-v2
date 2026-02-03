@@ -5,19 +5,16 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import {
   Users,
   Search,
-  UserPlus,
   CreditCard,
   Activity,
-  ShieldAlert,
   Calendar,
   ArrowUpRight,
   Zap
 } from "lucide-react";
+import { adminOverview } from "@/lib/adminApi";
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState<any>(null);
-  const [recentUsers, setRecentUsers] = useState<any[]>([]);
-  const [recentSearches, setRecentSearches] = useState<any[]>([]);
+  const [overview, setOverview] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -26,17 +23,14 @@ export default function AdminDashboard() {
       window.location.href = "/admin/login";
       return;
     }
-    fetchStats();
+    fetchOverview();
   }, []);
 
-  const fetchStats = async () => {
+  const fetchOverview = async () => {
     try {
       const adminKey = localStorage.getItem("adminKey") || "";
-      const res = await fetch("/api/admin/stats", { headers: { "x-admin-key": adminKey } });
-      const data = await res.json();
-      setStats(data.stats);
-      setRecentUsers(data.recentUsers || []);
-      setRecentSearches(data.recentSearches || []);
+      const data = await adminOverview(adminKey);
+      setOverview(data);
     } catch (error) {
       console.error("Stats fetch error:", error);
     } finally {
@@ -58,13 +52,12 @@ export default function AdminDashboard() {
   }
 
   const statCards = [
-    { label: "Toplam Kullanıcı", value: stats?.totalUsers || 0, icon: <Users size={24} />, color: "from-blue-500 to-indigo-600" },
-    { label: "Aktif Kullanıcı", value: stats?.activeUsers || 0, icon: <Activity size={24} />, color: "from-emerald-500 to-teal-600" },
-    { label: "Engelli Kullanıcı", value: stats?.bannedUsers || 0, icon: <ShieldAlert size={24} />, color: "from-rose-500 to-pink-600" },
-    { label: "Toplam Arama", value: stats?.totalSearches || 0, icon: <Search size={24} />, color: "from-violet-500 to-purple-600" },
-    { label: "Bugünkü Arama", value: stats?.todaySearches || 0, icon: <Zap size={24} />, color: "from-amber-500 to-orange-600" },
-    { label: "Bugünkü Kayıt", value: stats?.todaySignups || 0, icon: <UserPlus size={24} />, color: "from-cyan-500 to-blue-600" },
-    { label: "Toplam Kredi", value: stats?.totalCredits || 0, icon: <CreditCard size={24} />, color: "from-primary to-secondary" },
+    { label: "Toplam Kullanıcı", value: overview?.total_users || 0, icon: <Users size={24} />, color: "from-blue-500 to-indigo-600" },
+    { label: "Aktif (5dk)", value: overview?.active_users_5m || 0, icon: <Activity size={24} />, color: "from-emerald-500 to-teal-600" },
+    { label: "Aktif (Bugün)", value: overview?.active_users_today || 0, icon: <Activity size={24} />, color: "from-cyan-500 to-blue-600" },
+    { label: "Arama (24s)", value: overview?.searches_24h || 0, icon: <Search size={24} />, color: "from-violet-500 to-purple-600" },
+    { label: "Ödeyen Kullanıcı", value: overview?.paying_users || 0, icon: <CreditCard size={24} />, color: "from-amber-500 to-orange-600" },
+    { label: "Toplam Gelir", value: overview?.revenue_total || 0, icon: <CreditCard size={24} />, color: "from-primary to-secondary" },
   ];
 
   return (
@@ -103,23 +96,23 @@ export default function AdminDashboard() {
             <h2 className="text-xl font-black text-white uppercase tracking-tight flex items-center gap-3">
               <Users size={20} className="text-primary" /> SON KAYITLAR
             </h2>
-            <button className="text-[10px] font-black text-primary uppercase tracking-[0.2em] hover:opacity-70 transition-opacity">TÜMÜNÜ GÖR</button>
+            <a href="/admin/users" className="text-[10px] font-black text-primary uppercase tracking-[0.2em] hover:opacity-70 transition-opacity">TÜMÜNÜ GÖR</a>
           </div>
           <div className="space-y-4">
-            {recentUsers.map((user) => (
+            {(overview?.recent_users || []).map((user: any) => (
               <div key={user.id} className="flex items-center justify-between bg-black/40 border border-white/5 rounded-2xl p-5 group hover:border-primary/30 transition-all">
                 <div className="flex items-center gap-5">
                   <div className="w-12 h-12 bg-zinc-800 border border-white/5 rounded-xl flex items-center justify-center text-white font-black group-hover:bg-primary/20 group-hover:text-primary transition-all">
                     {user.email[0].toUpperCase()}
                   </div>
                   <div>
-                    <div className="text-white text-sm font-black uppercase tracking-tight">{user.name || user.email.split('@')[0]}</div>
+                    <div className="text-white text-sm font-black uppercase tracking-tight">{user.username || user.email.split('@')[0]}</div>
                     <div className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest">{user.email}</div>
                   </div>
                 </div>
                 <div className="text-right">
                   <div className="text-primary font-black text-sm">{user.credits} <span className="text-[10px] opacity-50">CRD</span></div>
-                  <div className="text-zinc-600 text-[9px] font-bold uppercase tracking-tighter">{new Date(user.createdAt).toLocaleDateString("tr-TR")}</div>
+                  <div className="text-zinc-600 text-[9px] font-bold uppercase tracking-tighter">{new Date(user.created_at).toLocaleDateString("tr-TR")}</div>
                 </div>
               </div>
             ))}
@@ -133,22 +126,22 @@ export default function AdminDashboard() {
             </h2>
           </div>
           <div className="space-y-4">
-            {recentSearches.map((search) => (
+            {(overview?.recent_searches || []).map((search: any) => (
               <div key={search.id} className="flex items-center justify-between bg-black/20 rounded-2xl p-5 border border-white/5 hover:border-primary/20 transition-all">
                 <div className="flex gap-4">
                   <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
                     <Search size={16} />
                   </div>
                   <div>
-                    <div className="text-white text-xs font-black uppercase tracking-tight truncate max-w-[120px]">{search.user?.email || "Anonim"}</div>
-                    <div className="text-zinc-600 text-[9px] font-bold">{new Date(search.createdAt).toLocaleTimeString("tr-TR")}</div>
+                    <div className="text-white text-xs font-black uppercase tracking-tight truncate max-w-[120px]">{search.search_type}</div>
+                    <div className="text-zinc-600 text-[9px] font-bold">{new Date(search.created_at).toLocaleTimeString("tr-TR")}</div>
                   </div>
                 </div>
-                <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${search.status === "completed"
-                    ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                    : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${search.is_successful
+                  ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                  : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
                   }`}>
-                  {search.status}
+                  {search.is_successful ? "SUCCESS" : "NO MATCH"}
                 </span>
               </div>
             ))}

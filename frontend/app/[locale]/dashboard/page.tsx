@@ -20,7 +20,8 @@ import {
   ArrowRight,
   Sparkles,
   ShieldCheck,
-  CreditCard
+  CreditCard,
+  Globe
 } from "lucide-react";
 import { toast } from "@/lib/toast";
 
@@ -104,6 +105,9 @@ export default function DashboardPage({
             <div className="flex gap-4">
               <Button onClick={() => router.push(`/${locale}/search`)} className="h-14 px-8 text-[10px] font-black uppercase tracking-widest bg-white/5 border-white/5 hover:bg-white/10" variant="outline">
                 <Clock size={16} className="mr-2" /> {t('viewArchive')}
+              </Button>
+              <Button onClick={() => router.push(`/${locale}/data-platform`)} className="h-14 px-8 text-[10px] font-black uppercase tracking-widest bg-white/5 border-white/5 hover:bg-white/10" variant="outline">
+                <Globe size={16} className="mr-2" /> {locale === "tr" ? "Veri Platformu" : "Data Platform"}
               </Button>
               <Button onClick={() => router.push(`/${locale}/search`)} className="h-14 px-8 text-[10px] font-black uppercase tracking-widest">
                 <Search size={16} className="mr-2" /> {t('startNewSearch')}

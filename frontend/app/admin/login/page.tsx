@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/Button";
 import { ShieldCheck, Mail, Key, Layout } from "lucide-react";
+import { adminPing } from "@/lib/adminApi";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -19,16 +20,8 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/admin/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Giriş başarısız");
-
-      localStorage.setItem("admin", JSON.stringify(data.admin));
+      await adminPing(password);
+      localStorage.setItem("admin", JSON.stringify({ email, name: "Admin" }));
       localStorage.setItem("adminKey", password);
       router.push("/admin");
     } catch (err: any) {

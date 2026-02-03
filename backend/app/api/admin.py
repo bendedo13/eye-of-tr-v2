@@ -1,0 +1,505 @@
+import json
+import os
+from datetime import date, datetime, timedelta, timezone
+from pathlib import Path
+from typing import Any
+
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile, status
+from sqlalchemy import func, desc
+from sqlalchemy.orm import Session
+
+from app.core.config import settings
+from app.db.database import get_db
+from app.models.activity import ActivityDaily
+from app.models.analytics import SearchLog, ReferralLog
+from app.models.cms import BlogPost, MediaAsset, SiteSetting
+from app.models.subscription import Payment
+from app.models.user import User
+
+
+router = APIRouter(prefix="/api/admin", tags=["admin"])
+
+
+def _require_admin_key(request: Request) -> str:
+    key = request.headers.get("x-admin-key") or ""
+    if not settings.ADMIN_API_KEY:
+        raise HTTPException(status_code=503, detail="Admin API is not configured")
+    if key != settings.ADMIN_API_KEY:
+        raise HTTPException(status_code=401, detail="Invalid admin key")
+    return key
+
+
+def _client_ip(request: Request) -> str:
+    xff = request.headers.get("x-forwarded-for")
+    if xff:
+        return xff.split(",")[0].strip()
+    if request.client:
+        return request.client.host
+    return "unknown"
+
+
+@router.get("/ping")
+def admin_ping(request: Request):
+    _require_admin_key(request)
+    return {"status": "ok"}
+
+
+@router.get("/overview")
+def admin_overview(request: Request, db: Session = Depends(get_db)):
+    _require_admin_key(request)
+    now = datetime.now(timezone.utc)
+    today = date.today()
+    since_5m = now - timedelta(minutes=5)
+
+    total_users = db.query(func.count(User.id)).scalar() or 0
+    active_users_5m = (
+        db.query(func.count(func.distinct(ActivityDaily.device_id)))
+        .filter(ActivityDaily.last_seen_at >= since_5m)
+        .scalar()
+        or 0
+    )
+    active_users_today = (
+        db.query(func.count(func.distinct(ActivityDaily.device_id)))
+        .filter(ActivityDaily.day == today)
+        .scalar()
+        or 0
+    )
+    searches_today = db.query(func.count(SearchLog.id)).filter(SearchLog.created_at >= now - timedelta(days=1)).scalar() or 0
+    revenue_total = (
+        db.query(func.coalesce(func.sum(Payment.amount), 0.0))
+        .filter(Payment.status == "completed")
+        .scalar()
+        or 0.0
+    )
+    paying_users = (
+        db.query(func.count(func.distinct(Payment.user_id)))
+        .filter(Payment.status == "completed")
+        .scalar()
+        or 0
+    )
+
+    recent_users = (
+        db.query(User)
+        .order_by(desc(User.created_at))
+        .limit(8)
+        .all()
+    )
+    recent_users_out = [
+        {
+            "id": u.id,
+            "email": u.email,
+            "username": u.username,
+            "tier": u.tier,
+            "credits": u.credits,
+            "is_active": bool(u.is_active),
+            "created_at": u.created_at,
+        }
+        for u in recent_users
+    ]
+
+    recent_payments = (
+        db.query(Payment, User)
+        .join(User, User.id == Payment.user_id)
+        .order_by(desc(Payment.created_at))
+        .limit(8)
+        .all()
+    )
+    recent_payments_out = [
+        {
+            "id": p.id,
+            "email": u.email,
+            "amount": p.amount,
+            "currency": p.currency,
+            "plan_name": p.plan_name,
+            "status": p.status,
+            "created_at": p.created_at,
+            "completed_at": p.completed_at,
+        }
+        for p, u in recent_payments
+    ]
+
+    recent_searches = (
+        db.query(SearchLog)
+        .order_by(desc(SearchLog.created_at))
+        .limit(10)
+        .all()
+    )
+    recent_searches_out = [
+        {
+            "id": s.id,
+            "user_id": s.user_id,
+            "search_type": s.search_type,
+            "query": s.query,
+            "file_name": s.file_name,
+            "results_found": s.results_found,
+            "is_successful": bool(s.is_successful),
+            "providers_used": s.providers_used,
+            "search_duration_ms": s.search_duration_ms,
+            "credits_used": s.credits_used,
+            "created_at": s.created_at,
+        }
+        for s in recent_searches
+    ]
+
+    return {
+        "total_users": int(total_users),
+        "active_users_5m": int(active_users_5m),
+        "active_users_today": int(active_users_today),
+        "searches_24h": int(searches_today),
+        "revenue_total": float(revenue_total),
+        "paying_users": int(paying_users),
+        "recent_users": recent_users_out,
+        "recent_payments": recent_payments_out,
+        "recent_searches": recent_searches_out,
+    }
+
+
+@router.get("/users")
+def admin_users(
+    request: Request,
+    q: str | None = None,
+    status_filter: str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+    db: Session = Depends(get_db),
+):
+    _require_admin_key(request)
+
+    query = db.query(User)
+    if q:
+        like = f"%{q.strip()}%"
+        query = query.filter((User.email.ilike(like)) | (User.username.ilike(like)))
+    if status_filter == "active":
+        query = query.filter(User.is_active.is_(True))
+    if status_filter == "disabled":
+        query = query.filter(User.is_active.is_(False))
+
+    users = query.order_by(desc(User.created_at)).offset(offset).limit(min(limit, 200)).all()
+
+    today = date.today()
+    user_ids = [u.id for u in users]
+
+    activity_rows = (
+        db.query(ActivityDaily.user_id, func.sum(ActivityDaily.seconds).label("seconds"), func.max(ActivityDaily.last_seen_at).label("last_seen_at"))
+        .filter(ActivityDaily.day == today)
+        .filter(ActivityDaily.user_id.in_(user_ids))
+        .group_by(ActivityDaily.user_id)
+        .all()
+    )
+    activity_by_user: dict[int, dict[str, Any]] = {}
+    for r in activity_rows:
+        if r.user_id is None:
+            continue
+        activity_by_user[int(r.user_id)] = {"seconds_today": int(r.seconds or 0), "last_seen_at": r.last_seen_at}
+
+    payment_rows = (
+        db.query(Payment.user_id, func.coalesce(func.sum(Payment.amount), 0.0).label("total_paid"), func.max(Payment.completed_at).label("last_paid_at"))
+        .filter(Payment.status == "completed")
+        .filter(Payment.user_id.in_(user_ids))
+        .group_by(Payment.user_id)
+        .all()
+    )
+    paid_by_user: dict[int, dict[str, Any]] = {}
+    for r in payment_rows:
+        paid_by_user[int(r.user_id)] = {"total_paid": float(r.total_paid or 0.0), "last_paid_at": r.last_paid_at}
+
+    out = []
+    for u in users:
+        a = activity_by_user.get(u.id, {})
+        p = paid_by_user.get(u.id, {})
+        out.append(
+            {
+                "id": u.id,
+                "email": u.email,
+                "username": u.username,
+                "role": u.role,
+                "tier": u.tier,
+                "credits": u.credits,
+                "is_active": bool(u.is_active),
+                "referral_code": u.referral_code,
+                "referred_by": u.referred_by,
+                "referral_count": u.referral_count,
+                "total_searches": u.total_searches,
+                "successful_searches": u.successful_searches,
+                "created_at": u.created_at,
+                "last_search_at": u.last_search_at,
+                "seconds_today": a.get("seconds_today", 0),
+                "last_seen_at": a.get("last_seen_at"),
+                "total_paid": p.get("total_paid", 0.0),
+                "last_paid_at": p.get("last_paid_at"),
+            }
+        )
+    return {"items": out}
+
+
+@router.patch("/users/{user_id}")
+def admin_update_user(user_id: int, request: Request, payload: dict[str, Any], db: Session = Depends(get_db)):
+    _require_admin_key(request)
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if "credits" in payload:
+        user.credits = int(payload["credits"])
+    if "is_active" in payload:
+        user.is_active = bool(payload["is_active"])
+    if "tier" in payload:
+        user.tier = str(payload["tier"])
+    if "role" in payload:
+        user.role = str(payload["role"])
+
+    db.commit()
+    db.refresh(user)
+    return {"status": "ok"}
+
+
+@router.get("/payments")
+def admin_payments(request: Request, status_filter: str | None = None, limit: int = 50, offset: int = 0, db: Session = Depends(get_db)):
+    _require_admin_key(request)
+    q = db.query(Payment, User).join(User, User.id == Payment.user_id)
+    if status_filter:
+        q = q.filter(Payment.status == status_filter)
+    rows = q.order_by(desc(Payment.created_at)).offset(offset).limit(min(limit, 200)).all()
+    items = []
+    for p, u in rows:
+        items.append(
+            {
+                "id": p.id,
+                "user_id": u.id,
+                "email": u.email,
+                "amount": p.amount,
+                "currency": p.currency,
+                "plan_name": p.plan_name,
+                "status": p.status,
+                "payment_method": p.payment_method,
+                "transaction_id": p.transaction_id,
+                "created_at": p.created_at,
+                "completed_at": p.completed_at,
+            }
+        )
+    return {"items": items}
+
+
+@router.get("/referrals")
+def admin_referrals(request: Request, limit: int = 100, offset: int = 0, db: Session = Depends(get_db)):
+    _require_admin_key(request)
+    rows = (
+        db.query(ReferralLog)
+        .order_by(desc(ReferralLog.created_at))
+        .offset(offset)
+        .limit(min(limit, 500))
+        .all()
+    )
+    items = []
+    for r in rows:
+        items.append(
+            {
+                "id": r.id,
+                "referrer_user_id": int(r.referrer_user_id),
+                "referrer_code": r.referrer_code,
+                "referee_user_id": int(r.referee_user_id),
+                "referee_email": r.referee_email,
+                "reward_given": bool(r.reward_given),
+                "credits_awarded": r.credits_awarded,
+                "created_at": r.created_at,
+            }
+        )
+    return {"items": items}
+
+
+@router.get("/site-settings")
+def admin_get_site_settings(request: Request, db: Session = Depends(get_db)):
+    _require_admin_key(request)
+    rows = db.query(SiteSetting).all()
+    out: dict[str, Any] = {}
+    for r in rows:
+        try:
+            out[r.key] = json.loads(r.value_json)
+        except Exception:
+            out[r.key] = r.value_json
+    return {"settings": out}
+
+
+@router.post("/site-settings")
+def admin_set_site_setting(request: Request, payload: dict[str, Any], db: Session = Depends(get_db)):
+    _require_admin_key(request)
+    if "key" not in payload:
+        raise HTTPException(status_code=400, detail="Missing key")
+    key = str(payload["key"]).strip()
+    value = payload.get("value")
+    value_json = json.dumps(value, ensure_ascii=False)
+    row = db.query(SiteSetting).filter(SiteSetting.key == key).first()
+    if row:
+        row.value_json = value_json
+    else:
+        row = SiteSetting(key=key, value_json=value_json)
+        db.add(row)
+    db.commit()
+    return {"status": "ok"}
+
+
+@router.get("/blog-posts")
+def admin_list_blog_posts(request: Request, locale: str | None = None, limit: int = 50, offset: int = 0, db: Session = Depends(get_db)):
+    _require_admin_key(request)
+    q = db.query(BlogPost)
+    if locale:
+        q = q.filter(BlogPost.locale == locale)
+    rows = q.order_by(desc(BlogPost.updated_at)).offset(offset).limit(min(limit, 200)).all()
+    items = []
+    for p in rows:
+        items.append(
+            {
+                "id": p.id,
+                "locale": p.locale,
+                "slug": p.slug,
+                "title": p.title,
+                "excerpt": p.excerpt,
+                "cover_image_url": p.cover_image_url,
+                "author_name": p.author_name,
+                "is_published": p.is_published,
+                "published_at": p.published_at,
+                "created_at": p.created_at,
+                "updated_at": p.updated_at,
+            }
+        )
+    return {"items": items}
+
+
+@router.get("/blog-posts/{post_id}")
+def admin_get_blog_post(post_id: int, request: Request, db: Session = Depends(get_db)):
+    _require_admin_key(request)
+    p = db.query(BlogPost).filter(BlogPost.id == post_id).first()
+    if not p:
+        raise HTTPException(status_code=404, detail="Not found")
+    return {
+        "post": {
+            "id": p.id,
+            "locale": p.locale,
+            "slug": p.slug,
+            "title": p.title,
+            "excerpt": p.excerpt,
+            "content_html": p.content_html,
+            "cover_image_url": p.cover_image_url,
+            "author_name": p.author_name,
+            "is_published": p.is_published,
+            "published_at": p.published_at,
+            "created_at": p.created_at,
+            "updated_at": p.updated_at,
+        }
+    }
+
+
+@router.post("/blog-posts")
+def admin_create_blog_post(request: Request, payload: dict[str, Any], db: Session = Depends(get_db)):
+    _require_admin_key(request)
+    for k in ("locale", "slug", "title", "content_html"):
+        if not payload.get(k):
+            raise HTTPException(status_code=400, detail=f"Missing {k}")
+    p = BlogPost(
+        locale=str(payload["locale"]).strip(),
+        slug=str(payload["slug"]).strip(),
+        title=str(payload["title"]).strip(),
+        excerpt=payload.get("excerpt"),
+        content_html=str(payload["content_html"]),
+        cover_image_url=payload.get("cover_image_url"),
+        author_name=payload.get("author_name"),
+        is_published=bool(payload.get("is_published", False)),
+        published_at=datetime.now(timezone.utc) if payload.get("is_published") else None,
+    )
+    db.add(p)
+    db.commit()
+    db.refresh(p)
+    return {"id": p.id}
+
+
+@router.put("/blog-posts/{post_id}")
+def admin_update_blog_post(post_id: int, request: Request, payload: dict[str, Any], db: Session = Depends(get_db)):
+    _require_admin_key(request)
+    p = db.query(BlogPost).filter(BlogPost.id == post_id).first()
+    if not p:
+        raise HTTPException(status_code=404, detail="Not found")
+    for field in ("locale", "slug", "title", "excerpt", "content_html", "cover_image_url", "author_name"):
+        if field in payload:
+            setattr(p, field, payload[field])
+    if "is_published" in payload:
+        p.is_published = bool(payload["is_published"])
+        if p.is_published and not p.published_at:
+            p.published_at = datetime.now(timezone.utc)
+        if not p.is_published:
+            p.published_at = None
+    db.commit()
+    return {"status": "ok"}
+
+
+@router.delete("/blog-posts/{post_id}")
+def admin_delete_blog_post(post_id: int, request: Request, db: Session = Depends(get_db)):
+    _require_admin_key(request)
+    p = db.query(BlogPost).filter(BlogPost.id == post_id).first()
+    if not p:
+        raise HTTPException(status_code=404, detail="Not found")
+    db.delete(p)
+    db.commit()
+    return {"status": "ok"}
+
+
+@router.post("/media/upload")
+async def admin_upload_media(
+    request: Request,
+    file: UploadFile = File(...),
+    folder: str = Form("admin"),
+    db: Session = Depends(get_db),
+):
+    _require_admin_key(request)
+
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="Missing filename")
+    content = await file.read()
+    if not content:
+        raise HTTPException(status_code=400, detail="Empty file")
+    if len(content) > settings.MAX_UPLOAD_SIZE:
+        raise HTTPException(status_code=413, detail="File too large")
+
+    safe_folder = "".join([c for c in folder if c.isalnum() or c in ("-", "_")]).strip() or "admin"
+    ext = Path(file.filename).suffix.lower()[:10]
+    name = f"{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}-{os.urandom(6).hex()}{ext}"
+
+    upload_root = (Path(__file__).resolve().parents[2] / settings.UPLOAD_DIR).resolve()
+    target_dir = (upload_root / safe_folder).resolve()
+    target_dir.mkdir(parents=True, exist_ok=True)
+    target_path = (target_dir / name).resolve()
+    if upload_root not in target_path.parents:
+        raise HTTPException(status_code=400, detail="Invalid folder")
+
+    target_path.write_bytes(content)
+
+    url = f"/uploads/{safe_folder}/{name}"
+    asset = MediaAsset(
+        filename=name,
+        content_type=file.content_type or "application/octet-stream",
+        size_bytes=len(content),
+        url=url,
+    )
+    db.add(asset)
+    db.commit()
+    db.refresh(asset)
+
+    return {"id": asset.id, "url": url, "filename": name}
+
+
+@router.get("/media")
+def admin_list_media(request: Request, limit: int = 50, offset: int = 0, db: Session = Depends(get_db)):
+    _require_admin_key(request)
+    rows = db.query(MediaAsset).order_by(desc(MediaAsset.created_at)).offset(offset).limit(min(limit, 200)).all()
+    return {
+        "items": [
+            {
+                "id": m.id,
+                "filename": m.filename,
+                "content_type": m.content_type,
+                "size_bytes": m.size_bytes,
+                "url": m.url,
+                "created_at": m.created_at,
+            }
+            for m in rows
+        ]
+    }

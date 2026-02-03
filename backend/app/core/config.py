@@ -30,6 +30,10 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+
+    # Admin
+    ADMIN_EMAIL: Optional[str] = None
+    ADMIN_API_KEY: Optional[str] = None
     
     # CORS - String olarak, virgülle ayrılmış
     CORS_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000"
@@ -40,6 +44,16 @@ class Settings(BaseSettings):
     YANDEX_FOLDER_ID: Optional[str] = None
     FACECHECK_API_KEY: Optional[str] = None
     FACECHECK_API_URL: str = "https://facecheck.id/api/v1"
+    SERPAPI_API_KEY: Optional[str] = None
+    SERPAPI_ENGINE: str = "google_lens"
+    SERPAPI_GL: str = "tr"
+    SERPAPI_HL: str = "tr"
+    SERPAPI_TIMEOUT: int = 30
+    RAPIDAPI_KEY: Optional[str] = None
+    RAPIDAPI_HOST: str = "real-time-image-search.p.rapidapi.com"
+    RAPIDAPI_IMAGE_SEARCH_ENDPOINT: str = "https://real-time-image-search.p.rapidapi.com/search"
+
+    PUBLIC_BASE_URL: Optional[str] = None
 
     # Face Embedding
     FACE_EMBEDDER_BACKEND: str = "insightface"  # insightface | mock
@@ -58,9 +72,25 @@ class Settings(BaseSettings):
     RATE_LIMIT_SEARCH_PER_MINUTE: int = 12
     RATE_LIMIT_AUTH_PER_MINUTE: int = 20
     RATE_LIMIT_LOCATION_INTELLIGENCE_PER_MINUTE: int = 8
+    RATE_LIMIT_VISUAL_LOCATION_PER_MINUTE: int = 6
+    RATE_LIMIT_DATA_PLATFORM_PER_MINUTE: int = 30
 
     LOCATION_INTELLIGENCE_SPAM_PER_MINUTE: int = 4
     LOCATION_INTELLIGENCE_SPAM_PER_DAY: int = 60
+
+    VISUAL_LOCATION_SPAM_PER_MINUTE: int = 3
+    VISUAL_LOCATION_SPAM_PER_DAY: int = 40
+
+    SEARCH_RESULT_CACHE_TTL_SECONDS: int = 3600
+    SEARCH_FALLBACK_MIN_MATCHES: int = 5
+    REVERSE_IMAGE_SUCCESS_RATE_THRESHOLD: float = 0.90
+
+    GEONAMES_USERNAME: str = ""
+    VISUAL_LOCATION_WEB_LOCATION_ENABLED: bool = False
+    VISUAL_LOCATION_CANARY_PERCENT: int = 0
+
+    BING_VISUAL_SEARCH_ENABLED: bool = True
+    YANDEX_REVERSE_IMAGE_ENABLED: bool = False
 
     # Registration protection
     MAX_ACCOUNTS_PER_IP_PER_DAY: int = 3

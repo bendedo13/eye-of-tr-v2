@@ -64,7 +64,25 @@ export default function DisclaimerPage({
                 </section>
 
                 <section className="space-y-4">
-                    <h2 className="text-xl font-black">3. USER RESPONSIBILITY & ETHICAL USE</h2>
+                    <h2 className="text-xl font-black">4. VISUAL SIMILARITY & LOCATION (WEB MATCHING) LIMITATIONS</h2>
+                    <p>
+                        FaceSeek Visual Similarity & Location combines mathematical similarity signals, optional EXIF GPS extraction, and third‑party web match providers to produce a location estimate. Key limitations:
+                    </p>
+                    <ul className="list-disc pl-6 space-y-2 text-zinc-500">
+                        <li><strong>No “global coverage” guarantee:</strong> It is not possible to guarantee matching against “all indexed images on the internet.” Results depend on third‑party provider coverage, availability, and rate limits.</li>
+                        <li><strong>Provider variability:</strong> Reverse-image availability and quality may differ across providers and may change without notice. Fallback mechanisms reduce failures but do not eliminate them.</li>
+                        <li><strong>Location extraction uncertainty:</strong> If EXIF GPS is missing, web pages may not include reliable geo metadata. Even when present, metadata can be outdated or incorrect.</li>
+                        <li><strong>Transparency:</strong> The report may include which sources contributed to the final location (e.g., EXIF, meta-tags, JSON‑LD, geocoding). Absence of sources reduces confidence.</li>
+                    </ul>
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
+                        <p className="text-[10px] font-bold uppercase tracking-widest leading-relaxed text-zinc-300">
+                            <strong>TRANSPARENT NOTICE:</strong> If a minimum coverage or accuracy target cannot be guaranteed for your case, you will see that limitation reflected in the report and our public metrics.
+                        </p>
+                    </div>
+                </section>
+
+                <section className="space-y-4">
+                    <h2 className="text-xl font-black">5. USER RESPONSIBILITY & ETHICAL USE</h2>
                     <p>
                         Users of our facial search engine are solely responsible for:
                     </p>
@@ -77,7 +95,7 @@ export default function DisclaimerPage({
                 </section>
 
                 <section className="space-y-4">
-                    <h2 className="text-xl font-black">4. NO WARRANTIES OR GUARANTEES</h2>
+                    <h2 className="text-xl font-black">6. NO WARRANTIES OR GUARANTEES</h2>
                     <p>
                         FaceSeek provides facial recognition search services "AS IS" without warranties of any kind, including:
                     </p>

@@ -1,12 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { adminGetSiteSettings, adminSetSiteSetting } from "@/lib/adminApi";
+import { getPricingPlans } from "@/lib/api";
 
 export default function AdminPricingPage() {
   const [plans, setPlans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingPlan, setEditingPlan] = useState<any>(null);
-  const [formData, setFormData] = useState({ name: "", price: "", credits: "", features: "" });
+  const [formData, setFormData] = useState({
+    id: "",
+    name: "",
+    price: "",
+    currency: "TRY",
+    credits: "",
+    recommended: false,
+    variant_id: "",
+    features: "",
+  });
 
   useEffect(() => {
     const adminKey = localStorage.getItem("adminKey");
@@ -20,9 +31,13 @@ export default function AdminPricingPage() {
   const fetchPlans = async () => {
     try {
       const adminKey = localStorage.getItem("adminKey") || "";
-      const res = await fetch("/api/admin/pricing", { headers: { "x-admin-key": adminKey } });
-      const data = await res.json();
-      setPlans(data || []);
+      const settings = await adminGetSiteSettings(adminKey);
+      if (settings.settings && settings.settings["pricing.plans"]) {
+        setPlans(settings.settings["pricing.plans"]);
+      } else {
+        const defaults = await getPricingPlans();
+        setPlans(defaults || []);
+      }
     } catch (error) {
       console.error("Plans fetch error:", error);
     } finally {
@@ -33,56 +48,62 @@ export default function AdminPricingPage() {
   const handleSave = async () => {
     try {
       const payload = {
-        name: { tr: formData.name, en: formData.name },
+        id: formData.id.trim(),
+        name: formData.name.trim(),
         price: parseFloat(formData.price),
+        currency: (formData.currency || "TRY").trim(),
         credits: parseInt(formData.credits),
-        features: { tr: formData.features.split("\n"), en: formData.features.split("\n") },
+        features: formData.features
+          .split("\n")
+          .map((x) => x.trim())
+          .filter(Boolean),
+        recommended: !!formData.recommended,
+        ...(formData.variant_id.trim() ? { variant_id: formData.variant_id.trim() } : {}),
       };
       const adminKey = localStorage.getItem("adminKey") || "";
 
-      if (editingPlan?.id) {
-        await fetch("/api/admin/pricing", {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json", "x-admin-key": adminKey },
-          body: JSON.stringify({ id: editingPlan.id, ...payload }),
-        });
+      let next = [...plans];
+      if (editingPlan?.__index != null) {
+        next[editingPlan.__index] = payload;
       } else {
-        await fetch("/api/admin/pricing", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "x-admin-key": adminKey },
-          body: JSON.stringify(payload),
-        });
+        next = [payload, ...next];
       }
-      fetchPlans();
+      await adminSetSiteSetting(adminKey, "pricing.plans", next);
+      setPlans(next);
       setEditingPlan(null);
-      setFormData({ name: "", price: "", credits: "", features: "" });
+      setFormData({ id: "", name: "", price: "", currency: "TRY", credits: "", recommended: false, variant_id: "", features: "" });
     } catch (error) {
       console.error("Save error:", error);
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (idx: number) => {
     if (!confirm("Bu planı silmek istediğinize emin misiniz?")) return;
     try {
       const adminKey = localStorage.getItem("adminKey") || "";
-      await fetch(`/api/admin/pricing?id=${id}`, { method: "DELETE", headers: { "x-admin-key": adminKey } });
-      fetchPlans();
+      const next = plans.filter((_, i) => i !== idx);
+      await adminSetSiteSetting(adminKey, "pricing.plans", next);
+      setPlans(next);
     } catch (error) {
       console.error("Delete error:", error);
     }
   };
 
-  const openEdit = (plan?: any) => {
+  const openEdit = (plan?: any, index?: number) => {
     if (plan) {
       setFormData({
-        name: plan.name?.tr || plan.name || "",
+        id: plan.id || "",
+        name: plan.name || "",
         price: plan.price?.toString() || "",
+        currency: plan.currency || "TRY",
         credits: plan.credits?.toString() || "",
-        features: (plan.features?.tr || plan.features || []).join("\n"),
+        recommended: !!plan.recommended,
+        variant_id: plan.variant_id || "",
+        features: (plan.features || []).join("\n"),
       });
-      setEditingPlan(plan);
+      setEditingPlan({ ...plan, __index: index });
     } else {
-      setFormData({ name: "", price: "", credits: "", features: "" });
+      setFormData({ id: "", name: "", price: "", currency: "TRY", credits: "", recommended: false, variant_id: "", features: "" });
       setEditingPlan({});
     }
   };
@@ -97,19 +118,20 @@ export default function AdminPricingPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {plans.map((plan) => (
-          <div key={plan.id} className="bg-slate-800 rounded-2xl p-6 border border-slate-700">
+        {plans.map((plan, idx) => (
+          <div key={`${plan.id}-${idx}`} className="bg-slate-800 rounded-2xl p-6 border border-slate-700">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-white">{plan.name?.tr || plan.name}</h3>
+              <h3 className="text-xl font-bold text-white">{plan.name}</h3>
               <div className="flex gap-2">
-                <button onClick={() => openEdit(plan)} className="p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg">✏️</button>
-                <button onClick={() => handleDelete(plan.id)} className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg">🗑️</button>
+                <button onClick={() => openEdit(plan, idx)} className="p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg">✏️</button>
+                <button onClick={() => handleDelete(idx)} className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg">🗑️</button>
               </div>
             </div>
-            <div className="text-3xl font-bold text-indigo-400 mb-2">${plan.price}</div>
+            <div className="text-xs text-slate-400 mb-2">{plan.id}</div>
+            <div className="text-3xl font-bold text-indigo-400 mb-2">{plan.price} {plan.currency || "TRY"}</div>
             <div className="text-slate-400 mb-4">{plan.credits} Kredi</div>
             <ul className="space-y-2">
-              {(plan.features?.tr || plan.features || []).map((f: string, i: number) => (
+              {(plan.features || []).map((f: string, i: number) => (
                 <li key={i} className="text-slate-300 text-sm flex items-center gap-2">
                   <span className="text-green-400">✓</span> {f}
                 </li>
@@ -125,6 +147,16 @@ export default function AdminPricingPage() {
             <h2 className="text-xl font-bold text-white mb-4">{editingPlan.id ? "Plan Düzenle" : "Yeni Plan"}</h2>
             <div className="space-y-4">
               <div>
+                <label className="block text-slate-400 text-sm mb-1">Plan ID</label>
+                <input
+                  type="text"
+                  value={formData.id}
+                  onChange={(e) => setFormData({ ...formData, id: e.target.value })}
+                  className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-xl text-white"
+                  placeholder="premium_monthly"
+                />
+              </div>
+              <div>
                 <label className="block text-slate-400 text-sm mb-1">Plan Adı</label>
                 <input
                   type="text"
@@ -135,7 +167,7 @@ export default function AdminPricingPage() {
                 />
               </div>
               <div>
-                <label className="block text-slate-400 text-sm mb-1">Fiyat ($)</label>
+                <label className="block text-slate-400 text-sm mb-1">Fiyat</label>
                 <input
                   type="number"
                   value={formData.price}
@@ -143,6 +175,28 @@ export default function AdminPricingPage() {
                   className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-xl text-white"
                   placeholder="9.99"
                 />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-400 text-sm mb-1">Para Birimi</label>
+                  <input
+                    type="text"
+                    value={formData.currency}
+                    onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
+                    className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-xl text-white"
+                    placeholder="TRY"
+                  />
+                </div>
+                <div className="flex items-end">
+                  <label className="flex items-center gap-2 text-slate-300 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={formData.recommended}
+                      onChange={(e) => setFormData({ ...formData, recommended: e.target.checked })}
+                    />
+                    Önerilen
+                  </label>
+                </div>
               </div>
               <div>
                 <label className="block text-slate-400 text-sm mb-1">Kredi</label>
@@ -152,6 +206,16 @@ export default function AdminPricingPage() {
                   onChange={(e) => setFormData({ ...formData, credits: e.target.value })}
                   className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-xl text-white"
                   placeholder="50"
+                />
+              </div>
+              <div>
+                <label className="block text-slate-400 text-sm mb-1">LemonSqueezy Variant ID (opsiyonel)</label>
+                <input
+                  type="text"
+                  value={formData.variant_id}
+                  onChange={(e) => setFormData({ ...formData, variant_id: e.target.value })}
+                  className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-xl text-white"
+                  placeholder="1272158"
                 />
               </div>
               <div>

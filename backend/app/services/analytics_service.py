@@ -7,6 +7,9 @@ from typing import Optional
 
 from app.models.analytics import SiteVisit, SearchLog
 from app.models.user import User
+from app.core.config import settings
+from app.services.provider_metrics_service import provider_metrics_service
+from app.services.runtime_metrics import runtime_metrics
 
 logger = logging.getLogger(__name__)
 
@@ -118,6 +121,15 @@ class AnalyticsService:
             SearchLog.user_id.isnot(None)
         ).scalar() or 0
         
+        provider_daily = provider_metrics_service.get_window_summary(days=7)
+        provider_runtime = runtime_metrics.snapshot()
+        alerts = []
+        thr = float(getattr(settings, "REVERSE_IMAGE_SUCCESS_RATE_THRESHOLD", 0.90))
+        for p, v in provider_runtime.items():
+            s = v.get("reverse_image_success_rate")
+            if isinstance(s, (int, float)) and float(s) < thr:
+                alerts.append({"provider": p, "type": "reverse_image_success_rate", "value": float(s), "threshold": thr})
+
         return {
             "daily_visitors": daily_visitors + 847,  # Base sayı ekle (güven için)
             "weekly_visitors": weekly_visitors + 5234,  # Base sayı ekle
@@ -126,6 +138,9 @@ class AnalyticsService:
             "success_rate": round(success_rate, 1),
             "total_users": total_users + 3421,  # Base sayı ekle
             "active_users": active_users + 892,  # Base sayı ekle
+            "provider_metrics_7d": provider_daily,
+            "provider_metrics_runtime": provider_runtime,
+            "provider_alerts": alerts,
             "last_updated": now.isoformat()
         }
     

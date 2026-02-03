@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -48,6 +48,32 @@ export default function Home({
   const tFooter = useTranslations('footer');
   const tNav = useTranslations('nav');
 
+  const [siteConfig, setSiteConfig] = useState<Record<string, any> | null>(null);
+
+  useEffect(() => {
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    fetch(`${apiBase}/api/public/site-config?locale=${encodeURIComponent(locale)}`)
+      .then((r) => r.json())
+      .then((d) => setSiteConfig(d.config || {}))
+      .catch(() => setSiteConfig(null));
+  }, [locale]);
+
+  const homeOverrides = useMemo(() => {
+    const cfg = siteConfig || {};
+    return {
+      maintenanceMode: !!cfg["site.maintenance_mode"],
+      heroBadge: cfg[`home.${locale}.hero_badge`],
+      heroTitle: cfg[`home.${locale}.hero_title`],
+      heroSubtitle: cfg[`home.${locale}.hero_subtitle`],
+      privacyBadge: cfg[`home.${locale}.privacy_badge`],
+      ctaTitlePart1: cfg[`home.${locale}.cta_title_part1`],
+      ctaTitlePart2: cfg[`home.${locale}.cta_title_part2`],
+      ctaDescription: cfg[`home.${locale}.cta_description`],
+      ctaButton: cfg[`home.${locale}.cta_button`],
+      heroImageUrl: cfg["home.hero_image_url"],
+    };
+  }, [siteConfig, locale]);
+
   if (!mounted || loading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center space-y-4">
@@ -56,6 +82,19 @@ export default function Home({
           {tCommon("initializingProtocol")}
         </div>
       </div>
+    );
+  }
+
+  if (homeOverrides.maintenanceMode) {
+    return (
+      <ClientOnly>
+        <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 text-center">
+          <div className="text-4xl font-black text-white uppercase tracking-tight mb-4">MAINTENANCE</div>
+          <div className="text-zinc-500 text-sm font-medium max-w-xl">
+            {locale === "tr" ? "Sistem kısa süreli bakım modunda. Lütfen daha sonra tekrar deneyin." : "The system is under maintenance. Please try again later."}
+          </div>
+        </div>
+      </ClientOnly>
     );
   }
 
@@ -82,22 +121,22 @@ export default function Home({
           <div className="relative max-w-7xl mx-auto text-center z-10">
             {/* Status Badge */}
             <div className="inline-flex items-center gap-2 bg-[#00d9ff]/10 border border-[#00d9ff]/30 px-4 py-2 rounded-full text-[#00d9ff] text-[10px] font-black uppercase tracking-[0.2em] mb-10 glow-cyan">
-              <Sparkles size={12} className="animate-pulse" /> {t('badge')}
+              <Sparkles size={12} className="animate-pulse" /> {homeOverrides.heroBadge || t('badge')}
             </div>
             <div className="flex justify-center mb-10 -mt-6">
               <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] text-zinc-300">
-                <ShieldCheck size={12} className="text-primary" /> {tHome("privacyBadge")}
+                <ShieldCheck size={12} className="text-primary" /> {homeOverrides.privacyBadge || tHome("privacyBadge")}
               </div>
             </div>
 
             {/* Main Heading with Face Seek Branding */}
             <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white mb-6 leading-[1.1] tracking-tight uppercase">
-              {t('title')}
+              {homeOverrides.heroTitle || t('title')}
             </h1>
 
             {/* Tagline */}
             <p className="text-slate-400 text-base sm:text-lg md:text-xl font-medium mb-12 max-w-4xl mx-auto leading-relaxed">
-              {t('subtitle')}
+              {homeOverrides.heroSubtitle || t('subtitle')}
             </p>
 
             {/* CTA Buttons */}
@@ -237,14 +276,15 @@ export default function Home({
             <GlassCard className="p-20 text-center relative overflow-hidden" hasScanline>
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-px h-20 bg-gradient-to-b from-primary to-transparent"></div>
               <h2 className="text-4xl md:text-7xl font-black text-white mb-8 uppercase tracking-tighter">
-                {tCta("titlePart1")} <span className="text-zinc-700">{tCta("titlePart2")}</span>
+                {homeOverrides.ctaTitlePart1 || tCta("titlePart1")}{" "}
+                <span className="text-zinc-700">{homeOverrides.ctaTitlePart2 || tCta("titlePart2")}</span>
               </h2>
               <p className="text-zinc-500 text-xl font-medium mb-12 max-w-2xl mx-auto">
-                {tCta("description")}
+                {homeOverrides.ctaDescription || tCta("description")}
               </p>
               {!user && (
                 <Button onClick={() => router.push(`/${locale}/register`)} className="h-20 px-12 text-xl shadow-2xl shadow-primary/40">
-                  {tCta("button")} <ArrowRight className="ml-4" size={24} />
+                  {homeOverrides.ctaButton || tCta("button")} <ArrowRight className="ml-4" size={24} />
                 </Button>
               )}
             </GlassCard>

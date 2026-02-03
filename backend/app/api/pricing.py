@@ -9,6 +9,7 @@ from app.api.deps import get_current_user
 from app.db.database import get_db
 from app.models.user import User
 from app.models.subscription import Subscription, Payment
+from app.models.cms import SiteSetting
 
 router = APIRouter(prefix="/api/pricing", tags=["pricing"])
 logger = logging.getLogger(__name__)
@@ -95,11 +96,25 @@ class SubscribeRequest(BaseModel):
 
 
 @router.get("/plans")
-def get_pricing_plans():
+def get_pricing_plans(db: Session = Depends(get_db)):
     """Tüm fiyatlandırma planları (PUBLIC)"""
+    plans = PRICING_PLANS
+    currency = "TRY"
+    row = db.query(SiteSetting).filter(SiteSetting.key == "pricing.plans").first()
+    if row:
+        try:
+            plans = __import__("json").loads(row.value_json)
+        except Exception:
+            plans = PRICING_PLANS
+    row_cur = db.query(SiteSetting).filter(SiteSetting.key == "pricing.currency").first()
+    if row_cur:
+        try:
+            currency = str(__import__("json").loads(row_cur.value_json))
+        except Exception:
+            currency = "TRY"
     return {
-        "plans": PRICING_PLANS,
-        "currency": "TRY"
+        "plans": plans,
+        "currency": currency
     }
 
 

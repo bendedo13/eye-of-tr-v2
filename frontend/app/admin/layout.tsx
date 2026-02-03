@@ -12,11 +12,15 @@ import {
   ChevronRight,
   ShieldCheck,
   CreditCard,
+  FileText,
+  Image as ImageIcon,
+  Gift,
   Bell,
   Search,
   Zap,
   Cpu
 } from "lucide-react";
+import { adminPing } from "@/lib/adminApi";
 
 export default function AdminLayout({
   children,
@@ -25,28 +29,49 @@ export default function AdminLayout({
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [checking, setChecking] = useState(true);
   const pathname = usePathname();
   const router = useRouter();
 
   useEffect(() => {
-    const adminData = localStorage.getItem("admin");
-    const adminKey = localStorage.getItem("adminKey");
-    if ((!adminData || !adminKey) && pathname !== "/admin/login") {
-      router.push("/admin/login");
-    } else if (adminData && !isAdmin) {
-      setIsAdmin(true);
+    if (pathname === "/admin/login") {
+      setChecking(false);
+      return;
     }
-  }, [pathname, router, isAdmin]);
+    const adminData = localStorage.getItem("admin");
+    const adminKey = localStorage.getItem("adminKey") || "";
+    if (!adminData || !adminKey) {
+      setIsAdmin(false);
+      setChecking(false);
+      router.push("/admin/login");
+      return;
+    }
+    setChecking(true);
+    adminPing(adminKey)
+      .then(() => setIsAdmin(true))
+      .catch(() => {
+        localStorage.removeItem("admin");
+        localStorage.removeItem("adminKey");
+        setIsAdmin(false);
+        router.push("/admin/login");
+      })
+      .finally(() => setChecking(false));
+  }, [pathname, router]);
 
   if (pathname === "/admin/login") {
     return <>{children}</>;
   }
 
+  if (checking) return null;
   if (!isAdmin) return null;
 
   const menuItems = [
     { label: "Dashboard", icon: <BarChart3 size={20} />, href: "/admin" },
     { label: "Kullanıcılar", icon: <Users size={20} />, href: "/admin/users" },
+    { label: "Ödemeler", icon: <CreditCard size={20} />, href: "/admin/payments" },
+    { label: "Referanslar", icon: <Gift size={20} />, href: "/admin/referrals" },
+    { label: "Blog", icon: <FileText size={20} />, href: "/admin/blog" },
+    { label: "Medya", icon: <ImageIcon size={20} />, href: "/admin/media" },
     { label: "Fiyatlandırma", icon: <CreditCard size={20} />, href: "/admin/pricing" },
     { label: "Sistem Ayarları", icon: <Settings size={20} />, href: "/admin/settings" },
   ];

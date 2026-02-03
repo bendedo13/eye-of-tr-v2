@@ -11,6 +11,25 @@ interface LiveStatsData {
   success_rate: number;
   total_users: number;
   active_users: number;
+  provider_metrics_7d?: {
+    window_days: number;
+    providers: Array<{
+      provider: string;
+      attempts: number;
+      success_rate: number;
+      avg_latency_ms: number;
+      avg_matches: number;
+      coverage_proxy: number;
+      quality_score_0_100: number;
+      reverse_image_success_rate: number | null;
+    }>;
+  };
+  provider_alerts?: Array<{
+    provider: string;
+    type: string;
+    value: number;
+    threshold: number;
+  }>;
 }
 
 export default function LiveStats() {
@@ -108,6 +127,9 @@ export default function LiveStats() {
     },
   ];
 
+  const topProvider = stats.provider_metrics_7d?.providers?.[0];
+  const alertCount = stats.provider_alerts?.length ?? 0;
+
   return (
     <div className="glass-dark rounded-[40px] p-10 border border-white/5 backdrop-blur-3xl relative overflow-hidden group">
       {/* Dynamic Background decoration */}
@@ -171,6 +193,22 @@ export default function LiveStats() {
             <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]"></div>
             <span className="group-hover/info:text-zinc-400 transition-colors">{t('activeAnalysts')}: {stats.active_users.toLocaleString()}</span>
           </div>
+          {topProvider && (
+            <div className="flex items-center gap-3 group/info cursor-default">
+              <div className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.5)]"></div>
+              <span className="group-hover/info:text-zinc-400 transition-colors">
+                provider quality: {topProvider.provider} ({Math.round(topProvider.quality_score_0_100)}/100)
+              </span>
+            </div>
+          )}
+          {alertCount > 0 && (
+            <div className="flex items-center gap-3 group/info cursor-default">
+              <div className="w-1.5 h-1.5 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]"></div>
+              <span className="group-hover/info:text-zinc-400 transition-colors">
+                provider alerts: {alertCount}
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </div>

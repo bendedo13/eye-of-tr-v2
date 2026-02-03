@@ -18,6 +18,12 @@ from app.api.dashboard import router as dashboard_router
 from app.api.pricing import router as pricing_router
 from app.api.webhooks import router as webhooks_router
 from app.api.location_intelligence import router as location_intelligence_router
+from app.api.visual_location import router as visual_location_router
+from app.api.admin import router as admin_router
+from app.api.public import router as public_router
+from app.api.analytics import router as analytics_router
+from app.api.data_platform import router as data_platform_router
+from app.api.external_search import router as external_search_router
 from app.db.database import engine, Base, SessionLocal  # Use database.py directly
 from app.middleware.rate_limit import RateLimitMiddleware
 
@@ -26,6 +32,10 @@ from app.models.user import User
 from app.models.subscription import Subscription, Payment
 from app.models.analytics import SiteVisit, SearchLog, ReferralLog
 from app.models.verification import EmailVerification, DeviceRegistration, IpRegistration, PasswordReset
+from app.models.cms import SiteSetting, MediaAsset, BlogPost
+from app.models.activity import ActivityDaily
+from app.models.provider_metrics import ProviderDailyMetric
+from app.models.data_platform import DataSource, CrawlJob, Document
 
 # Logging ayarla
 logging.basicConfig(
@@ -56,9 +66,12 @@ app.add_middleware(RateLimitMiddleware)
 # Request logging middleware
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
-    logger.info(f"🔵 REQUEST: {request.method} {request.url}")
+    trace_id = request.headers.get("x-trace-id") or request.headers.get("x-request-id") or str(uuid.uuid4())
+    request.state.trace_id = trace_id
+    logger.info(f"🔵 REQUEST: {request.method} {request.url} trace_id={trace_id}")
     response = await call_next(request)
-    logger.info(f"🟢 RESPONSE: {response.status_code}")
+    response.headers["x-trace-id"] = trace_id
+    logger.info(f"🟢 RESPONSE: {response.status_code} trace_id={trace_id}")
     return response
 
 # Upload klasörü
@@ -83,12 +96,24 @@ app.include_router(dashboard_router)
 app.include_router(pricing_router)
 app.include_router(webhooks_router)
 app.include_router(location_intelligence_router)
+app.include_router(visual_location_router)
+app.include_router(admin_router)
+app.include_router(public_router)
+app.include_router(analytics_router)
+app.include_router(data_platform_router)
+app.include_router(external_search_router)
 logger.info("✅ Face search router: /upload-face, /search-face")
 logger.info(f"✅ Auth router: {auth_router.prefix}")
 logger.info(f"✅ Dashboard router: {dashboard_router.prefix}")
 logger.info(f"✅ Pricing router: {pricing_router.prefix}")
 logger.info(f"✅ Webhooks router: {webhooks_router.prefix}")
 logger.info(f"✅ Location intelligence router: {location_intelligence_router.prefix}")
+logger.info(f"✅ Visual location router: {visual_location_router.prefix}")
+logger.info(f"✅ Admin router: {admin_router.prefix}")
+logger.info(f"✅ Public router: {public_router.prefix}")
+logger.info(f"✅ Analytics router: {analytics_router.prefix}")
+logger.info(f"✅ Data platform router: {data_platform_router.prefix}")
+logger.info(f"✅ External search router: {external_search_router.prefix}")
 logger.info("=" * 50)
 
 # Security

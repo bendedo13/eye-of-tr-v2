@@ -56,12 +56,16 @@ def _client_ip(request: Request) -> str:
 
 def _limit_for_path(path: str) -> Optional[int]:
     p = path.rstrip("/") or "/"
+    if p.startswith("/api/data-platform"):
+        return settings.RATE_LIMIT_DATA_PLATFORM_PER_MINUTE
     if p in ("/api/upload", "/upload-face"):
         return settings.RATE_LIMIT_UPLOAD_PER_MINUTE
     if p in ("/api/search", "/search-face"):
         return settings.RATE_LIMIT_SEARCH_PER_MINUTE
     if p in ("/api/location-intelligence/analyze",):
         return settings.RATE_LIMIT_LOCATION_INTELLIGENCE_PER_MINUTE
+    if p in ("/api/visual-location/analyze",):
+        return settings.RATE_LIMIT_VISUAL_LOCATION_PER_MINUTE
     if p in ("/api/auth/login", "/api/auth/register"):
         return settings.RATE_LIMIT_AUTH_PER_MINUTE
     return None

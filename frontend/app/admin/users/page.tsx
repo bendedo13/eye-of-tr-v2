@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { adminListUsers, adminUpdateUser } from "@/lib/adminApi";
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<any[]>([]);
@@ -10,6 +11,8 @@ export default function AdminUsersPage() {
   const [total, setTotal] = useState(0);
   const [editingUser, setEditingUser] = useState<any>(null);
   const [creditAmount, setCreditAmount] = useState("");
+  const [tier, setTier] = useState("free");
+  const [role, setRole] = useState("user");
 
   useEffect(() => {
     const adminKey = localStorage.getItem("adminKey");
@@ -23,17 +26,10 @@ export default function AdminUsersPage() {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams({ page: "1", limit: "50" });
-      if (search) params.append("search", search);
-      if (statusFilter) params.append("status", statusFilter);
-
       const adminKey = localStorage.getItem("adminKey") || "";
-      const res = await fetch(`/api/admin/users?${params}`, {
-        headers: { "x-admin-key": adminKey }
-      });
-      const data = await res.json();
-      setUsers(data.users || []);
-      setTotal(data.total || 0);
+      const data = await adminListUsers(adminKey, { q: search || undefined, status: statusFilter || undefined, limit: 50, offset: 0 });
+      setUsers(data.items || []);
+      setTotal((data.items || []).length);
     } catch (error) {
       console.error("Users fetch error:", error);
     } finally {
@@ -41,30 +37,15 @@ export default function AdminUsersPage() {
     }
   };
 
-  const handleAction = async (userId: string, action: string, value?: string) => {
+  const handleAction = async (userId: number, patch: any) => {
     try {
       const adminKey = localStorage.getItem("adminKey") || "";
-      await fetch("/api/admin/users", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json", "x-admin-key": adminKey },
-        body: JSON.stringify({ userId, action, value }),
-      });
+      await adminUpdateUser(adminKey, userId, patch);
       fetchUsers();
       setEditingUser(null);
       setCreditAmount("");
     } catch (error) {
       console.error("Action error:", error);
-    }
-  };
-
-  const handleDelete = async (userId: string) => {
-    if (!confirm("Bu kullanıcıyı silmek istediğinize emin misiniz?")) return;
-    try {
-      const adminKey = localStorage.getItem("adminKey") || "";
-      await fetch(`/api/admin/users?userId=${userId}`, { method: "DELETE", headers: { "x-admin-key": adminKey } });
-      fetchUsers();
-    } catch (error) {
-      console.error("Delete error:", error);
     }
   };
 
@@ -90,7 +71,7 @@ export default function AdminUsersPage() {
         >
           <option value="">Tüm Durumlar</option>
           <option value="active">Aktif</option>
-          <option value="banned">Engelli</option>
+          <option value="disabled">Engelli</option>
         </select>
       </div>
 
@@ -102,6 +83,8 @@ export default function AdminUsersPage() {
                 <th className="text-left px-6 py-4 text-slate-300 font-medium">Kullanıcı</th>
                 <th className="text-left px-6 py-4 text-slate-300 font-medium">Kredi</th>
                 <th className="text-left px-6 py-4 text-slate-300 font-medium">Aramalar</th>
+                <th className="text-left px-6 py-4 text-slate-300 font-medium">Ödeme</th>
+                <th className="text-left px-6 py-4 text-slate-300 font-medium">Bugün Süre</th>
                 <th className="text-left px-6 py-4 text-slate-300 font-medium">Durum</th>
                 <th className="text-left px-6 py-4 text-slate-300 font-medium">Kayıt</th>
                 <th className="text-left px-6 py-4 text-slate-300 font-medium">İşlemler</th>
@@ -113,31 +96,54 @@ export default function AdminUsersPage() {
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-slate-600 rounded-full flex items-center justify-center text-white font-medium">
-                        {user.name?.[0] || user.email[0].toUpperCase()}
+                        {user.username?.[0]?.toUpperCase() || user.email[0].toUpperCase()}
                       </div>
                       <div>
-                        <div className="text-white font-medium">{user.name || "-"}</div>
+                        <div className="text-white font-medium">{user.username || "-"}</div>
                         <div className="text-slate-400 text-sm">{user.email}</div>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4"><span className="text-indigo-400 font-semibold">{user.credits}</span></td>
-                  <td className="px-6 py-4 text-slate-300">{user._count?.searches || 0}</td>
+                  <td className="px-6 py-4 text-slate-300">{user.total_searches || 0}</td>
+                  <td className="px-6 py-4 text-slate-300">{(user.total_paid || 0).toLocaleString("tr-TR")} {user.total_paid ? "₺" : ""}</td>
+                  <td className="px-6 py-4 text-slate-300">{Math.floor((user.seconds_today || 0) / 60)} dk</td>
                   <td className="px-6 py-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${user.status === "active" ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"}`}>
-                      {user.status === "active" ? "Aktif" : "Engelli"}
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${user.is_active ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"}`}>
+                      {user.is_active ? "Aktif" : "Engelli"}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-slate-400 text-sm">{new Date(user.createdAt).toLocaleDateString("tr-TR")}</td>
+                  <td className="px-6 py-4 text-slate-400 text-sm">{new Date(user.created_at).toLocaleDateString("tr-TR")}</td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      <button onClick={() => setEditingUser(user)} className="p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg" title="Düzenle">✏️</button>
-                      {user.status === "active" ? (
-                        <button onClick={() => handleAction(user.id, "ban")} className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg" title="Engelle">🚫</button>
+                      <button
+                        onClick={() => {
+                          setEditingUser(user);
+                          setTier(user.tier || "free");
+                          setRole(user.role || "user");
+                        }}
+                        className="p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg"
+                        title="Düzenle"
+                      >
+                        ✏️
+                      </button>
+                      {user.is_active ? (
+                        <button
+                          onClick={() => handleAction(user.id, { is_active: false })}
+                          className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg"
+                          title="Engelle"
+                        >
+                          🚫
+                        </button>
                       ) : (
-                        <button onClick={() => handleAction(user.id, "activate")} className="p-2 text-slate-400 hover:text-green-400 hover:bg-green-500/10 rounded-lg" title="Aktifleştir">✅</button>
+                        <button
+                          onClick={() => handleAction(user.id, { is_active: true })}
+                          className="p-2 text-slate-400 hover:text-green-400 hover:bg-green-500/10 rounded-lg"
+                          title="Aktifleştir"
+                        >
+                          ✅
+                        </button>
                       )}
-                      <button onClick={() => handleDelete(user.id)} className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg" title="Sil">🗑️</button>
                     </div>
                   </td>
                 </tr>
@@ -170,9 +176,29 @@ export default function AdminUsersPage() {
                     placeholder="Miktar"
                     className="flex-1 px-4 py-2 bg-slate-700 border border-slate-600 rounded-xl text-white"
                   />
-                  <button onClick={() => handleAction(editingUser.id, "addCredits", creditAmount)} className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl">Ekle</button>
-                  <button onClick={() => handleAction(editingUser.id, "setCredits", creditAmount)} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl">Ayarla</button>
+                  <button onClick={() => handleAction(editingUser.id, { credits: Number(creditAmount) })} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl">Ayarla</button>
                 </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-400 text-sm mb-2">Tier</label>
+                  <select value={tier} onChange={(e) => setTier(e.target.value)} className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-xl text-white">
+                    <option value="free">free</option>
+                    <option value="premium">premium</option>
+                    <option value="unlimited">unlimited</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-slate-400 text-sm mb-2">Role</label>
+                  <select value={role} onChange={(e) => setRole(e.target.value)} className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-xl text-white">
+                    <option value="user">user</option>
+                    <option value="admin">admin</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => handleAction(editingUser.id, { tier })} className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-xl">Tier Kaydet</button>
+                <button onClick={() => handleAction(editingUser.id, { role })} className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-xl">Role Kaydet</button>
               </div>
             </div>
             <div className="flex justify-end gap-3 mt-6">
