@@ -6,8 +6,12 @@ import asyncio
 import base64
 
 from app.adapters import AdapterResponse, SearchMatch
+from app.core.config import settings
+from app.services.rate_limiter import AsyncRateLimiter
 
 logger = logging.getLogger(__name__)
+
+_rate_limiter = AsyncRateLimiter(per_minute=settings.FACECHECK_RATE_LIMIT_PER_MINUTE)
 
 
 class FacecheckAdapter:
@@ -17,6 +21,7 @@ class FacecheckAdapter:
         self.api_key = config.get("api_key")
         self.api_url = config.get("api_url", "https://facecheck.id/api/v1")
         self.timeout = config.get("timeout", 60)
+        self.enabled = bool(config.get("enabled", settings.FACECHECK_ENABLED))
         
         if not self.api_key:
             logger.warning("Facecheck API key not configured")
@@ -25,6 +30,16 @@ class FacecheckAdapter:
         """
         Facecheck.id ile yüz arama
         """
+        if not self.enabled:
+            return AdapterResponse(
+                provider="facecheck",
+                status="error",
+                error="Facecheck disabled",
+                matches=[],
+                total_matches=0,
+                search_time_ms=0
+            )
+
         if not self.api_key:
             return AdapterResponse(
                 provider="facecheck",
@@ -36,6 +51,8 @@ class FacecheckAdapter:
             )
         
         try:
+            await _rate_limiter.acquire()
+
             # Görsel dosyasını oku ve base64 encode et
             with open(image_path, "rb") as image_file:
                 image_data = base64.b64encode(image_file.read()).decode()

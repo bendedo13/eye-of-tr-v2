@@ -34,19 +34,20 @@ class SearchService:
             logger.info("Bing API key bulunamadı - atlandı")
         
         # Facecheck adapter
-        if settings.FACECHECK_API_KEY:
+        if settings.FACECHECK_ENABLED and settings.FACECHECK_API_KEY:
             try:
                 facecheck_config = {
                     "api_key": settings.FACECHECK_API_KEY,
                     "api_url": settings.FACECHECK_API_URL,
-                    "timeout": 60
+                    "timeout": 60,
+                    "enabled": True
                 }
                 self.adapters["facecheck"] = get_facecheck_adapter(facecheck_config)
                 logger.info("✅ Facecheck adapter yüklendi")
             except Exception as e:
                 logger.warning(f"Facecheck adapter yüklenemedi: {e}")
         else:
-            logger.info("Facecheck API key bulunamadı - atlandı")
+            logger.info("Facecheck kapalı veya API key bulunamadı - atlandı")
         
         # Yandex adapter
         try:

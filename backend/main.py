@@ -2,6 +2,7 @@ from fastapi import FastAPI, File, UploadFile, HTTPException, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.staticfiles import StaticFiles
 import uvicorn
 import os
 import uuid
@@ -11,6 +12,7 @@ from pathlib import Path
 
 from app.core.config import settings
 from app.services.search_service import get_search_service
+from app.api.face_search import router as face_search_router
 from app.api.auth import router as auth_router
 from app.api.dashboard import router as dashboard_router
 from app.api.pricing import router as pricing_router
@@ -40,7 +42,7 @@ app = FastAPI(
 # CORS ayarları
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.cors_origins_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -55,8 +57,11 @@ async def log_requests(request: Request, call_next):
     return response
 
 # Upload klasörü
-UPLOAD_DIR = Path(settings.UPLOAD_DIR)
-UPLOAD_DIR.mkdir(exist_ok=True)
+UPLOAD_DIR = (Path(__file__).resolve().parent / settings.UPLOAD_DIR).resolve()
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+# Static upload serving
+app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 
 # Search service
 search_service = get_search_service()
@@ -67,10 +72,12 @@ Base.metadata.create_all(bind=engine)
 # Routers
 logger.info("=" * 50)
 logger.info("ROUTERS YÜKLENİYOR...")
+app.include_router(face_search_router)
 app.include_router(auth_router)
 app.include_router(dashboard_router)
 app.include_router(pricing_router)
 app.include_router(webhooks_router)
+logger.info("✅ Face search router: /upload-face, /search-face")
 logger.info(f"✅ Auth router: {auth_router.prefix}")
 logger.info(f"✅ Dashboard router: {dashboard_router.prefix}")
 logger.info(f"✅ Pricing router: {pricing_router.prefix}")

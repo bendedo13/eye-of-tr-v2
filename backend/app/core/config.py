@@ -14,6 +14,14 @@ class Settings(BaseSettings):
     # Upload Settings
     UPLOAD_DIR: str = "uploads"
     MAX_UPLOAD_SIZE: int = 10 * 1024 * 1024  # 10MB
+
+    # FAISS
+    FAISS_DIR: str = "faiss"
+    FAISS_INDEX_NAME: str = "faces.index"
+    FAISS_META_NAME: str = "faces.meta.json"
+    FAISS_INDEX_TYPE: str = "flatl2"  # flatl2 | ivfflat
+    FAISS_DIM: int = 512
+    FAISS_TOP_K_DEFAULT: int = 3
     
     # Database
     DATABASE_URL: str = "sqlite:///./faceseek.db"
@@ -32,6 +40,18 @@ class Settings(BaseSettings):
     YANDEX_FOLDER_ID: Optional[str] = None
     FACECHECK_API_KEY: Optional[str] = None
     FACECHECK_API_URL: str = "https://facecheck.id/api/v1"
+
+    # Face Embedding
+    FACE_EMBEDDER_BACKEND: str = "insightface"  # insightface | mock
+    INSIGHTFACE_MODEL: str = "buffalo_l"
+    INSIGHTFACE_DET_THRESH: float = 0.75
+    INSIGHTFACE_DET_SIZE_W: int = 640
+    INSIGHTFACE_DET_SIZE_H: int = 640
+    INSIGHTFACE_CTX_ID: int = 0
+
+    # FaceCheck
+    FACECHECK_ENABLED: bool = True
+    FACECHECK_RATE_LIMIT_PER_MINUTE: int = 30
     
     # LemonSqueezy
     LEMONSQUEEZY_API_KEY: Optional[str] = None
