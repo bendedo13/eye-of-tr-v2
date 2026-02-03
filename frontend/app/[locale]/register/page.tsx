@@ -9,7 +9,14 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/Button";
 import { UserPlus, Mail, Key, ShieldCheck, Zap, ArrowRight, Layout, User } from "lucide-react";
 
-export default function RegisterPage() {
+import { use } from "react";
+
+export default function RegisterPage({
+  params
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = use(params);
   const router = useRouter();
   const { register, user, mounted, loading } = useAuth();
 
@@ -25,9 +32,9 @@ export default function RegisterPage() {
 
   useEffect(() => {
     if (mounted && !loading && user) {
-      router.push("/dashboard");
+      router.push(`/${locale}/dashboard`);
     }
-  }, [mounted, loading, user, router]);
+  }, [mounted, loading, user, router, locale]);
 
   // Handle referral code from URL
   useEffect(() => {
@@ -56,7 +63,7 @@ export default function RegisterPage() {
 
     try {
       await register(formData.username, formData.email, formData.password, formData.referralCode);
-      router.push("/dashboard");
+      router.push(`/${locale}/dashboard`);
     } catch (err: any) {
       setError(err.message || "Kayıt başarısız. Lütfen bilgilerinizi kontrol edin.");
     } finally {
@@ -180,7 +187,7 @@ export default function RegisterPage() {
               <div className="p-6 bg-primary/5 border border-primary/10 rounded-2xl flex items-start gap-4">
                 <ShieldCheck className="text-primary flex-shrink-0 mt-1" size={18} />
                 <p className="text-[10px] text-zinc-500 font-medium leading-relaxed">
-                  Kayıt olarak <Link href="/terms" className="text-white hover:underline">Hizmet Şartlarını</Link> ve <Link href="/privacy" className="text-white hover:underline">Gizlilik Politikasını</Link> kabul etmiş sayılırsınız. Tüm verileriniz operasyonel gizlilik kuralları çerçevesinde saklanır.
+                  Kayıt olarak <Link href={`/${locale}/legal/terms`} className="text-white hover:underline">Hizmet Şartlarını</Link> ve <Link href={`/${locale}/legal/privacy`} className="text-white hover:underline">Gizlilik Politikasını</Link> kabul etmiş sayılırsınız. Tüm verileriniz operasyonel gizlilik kuralları çerçevesinde saklanır.
                 </p>
               </div>
 
@@ -195,7 +202,7 @@ export default function RegisterPage() {
           </GlassCard>
 
           <p className="mt-10 text-center text-zinc-500 text-xs font-bold uppercase tracking-widest">
-            Zaten bir hesabınız var mı? <Link href="/login" className="text-primary hover:text-white transition-colors underline underline-offset-4 decoration-primary/40 hover:decoration-primary">OTURUM AÇIN</Link>
+            Zaten bir hesabınız var mı? <Link href={`/${locale}/login`} className="text-primary hover:text-white transition-colors underline underline-offset-4 decoration-primary/40 hover:decoration-primary">OTURUM AÇIN</Link>
           </p>
         </div>
       </div>

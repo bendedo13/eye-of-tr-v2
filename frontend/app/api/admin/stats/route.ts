@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 export async function GET() {
   try {
@@ -9,25 +7,25 @@ export async function GET() {
     today.setHours(0, 0, 0, 0);
 
     const [totalUsers, activeUsers, bannedUsers, totalSearches, todaySearches, todaySignups, totalCredits] = await Promise.all([
-      prisma.user.count(),
-      prisma.user.count({ where: { status: "active" } }),
-      prisma.user.count({ where: { status: "banned" } }),
-      prisma.search.count(),
-      prisma.search.count({ where: { createdAt: { gte: today } } }),
-      prisma.user.count({ where: { createdAt: { gte: today } } }),
-      prisma.user.aggregate({ _sum: { credits: true } })
+      prisma.users.count(),
+      prisma.users.count({ where: { is_active: true } }),
+      prisma.users.count({ where: { is_active: false } }),
+      prisma.search_logs.count(),
+      prisma.search_logs.count({ where: { created_at: { gte: today } } }),
+      prisma.users.count({ where: { created_at: { gte: today } } }),
+      prisma.users.aggregate({ _sum: { credits: true } })
     ]);
 
-    const recentUsers = await prisma.user.findMany({
+    const recentUsers = await prisma.users.findMany({
       take: 10,
-      orderBy: { createdAt: "desc" },
-      select: { id: true, email: true, name: true, credits: true, status: true, createdAt: true }
+      orderBy: { created_at: "desc" },
+      select: { id: true, email: true, username: true, credits: true, is_active: true, created_at: true }
     });
 
-    const recentSearches = await prisma.search.findMany({
+    const recentSearches = await prisma.search_logs.findMany({
       take: 10,
-      orderBy: { createdAt: "desc" },
-      include: { user: { select: { email: true } } }
+      orderBy: { created_at: "desc" },
+      include: { users: { select: { email: true } } }
     });
 
     return NextResponse.json({

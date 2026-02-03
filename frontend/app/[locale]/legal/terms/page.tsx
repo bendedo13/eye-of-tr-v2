@@ -1,6 +1,13 @@
 import LegalLayout from "../../../legal_layout_provider";
 
-export default function TermsPage() {
+import { use } from "react";
+
+export default function TermsPage({
+    params
+}: {
+    params: Promise<{ locale: string }>;
+}) {
+    const { locale } = use(params);
     return (
         <LegalLayout>
             <div className="space-y-10">

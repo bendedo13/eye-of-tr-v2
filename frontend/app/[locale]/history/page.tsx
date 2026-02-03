@@ -21,14 +21,21 @@ interface SearchHistoryItem {
   status: "completed" | "pending" | "failed";
 }
 
-export default function HistoryPage() {
+import { use } from "react";
+
+export default function HistoryPage({
+  params
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = use(params);
   const { user, mounted, loading } = useAuth();
   const router = useRouter();
   const [historyItems, setHistoryItems] = useState<SearchHistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [filter, setFilter] = useState<"all" | "completed" | "pending" | "failed">("all");
-  
+
   const itemsPerPage = 9;
 
   // Auth guard
@@ -101,11 +108,10 @@ export default function HistoryPage() {
                   setFilter(status);
                   setCurrentPage(1);
                 }}
-                className={`px-6 py-3 rounded-xl font-medium transition-all ${
-                  filter === status
+                className={`px-6 py-3 rounded-xl font-medium transition-all ${filter === status
                     ? "bg-indigo-600 text-white shadow-lg"
                     : "bg-white text-gray-600 hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 {status.charAt(0).toUpperCase() + status.slice(1)}
               </button>
@@ -139,9 +145,8 @@ export default function HistoryPage() {
                           {formatRelativeTime(item.date)}
                         </span>
                         <span
-                          className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            statusStyles[item.status]
-                          }`}
+                          className={`px-3 py-1 rounded-full text-xs font-medium ${statusStyles[item.status]
+                            }`}
                         >
                           {item.status}
                         </span>

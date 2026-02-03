@@ -72,14 +72,14 @@ export default function Home({
               {user ? (
                 <>
                   <Button
-                    onClick={() => router.push("/search")}
+                    onClick={() => router.push(`/${locale}/search`)}
                     className="h-16 px-10 text-base"
                     variant="primary"
                   >
                     <Search className="mr-2" size={20} /> START ANALYSIS
                   </Button>
                   <Button
-                    onClick={() => router.push("/dashboard")}
+                    onClick={() => router.push(`/${locale}/dashboard`)}
                     className="h-16 px-10 text-base border-white/5 bg-white/5 hover:bg-white/10"
                     variant="outline"
                   >
@@ -88,10 +88,10 @@ export default function Home({
                 </>
               ) : (
                 <>
-                  <Button onClick={() => router.push("/register")} className="h-16 px-12 text-base">
+                  <Button onClick={() => router.push(`/${locale}/register`)} className="h-16 px-12 text-base">
                     🚀 START RECOGNITION FREE
                   </Button>
-                  <Button onClick={() => router.push("/login")} className="h-16 px-10 text-base bg-white/5 border-white/5 hover:bg-white/10" variant="outline">
+                  <Button onClick={() => router.push(`/${locale}/login`)} className="h-16 px-10 text-base bg-white/5 border-white/5 hover:bg-white/10" variant="outline">
                     LOG IN
                   </Button>
                 </>
@@ -195,7 +195,7 @@ export default function Home({
                 Join thousands of investigators, journalists, and security professionals using the world's most advanced facial recognition search platform. Get your first AI face lookup free.
               </p>
               {!user && (
-                <Button onClick={() => router.push("/register")} className="h-20 px-12 text-xl shadow-2xl shadow-primary/40">
+                <Button onClick={() => router.push(`/${locale}/register`)} className="h-20 px-12 text-xl shadow-2xl shadow-primary/40">
                   TRY FACIAL SEARCH FREE <ArrowRight className="ml-4" size={24} />
                 </Button>
               )}
@@ -228,25 +228,25 @@ export default function Home({
               <div className="space-y-6">
                 <h4 className="text-[10px] font-black text-white uppercase tracking-[0.3em]">Platform</h4>
                 <div className="flex flex-col gap-4">
-                  <Link href="/search" className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Face Search</Link>
-                  <Link href="/pricing" className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Pricing</Link>
-                  <Link href="/api" className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Enterprise API</Link>
+                  <Link href={`/${locale}/search`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Face Search</Link>
+                  <Link href={`/${locale}/pricing`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Pricing</Link>
+                  <Link href={`/${locale}/api`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Enterprise API</Link>
                 </div>
               </div>
               <div className="space-y-6">
                 <h4 className="text-[10px] font-black text-white uppercase tracking-[0.3em]">Company</h4>
                 <div className="flex flex-col gap-4">
-                  <Link href="/about" className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">About Us</Link>
-                  <Link href="/blog" className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Blog</Link>
-                  <Link href="/contact" className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Contact</Link>
+                  <Link href={`/${locale}/about`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">About Us</Link>
+                  <Link href={`/${locale}/blog`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Blog</Link>
+                  <Link href={`/${locale}/contact`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Contact</Link>
                 </div>
               </div>
               <div className="space-y-6">
                 <h4 className="text-[10px] font-black text-white uppercase tracking-[0.3em]">Legal</h4>
                 <div className="flex flex-col gap-4">
-                  <Link href="/privacy" className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Privacy Policy</Link>
-                  <Link href="/terms" className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Terms of Service</Link>
-                  <Link href="/legal/disclaimer" className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Disclaimer</Link>
+                  <Link href={`/${locale}/privacy`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Privacy Policy</Link>
+                  <Link href={`/${locale}/terms`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Terms of Service</Link>
+                  <Link href={`/${locale}/legal/disclaimer`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Disclaimer</Link>
                 </div>
               </div>
             </div>

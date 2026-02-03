@@ -9,7 +9,14 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/Button";
 import { Mail, Key, ShieldCheck, Zap, ArrowRight, Layout } from "lucide-react";
 
-export default function LoginPage() {
+import { use } from "react";
+
+export default function LoginPage({
+  params
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = use(params);
   const router = useRouter();
   const { login, user, mounted, loading } = useAuth();
 
@@ -22,9 +29,9 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (mounted && !loading && user) {
-      router.push("/dashboard");
+      router.push(`/${locale}/dashboard`);
     }
-  }, [mounted, loading, user, router]);
+  }, [mounted, loading, user, router, locale]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +46,7 @@ export default function LoginPage() {
 
     try {
       await login(formData.email, formData.password);
-      router.push("/dashboard");
+      router.push(`/${locale}/dashboard`);
     } catch (err: any) {
       setError(err.message || "Giriş başarısız. Kimlik bilgilerinizi kontrol edin.");
     } finally {
@@ -106,7 +113,7 @@ export default function LoginPage() {
                     <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest flex items-center gap-2">
                       <Key size={12} /> PAROLA
                     </label>
-                    <Link href="/forgot-password" className="text-[9px] font-black text-primary/60 hover:text-primary uppercase tracking-widest transition-colors">ŞİFREMİ UNUTTUM</Link>
+                    <Link href={`/${locale}/forgot-password`} className="text-[9px] font-black text-primary/60 hover:text-primary uppercase tracking-widest transition-colors">ŞİFREMİ UNUTTUM</Link>
                   </div>
                   <input
                     type="password"
@@ -131,7 +138,7 @@ export default function LoginPage() {
           </GlassCard>
 
           <p className="mt-10 text-center text-zinc-500 text-xs font-bold uppercase tracking-widest">
-            Hesabınız yok mu? <Link href="/register" className="text-primary hover:text-white transition-colors underline underline-offset-4 decoration-primary/40 hover:decoration-primary">OPERASYONA KATILIN</Link>
+            Hesabınız yok mu? <Link href={`/${locale}/register`} className="text-primary hover:text-white transition-colors underline underline-offset-4 decoration-primary/40 hover:decoration-primary">OPERASYONA KATILIN</Link>
           </p>
 
           <div className="mt-12 flex justify-center items-center gap-8 grayscale opacity-30">

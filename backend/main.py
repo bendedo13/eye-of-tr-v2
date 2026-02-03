@@ -14,6 +14,7 @@ from app.services.search_service import get_search_service
 from app.api.auth import router as auth_router
 from app.api.dashboard import router as dashboard_router
 from app.api.pricing import router as pricing_router
+from app.api.webhooks import router as webhooks_router
 from app.db.database import engine, Base, SessionLocal  # Use database.py directly
 
 # Import all models for DB table creation
@@ -69,9 +70,11 @@ logger.info("ROUTERS YÜKLENİYOR...")
 app.include_router(auth_router)
 app.include_router(dashboard_router)
 app.include_router(pricing_router)
+app.include_router(webhooks_router)
 logger.info(f"✅ Auth router: {auth_router.prefix}")
 logger.info(f"✅ Dashboard router: {dashboard_router.prefix}")
 logger.info(f"✅ Pricing router: {pricing_router.prefix}")
+logger.info(f"✅ Webhooks router: {webhooks_router.prefix}")
 logger.info("=" * 50)
 
 # Security

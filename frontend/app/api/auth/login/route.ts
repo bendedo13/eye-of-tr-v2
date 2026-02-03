@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-
-const prisma = new PrismaClient();
 
 export async function POST(request: Request) {
   try {
@@ -15,7 +13,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { email },
     });
 
@@ -26,7 +24,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const isValid = await bcrypt.compare(password, user.password);
+    const isValid = await bcrypt.compare(password, user.hashed_password);
 
     if (!isValid) {
       return NextResponse.json(
@@ -38,7 +36,7 @@ export async function POST(request: Request) {
     // JWT token oluştur (Backend ile uyumlu)
     const jwt = require("jsonwebtoken");
     const token = jwt.sign(
-      { sub: user.id },
+      { sub: String(user.id) },
       process.env.NEXTAUTH_SECRET || "eye-of-tr-v2-super-secret-key-2026",
       { expiresIn: "1h" }
     );
@@ -49,7 +47,7 @@ export async function POST(request: Request) {
       user: {
         id: user.id,
         email: user.email,
-        name: user.name,
+        name: user.username,
         credits: user.credits,
       },
     });

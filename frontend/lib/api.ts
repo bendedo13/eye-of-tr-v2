@@ -1,4 +1,4 @@
-const API_BASE = "";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
 
 class APIError extends Error {
   constructor(
@@ -54,15 +54,16 @@ export async function login(email: string, password: string) {
 export async function me(token: string) {
   const result = await api<{ user: any }>("/api/auth/me", {
     method: "POST",
-    body: JSON.stringify({ userId: token }),
+    body: JSON.stringify({ token }),
   });
   return result.user;
 }
 
-export async function getDashboardStats(token: string) {
+export async function getDashboardStats(userId: string | number, token: string) {
   return api<any>("/api/dashboard/stats", {
     method: "POST",
-    body: JSON.stringify({ userId: token }),
+    token, // Pass token in header
+    body: JSON.stringify({ userId }),
   });
 }
 
@@ -71,21 +72,28 @@ export async function getLiveStats() {
 }
 
 export async function getPricingPlans() {
-  return [
-    { id: "free", name: "Ücretsiz", price: 0, credits: 10 },
-    { id: "basic", name: "Basic", price: 29, credits: 100 },
-    { id: "pro", name: "Pro", price: 79, credits: 500 },
-  ];
+  const data = await api<any>("/api/pricing/plans");
+  return data.plans;
 }
 
-export async function subscribe(token: string, planId: string, paymentMethod: string = "credit_card") {
-  return { success: true, planId };
+export async function subscribe(token: string, planId: string) {
+  return api<any>("/api/pricing/subscribe", {
+    method: "POST",
+    token,
+    body: JSON.stringify({ plan_id: planId }),
+  });
 }
 
 export async function confirmPayment(token: string, paymentId: number) {
-  return { success: true };
+  return api<any>(`/api/pricing/confirm-payment/${paymentId}`, {
+    method: "POST",
+    token,
+  });
 }
 
 export async function getCurrentSubscription(token: string) {
-  return { plan: "free", credits: 10 };
+  return api<any>("/api/pricing/subscription", {
+    method: "GET",
+    token,
+  });
 }

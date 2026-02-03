@@ -4,7 +4,14 @@ import Navbar from "@/components/Navbar";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { ShieldCheck, Target, Globe, Lock, Cpu, Eye } from "lucide-react";
 
-export default function AboutPage() {
+import { use } from "react";
+
+export default function AboutPage({
+  params
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = use(params);
   return (
     <div className="min-h-screen bg-background text-slate-200">
       <Navbar />

@@ -7,7 +7,9 @@
         "login": "Login",
         "register": "Register",
         "dashboard": "Dashboard",
-        "credits": "Credits"
+        "credits": "Credits",
+        "search": "Search",
+        "logout": "Logout"
     },
     "hero": {
         "title": "FACIAL SEARCH ENGINE FOR PROFESSIONALS",
@@ -118,5 +120,43 @@
         "filter": "Filter",
         "sort": "Sort",
         "back": "Back"
+    },
+    "liveStats": {
+        "title": "Live",
+        "subtitle": "Stats",
+        "description": "Platform operation data is synchronized in real-time",
+        "status": "OPERATIONAL LIVE",
+        "dailyVisitors": "Daily Visitors",
+        "weeklySearches": "Weekly Scans",
+        "successRate": "Success Rate",
+        "totalUsers": "Total Users",
+        "weeklyVisitors": "Weekly Visitors",
+        "totalSearches": "Total Scans",
+        "activeAnalysts": "Active Analysts"
+    },
+    "dashboard": {
+        "title": "DASHBOARD",
+        "subtitle": "COMMAND",
+        "analyst": "Analyst",
+        "viewArchive": "VIEW ARCHIVE",
+        "startNewSearch": "START NEW SCAN",
+        "operationalCredit": "OPERATIONAL CREDIT",
+        "totalSearches": "TOTAL SCANS",
+        "successScore": "SUCCESS SCORE",
+        "referrals": "MY REFERRALS",
+        "referralProtocol": "REFERRAL PROTOCOL",
+        "referralDescription": "Invite new analysts and earn +1 credit for every 3 successful registrations.",
+        "referralCode": "YOUR UNIQUE REFERRAL CODE",
+        "totalInvites": "TOTAL INVITES",
+        "creditEarnings": "CREDIT EARNINGS",
+        "remainingTarget": "REMAINING TARGET",
+        "quickActions": "QUICK ACTIONS",
+        "newSearch": "NEW SCAN",
+        "upgradePlan": "UPGRADE PLAN",
+        "premiumAdvantage": "PREMIUM ADVANTAGE",
+        "premiumDescription": "Get 25% faster scan speeds with the Pro plan.",
+        "operationalHistory": "OPERATIONAL HISTORY",
+        "matches": "MATCHES",
+        "analysis": "ANALYSIS"
     }
 }

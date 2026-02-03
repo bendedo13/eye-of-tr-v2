@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-
-const prisma = new PrismaClient();
 
 export async function POST(request: Request) {
   try {
@@ -15,7 +13,15 @@ export async function POST(request: Request) {
       );
     }
 
-    const existingUser = await prisma.user.findUnique({
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { error: "Geçerli bir email adresi giriniz" },
+        { status: 400 }
+      );
+    }
+
+    const existingUser = await prisma.users.findUnique({
       where: { email },
     });
 
@@ -28,19 +34,26 @@ export async function POST(request: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await prisma.user.create({
+    const user = await prisma.users.create({
       data: {
         email,
-        password: hashedPassword,
-        name: name || null,
+        username: name || email.split('@')[0],
+        hashed_password: hashedPassword,
         credits: 10,
+        tier: "free",
+        is_active: true,
+        role: "user",
+        referral_code: Math.random().toString(36).substring(2, 10).toUpperCase(),
+        referral_count: 0,
+        total_searches: 0,
+        successful_searches: 0,
       },
     });
 
     // JWT token oluştur (Backend ile uyumlu)
     const jwt = require("jsonwebtoken");
     const token = jwt.sign(
-      { sub: user.id },
+      { sub: String(user.id) },
       process.env.NEXTAUTH_SECRET || "eye-of-tr-v2-super-secret-key-2026",
       { expiresIn: "1h" }
     );

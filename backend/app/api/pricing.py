@@ -14,7 +14,17 @@ router = APIRouter(prefix="/api/pricing", tags=["pricing"])
 logger = logging.getLogger(__name__)
 
 
-# Pricing plans
+import httpx
+from app.core.config import settings
+
+# Pricing plans mapping to LemonSqueezy Variant IDs
+PLAN_VARIANTS = {
+    "premium_monthly": "1272158",  # PLAN 1
+    "premium_yearly": "1272167",   # PLAN 2 - Pro
+    "unlimited": "1272174"         # PLAN 3 - Kurumsal
+}
+
+# Pricing plans (Sync with LS)
 PRICING_PLANS = [
     {
         "id": "free",
@@ -41,7 +51,8 @@ PRICING_PLANS = [
             "Öncelikli destek",
             "Blur yok"
         ],
-        "recommended": True
+        "recommended": True,
+        "variant_id": PLAN_VARIANTS["premium_monthly"]
     },
     {
         "id": "premium_yearly",
@@ -56,7 +67,8 @@ PRICING_PLANS = [
             "Blur yok",
             "%17 indirim"
         ],
-        "recommended": False
+        "recommended": False,
+        "variant_id": PLAN_VARIANTS["premium_yearly"]
     },
     {
         "id": "unlimited",
@@ -73,14 +85,13 @@ PRICING_PLANS = [
             "Özel entegrasyon"
         ],
         "recommended": False,
-        "lifetime": True
+        "variant_id": PLAN_VARIANTS["unlimited"]
     }
 ]
 
 
 class SubscribeRequest(BaseModel):
     plan_id: str
-    payment_method: str = "credit_card"
 
 
 @router.get("/plans")
@@ -93,14 +104,13 @@ def get_pricing_plans():
 
 
 @router.post("/subscribe")
-def subscribe_to_plan(
+async def subscribe_to_plan(
     data: SubscribeRequest,
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
-    Plana abone ol (ödeme işlemi)
-    NOT: Gerçek üretimde ödeme gateway'i entegre edilmeli
+    LemonSqueezy Checkout URL oluştur
     """
     # Plan kontrolü
     plan = next((p for p in PRICING_PLANS if p["id"] == data.plan_id), None)
@@ -116,7 +126,21 @@ def subscribe_to_plan(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Free plan cannot be purchased"
         )
-    
+
+    variant_id = plan.get("variant_id")
+    if not variant_id:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Variant ID not configured for this plan"
+        )
+
+    # Email kontrolü (LemonSqueezy için gerekli)
+    if not user.email or "@" not in user.email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Geçersiz email adresi. Lütfen profilinizden geçerli bir email adresi ayarlayın."
+        )
+
     # Ödeme kaydı oluştur (pending)
     payment = Payment(
         user_id=user.id,
@@ -124,23 +148,82 @@ def subscribe_to_plan(
         currency=plan["currency"],
         plan_name=plan["name"],
         status="pending",
-        payment_method=data.payment_method
+        payment_method="lemonsqueezy"
     )
     db.add(payment)
     db.commit()
     db.refresh(payment)
     
-    logger.info(f"Payment initiated: user={user.email}, plan={plan['name']}, amount={plan['price']}")
+    logger.info(f"LemonSqueezy checkout requested: user={user.email}, plan={plan['name']}, variant={variant_id}")
     
-    # NOT: Gerçek ödeme işlemi burada yapılmalı (Stripe, PayTR, vb.)
-    # Şimdilik demo için direkt başarılı sayıyoruz
-    
-    return {
-        "status": "pending",
-        "payment_id": payment.id,
-        "message": "Ödeme işlemi başlatıldı. Gerçek ödeme gateway'i entegre edilmeli.",
-        "redirect_url": f"/payment/confirm/{payment.id}"
-    }
+    # LemonSqueezy API Call to create checkout
+    try:
+        async with httpx.AsyncClient() as client:
+            payload = {
+                "data": {
+                    "type": "checkouts",
+                    "attributes": {
+                        "checkout_data": {
+                            "custom": {
+                                "user_id": str(user.id),
+                                "payment_id": str(payment.id),
+                                "plan_id": str(plan["id"])
+                            },
+                            "email": user.email,
+                            "name": user.username
+                        }
+                    },
+                    "relationships": {
+                        "store": {
+                            "data": {
+                                "type": "stores",
+                                "id": str(settings.LEMONSQUEEZY_STORE_ID)
+                            }
+                        },
+                        "variant": {
+                            "data": {
+                                "type": "variants",
+                                "id": str(variant_id)
+                            }
+                        }
+                    }
+                }
+            }
+            
+            logger.info(f"LemonSqueezy Request Payload: {payload}")
+            
+            resp = await client.post(
+                "https://api.lemonsqueezy.com/v1/checkouts",
+                headers={
+                    "Authorization": f"Bearer {settings.LEMONSQUEEZY_API_KEY}",
+                    "Accept": "application/vnd.api+json",
+                    "Content-Type": "application/vnd.api+json"
+                },
+                json=payload
+            )
+            
+            if resp.status_code != 201:
+                logger.error(f"LemonSqueezy API error ({resp.status_code}): {resp.text}")
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=f"Payment service error: {resp.text}"
+                )
+            
+            checkout_data = resp.json()
+            checkout_url = checkout_data["data"]["attributes"]["url"]
+            
+            return {
+                "status": "success",
+                "payment_id": payment.id,
+                "checkout_url": checkout_url
+            }
+
+    except Exception as e:
+        logger.error(f"Checkout error: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Payment service error"
+        )
 
 
 @router.post("/confirm-payment/{payment_id}")

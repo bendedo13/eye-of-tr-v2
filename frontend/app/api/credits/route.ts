@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 export async function POST(request: Request) {
   try {
@@ -11,7 +9,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "User ID gerekli" }, { status: 400 });
     }
 
-    const user = await prisma.user.findUnique({ where: { id: userId } });
+    const user = await prisma.users.findUnique({ where: { id: Number(userId) } });
 
     if (!user) {
       return NextResponse.json({ error: "Kullanıcı bulunamadı" }, { status: 404 });
@@ -25,8 +23,8 @@ export async function POST(request: Request) {
       newCredits = Math.max(0, newCredits - (amount || 1));
     }
 
-    const updated = await prisma.user.update({
-      where: { id: userId },
+    const updated = await prisma.users.update({
+      where: { id: Number(userId) },
       data: { credits: newCredits },
     });
 
@@ -44,8 +42,8 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "User ID gerekli" }, { status: 400 });
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
+  const user = await prisma.users.findUnique({
+    where: { id: Number(userId) },
     select: { credits: true },
   });
 

@@ -1,21 +1,19 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 export async function GET() {
     try {
         // Veritabanından gerçek verileri çekmeye çalışalım
         // Eğer veritabanı bağlantısı yoksa catch bloğuna düşecek
-        const totalUsers = await prisma.user.count();
-        const totalSearches = await prisma.search.count();
+        const totalUsers = await prisma.users.count();
+        const totalSearches = await prisma.search_logs.count();
 
         // Aktif kullanıcılar (son 7 gün)
         const weekAgo = new Date();
         weekAgo.setDate(weekAgo.getDate() - 7);
-        const activeUsers = await prisma.user.count({
+        const activeUsers = await prisma.users.count({
             where: {
-                updatedAt: { gte: weekAgo }
+                updated_at: { gte: weekAgo }
             }
         });
 

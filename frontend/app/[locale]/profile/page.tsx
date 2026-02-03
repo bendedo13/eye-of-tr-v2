@@ -10,7 +10,14 @@ import ClientOnly from "@/components/ClientOnly";
 /**
  * Kullanıcı Profil Sayfası
  */
-export default function ProfilePage() {
+import { use } from "react";
+
+export default function ProfilePage({
+  params
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = use(params);
   const { user, mounted, loading } = useAuth();
   const router = useRouter();
   const [stats, setStats] = useState({
@@ -40,7 +47,7 @@ export default function ProfilePage() {
     <ClientOnly>
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
         <Navbar />
-        
+
         <div className="max-w-5xl mx-auto px-4 py-12">
           {/* Profile Header */}
           <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl p-8 mb-8 border border-white/20">
@@ -81,7 +88,7 @@ export default function ProfilePage() {
           {/* Account Settings */}
           <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl p-8 border border-white/20">
             <h2 className="text-2xl font-bold text-gray-800 mb-6">Account Settings</h2>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>

@@ -18,7 +18,14 @@ interface PricingPlan {
   isPopular?: boolean;
 }
 
-export default function PricingPage() {
+import { use } from "react";
+
+export default function PricingPage({
+  params
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = use(params);
   const { user, token, mounted, loading } = useAuth();
   const router = useRouter();
   const [plans, setPlans] = useState<PricingPlan[]>([]);
@@ -59,14 +66,19 @@ export default function PricingPage() {
 
   const handleSubscribe = async (planId: string) => {
     if (!user || !token) {
-      router.push("/login");
+      router.push(`/${locale}/login`);
       return;
     }
 
     setProcessingPlan(planId);
     try {
       const result: any = await subscribe(token, planId);
-      alert(result?.message || "Ödeme işlemi başlatıldı!");
+      if (result?.checkout_url) {
+        // Redirect to LemonSqueezy Checkout
+        window.location.href = result.checkout_url;
+      } else {
+        alert(result?.message || "Ödeme işlemi başlatıldı!");
+      }
     } catch (error: any) {
       alert(error?.message || "Bir hata oluştu");
     } finally {
@@ -123,11 +135,10 @@ export default function PricingPage() {
             {plans.map((plan) => (
               <div
                 key={plan.id}
-                className={`relative bg-slate-800 rounded-2xl p-6 border transition-all hover:scale-105 ${
-                  plan.recommended || plan.isPopular
-                    ? "border-indigo-500 shadow-lg shadow-indigo-500/20"
-                    : "border-slate-700"
-                }`}
+                className={`relative bg-slate-800 rounded-2xl p-6 border transition-all hover:scale-105 ${plan.recommended || plan.isPopular
+                  ? "border-indigo-500 shadow-lg shadow-indigo-500/20"
+                  : "border-slate-700"
+                  }`}
               >
                 {/* Popular Badge */}
                 {(plan.recommended || plan.isPopular) && (
@@ -167,11 +178,10 @@ export default function PricingPage() {
                 <button
                   onClick={() => handleSubscribe(plan.id)}
                   disabled={processingPlan === plan.id}
-                  className={`w-full py-3 rounded-xl font-bold transition-all ${
-                    plan.recommended || plan.isPopular
-                      ? "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white"
-                      : "bg-slate-700 hover:bg-slate-600 text-white"
-                  } disabled:opacity-50`}
+                  className={`w-full py-3 rounded-xl font-bold transition-all ${plan.recommended || plan.isPopular
+                    ? "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white"
+                    : "bg-slate-700 hover:bg-slate-600 text-white"
+                    } disabled:opacity-50`}
                 >
                   {processingPlan === plan.id ? "İşleniyor..." : plan.price === 0 ? "Ücretsiz Başla" : "Satın Al"}
                 </button>
@@ -183,7 +193,7 @@ export default function PricingPage() {
           <div className="mt-16 text-center">
             <p className="text-slate-400">
               Sorularınız mı var?{" "}
-              <a href="/contact" className="text-indigo-400 hover:underline">
+              <a href={`/${locale}/contact`} className="text-indigo-400 hover:underline">
                 Bize ulaşın
               </a>
             </p>

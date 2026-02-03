@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 export async function POST(request: Request) {
   try {
-    const { userId: token } = await request.json();
+    const { token } = await request.json();
 
     if (!token) {
       return NextResponse.json({ error: "Token gerekli" }, { status: 400 });
@@ -20,11 +18,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Geçersiz token" }, { status: 401 });
     }
 
-    const userId = decoded.sub;
+    const userId = Number(decoded.sub);
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: userId },
-      select: { id: true, email: true, name: true, credits: true, role: true },
+      select: { id: true, email: true, username: true, credits: true, role: true, tier: true },
     });
 
     if (!user) {

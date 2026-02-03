@@ -32,6 +32,11 @@ class Settings(BaseSettings):
     FACECHECK_API_KEY: Optional[str] = None
     FACECHECK_API_URL: str = "https://facecheck.id/api/v1"
     
+    # LemonSqueezy
+    LEMONSQUEEZY_API_KEY: Optional[str] = None
+    LEMONSQUEEZY_STORE_ID: Optional[str] = None
+    LEMONSQUEEZY_WEBHOOK_SECRET: str = "eyeoftr_secret_2024"
+    
     @property
     def cors_origins_list(self):
         """CORS origins'i liste olarak döndür"""

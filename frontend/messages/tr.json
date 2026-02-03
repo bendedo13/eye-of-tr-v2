@@ -7,7 +7,9 @@
         "login": "Giriş Yap",
         "register": "Kayıt Ol",
         "dashboard": "Panel",
-        "credits": "Kredi"
+        "credits": "Kredi",
+        "search": "Arama",
+        "logout": "Çıkış Yap"
     },
     "hero": {
         "title": "PROFESYONELLER İÇİN YÜZ ARAMA MOTORU",
@@ -118,5 +120,43 @@
         "filter": "Filtrele",
         "sort": "Sırala",
         "back": "Geri"
+    },
+    "liveStats": {
+        "title": "Canlı",
+        "subtitle": "İstatistikler",
+        "description": "Platform operasyon verileri gerçek zamanlı senkronize ediliyor",
+        "status": "OPERASYONEL CANLI",
+        "dailyVisitors": "Günlük Ziyaretçi",
+        "weeklySearches": "Haftalık Tarama",
+        "successRate": "Başarı Oranı",
+        "totalUsers": "Toplam Kullanıcı",
+        "weeklyVisitors": "Haftalık Ziyaret",
+        "totalSearches": "Toplam Tarama",
+        "activeAnalysts": "Aktif Analist"
+    },
+    "dashboard": {
+        "title": "ARAYÜZ",
+        "subtitle": "KOMUTASI",
+        "analyst": "Analist",
+        "viewArchive": "ARŞİVİ GÖR",
+        "startNewSearch": "YENİ TARAMA BAŞLAT",
+        "operationalCredit": "OPERASYONEL KREDİ",
+        "totalSearches": "TOPLAM TARAMA",
+        "successScore": "BAŞARI SKORU",
+        "referrals": "REFERANS ÜYELERİM",
+        "referralProtocol": "REFERANS PROTOKOLÜ",
+        "referralDescription": "Yeni analistler davet edin, her 3 başarılı kayıt için operasyon havuzunuza +1 kredi kazanın.",
+        "referralCode": "SİZE ÖZEL REFERANS KODU",
+        "totalInvites": "TOPLAM DAVET",
+        "creditEarnings": "KREDİ GELİRİ",
+        "remainingTarget": "KALAN HEDEF",
+        "quickActions": "HIZLI AKSİYONLAR",
+        "newSearch": "YENİ TARAMA",
+        "upgradePlan": "PLAN YÜKSELT",
+        "premiumAdvantage": "PREMIUM AVANTAJI",
+        "premiumDescription": "Pro plan ile %25 daha hızlı tarama hızı kazanın.",
+        "operationalHistory": "OPERASYONEL GEÇMİŞ",
+        "matches": "EŞLEŞME",
+        "analysis": "ANALİZİ"
     }
 }

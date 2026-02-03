@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 export async function POST(request: Request) {
   try {
@@ -11,7 +9,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "User ID ve resim gerekli" }, { status: 400 });
     }
 
-    const user = await prisma.user.findUnique({ where: { id: userId } });
+    const user = await prisma.users.findUnique({ where: { id: Number(userId) } });
 
     if (!user) {
       return NextResponse.json({ error: "Kullanıcı bulunamadı" }, { status: 404 });
@@ -22,8 +20,8 @@ export async function POST(request: Request) {
     }
 
     // Krediyi düş
-    await prisma.user.update({
-      where: { id: userId },
+    await prisma.users.update({
+      where: { id: Number(userId) },
       data: { credits: user.credits - 1 },
     });
 

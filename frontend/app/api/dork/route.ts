@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 const DAILY_FREE_LIMIT = 5;
 
 const DORK_TEMPLATES: Record<string, (query: string) => string[]> = {
@@ -21,7 +19,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "User ID ve sorgu gerekli" }, { status: 400 });
     }
 
-    const user = await prisma.user.findUnique({ where: { id: userId } });
+    const user = await prisma.users.findUnique({ where: { id: Number(userId) } });
     if (!user) return NextResponse.json({ error: "Kullanıcı bulunamadı" }, { status: 404 });
 
     const today = new Date();

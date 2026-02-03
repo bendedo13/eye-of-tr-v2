@@ -7,31 +7,15 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id           String        @id @default(cuid())
-  email        String        @unique
-  password     String
-  name         String?
-  credits      Int           @default(10)
-  role         String        @default("user")
-  status       String        @default("active")
-  language     String        @default("tr")
-  lastLogin    DateTime?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  searches     Search[]
-  dorkSearches DorkSearch[]
-  dorkLimit    DorkLimit?
-}
 
 model Search {
   id        String   @id @default(cuid())
-  userId    String
+  userId    Int
   imageUrl  String
   results   Json?
-  status    String   @default("completed")
   createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
+  status    String   @default("completed")
+  user      users    @relation(fields: [userId], references: [id])
 }
 
 model Admin {
@@ -64,18 +48,123 @@ model PricingPlan {
 
 model DorkSearch {
   id        String   @id @default(cuid())
-  userId    String
+  userId    Int
   query     String
   dorkType  String
   results   Json?
   createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
+  user      users    @relation(fields: [userId], references: [id])
 }
 
 model DorkLimit {
-  id     String   @id @default(cuid())
-  userId String   @unique
+  id     String @id @default(cuid())
+  userId Int    @unique
   date   DateTime @default(now())
-  count  Int      @default(0)
-  user   User     @relation(fields: [userId], references: [id])
+  count  Int    @default(0)
+  user   users  @relation(fields: [userId], references: [id])
+}
+
+model payments {
+  id             Int       @id @default(autoincrement())
+  user_id        Int
+  amount         Float
+  currency       String    @db.VarChar(10)
+  plan_name      String    @db.VarChar(50)
+  status         String    @db.VarChar(20)
+  payment_method String?   @db.VarChar(50)
+  transaction_id String?   @unique @db.VarChar(255)
+  created_at     DateTime? @default(now()) @db.Timestamptz(6)
+  completed_at   DateTime? @db.Timestamptz(6)
+  users          users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([id], map: "ix_payments_id")
+}
+
+model referral_logs {
+  id                                          Int       @id @default(autoincrement())
+  referrer_user_id                            Int
+  referrer_code                               String    @db.VarChar(10)
+  referee_user_id                             Int
+  referee_email                               String    @db.VarChar(255)
+  reward_given                                Boolean
+  credits_awarded                             Int
+  created_at                                  DateTime? @default(now()) @db.Timestamptz(6)
+  users_referral_logs_referee_user_idTousers  users     @relation("referral_logs_referee_user_idTousers", fields: [referee_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users_referral_logs_referrer_user_idTousers users     @relation("referral_logs_referrer_user_idTousers", fields: [referrer_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([id], map: "ix_referral_logs_id")
+}
+
+model search_logs {
+  id                 Int       @id @default(autoincrement())
+  user_id            Int?
+  search_type        String    @db.VarChar(50)
+  query              String?   @db.VarChar(255)
+  file_name          String?   @db.VarChar(255)
+  results_found      Int
+  is_successful      Boolean
+  providers_used     String?   @db.VarChar(255)
+  search_duration_ms Int?
+  credits_used       Int
+  was_blurred        Boolean
+  created_at         DateTime? @default(now()) @db.Timestamptz(6)
+  users              users?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([id], map: "ix_search_logs_id")
+}
+
+model site_visits {
+  id         Int       @id @default(autoincrement())
+  ip_address String?   @db.VarChar(45)
+  user_agent String?   @db.VarChar(255)
+  country    String?   @db.VarChar(100)
+  page_url   String?   @db.VarChar(255)
+  referrer   String?   @db.VarChar(255)
+  visited_at DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([id], map: "ix_site_visits_id")
+}
+
+model subscriptions {
+  id         Int       @id @default(autoincrement())
+  user_id    Int
+  plan_name  String    @db.VarChar(50)
+  plan_price Float
+  is_active  Boolean
+  auto_renew Boolean
+  start_date DateTime? @default(now()) @db.Timestamptz(6)
+  end_date   DateTime? @db.Timestamptz(6)
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  users      users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([id], map: "ix_subscriptions_id")
+}
+
+model users {
+  id                                                  Int             @id @default(autoincrement())
+  email                                               String          @unique(map: "ix_users_email") @db.VarChar(255)
+  username                                            String          @unique(map: "ix_users_username") @db.VarChar(50)
+  hashed_password                                     String          @db.VarChar(255)
+  tier                                                String          @db.VarChar(20)
+  credits                                             Int
+  is_active                                           Boolean
+  role                                                String          @db.VarChar(20)
+  referral_code                                       String          @unique(map: "ix_users_referral_code") @db.VarChar(10)
+  referred_by                                         String?         @db.VarChar(10)
+  referral_count                                      Int
+  total_searches                                      Int
+  successful_searches                                 Int
+  created_at                                          DateTime?       @default(now()) @db.Timestamptz(6)
+  updated_at                                          DateTime?       @db.Timestamptz(6)
+  last_search_at                                      DateTime?       @db.Timestamptz(6)
+  payments                                            payments[]
+  referral_logs_referral_logs_referee_user_idTousers  referral_logs[] @relation("referral_logs_referee_user_idTousers")
+  referral_logs_referral_logs_referrer_user_idTousers referral_logs[] @relation("referral_logs_referrer_user_idTousers")
+  search_logs                                         search_logs[]
+  subscriptions                                       subscriptions[]
+  searches                                            Search[]
+  dork_searches                                       DorkSearch[]
+  dork_limit                                          DorkLimit?
+
+  @@index([id], map: "ix_users_id")
 }

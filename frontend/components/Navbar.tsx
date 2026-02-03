@@ -138,7 +138,7 @@ export default function Navbar() {
                   className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-red-500 transition-colors"
                 >
                   <LogOut size={16} />
-                  LOGOUT
+                  {t('logout')}
                 </button>
               </div>
             </>
@@ -237,7 +237,7 @@ export default function Navbar() {
                   className="flex items-center gap-2 text-sm font-black uppercase tracking-widest text-zinc-500 hover:text-red-500 transition-colors p-3"
                 >
                   <LogOut size={16} />
-                  LOGOUT
+                  {t('logout')}
                 </button>
               </>
             ) : (

@@ -23,7 +23,14 @@ import {
 } from "lucide-react";
 import { toast } from "@/lib/toast";
 
-export default function SearchPage() {
+import { use } from "react";
+
+export default function SearchPage({
+  params
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = use(params);
   const { user, token, mounted, loading } = useAuth();
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 interface LiveStatsData {
   daily_visitors: number;
@@ -16,6 +17,7 @@ export default function LiveStats() {
   const [stats, setStats] = useState<LiveStatsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const t = useTranslations('liveStats');
 
   useEffect(() => {
     setMounted(true);
@@ -81,25 +83,25 @@ export default function LiveStats() {
 
   const statItems = [
     {
-      label: "Günlük Ziyaretçi",
+      label: t('dailyVisitors'),
       value: stats.daily_visitors.toLocaleString(),
       icon: "👥",
       color: "from-blue-500 to-cyan-400",
     },
     {
-      label: "Haftalık Tarama",
+      label: t('weeklySearches'),
       value: stats.weekly_searches.toLocaleString(),
       icon: "🔍",
       color: "from-primary to-accent",
     },
     {
-      label: "Başarı Oranı",
+      label: t('successRate'),
       value: `${stats.success_rate}%`,
       icon: "✨",
       color: "from-green-400 to-emerald-500",
     },
     {
-      label: "Toplam Kullanıcı",
+      label: t('totalUsers'),
       value: stats.total_users.toLocaleString(),
       icon: "🌟",
       color: "from-orange-400 to-red-500",
@@ -115,10 +117,10 @@ export default function LiveStats() {
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 relative z-10 gap-6">
         <div>
           <h3 className="text-3xl font-black text-white mb-2 uppercase tracking-tight">
-            Canlı <span className="text-zinc-600">İstatistikler</span>
+            {t('title')} <span className="text-zinc-600">{t('subtitle')}</span>
           </h3>
           <p className="text-zinc-500 text-sm font-medium italic flex items-center gap-2">
-            Platform operasyon verileri gerçek zamanlı senkronize ediliyor
+            {t('description')}
           </p>
         </div>
         <div className="flex items-center gap-3 bg-green-500/5 border border-green-500/10 px-5 py-2.5 rounded-2xl">
@@ -126,7 +128,7 @@ export default function LiveStats() {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
           </span>
-          <span className="text-green-500 text-xs font-black uppercase tracking-[0.2em]">OPERASYONEL CANLI</span>
+          <span className="text-green-500 text-xs font-black uppercase tracking-[0.2em]">{t('status')}</span>
         </div>
       </div>
 
@@ -159,15 +161,15 @@ export default function LiveStats() {
         <div className="flex flex-wrap justify-center md:justify-start gap-10 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-600">
           <div className="flex items-center gap-3 group/info cursor-default">
             <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></div>
-            <span className="group-hover/info:text-zinc-400 transition-colors">Haftalık Ziyaret: {stats.weekly_visitors.toLocaleString()}</span>
+            <span className="group-hover/info:text-zinc-400 transition-colors">{t('weeklyVisitors')}: {stats.weekly_visitors.toLocaleString()}</span>
           </div>
           <div className="flex items-center gap-3 group/info cursor-default">
             <div className="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_rgba(var(--color-primary-rgb),0.5)]"></div>
-            <span className="group-hover/info:text-zinc-400 transition-colors">Toplam Tarama: {stats.total_searches.toLocaleString()}</span>
+            <span className="group-hover/info:text-zinc-400 transition-colors">{t('totalSearches')}: {stats.total_searches.toLocaleString()}</span>
           </div>
           <div className="flex items-center gap-3 group/info cursor-default">
             <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]"></div>
-            <span className="group-hover/info:text-zinc-400 transition-colors">Aktif Analist: {stats.active_users.toLocaleString()}</span>
+            <span className="group-hover/info:text-zinc-400 transition-colors">{t('activeAnalysts')}: {stats.active_users.toLocaleString()}</span>
           </div>
         </div>
       </div>

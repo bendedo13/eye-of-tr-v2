@@ -8,13 +8,19 @@ export const locales = ['en', 'tr'] as const;
 export type Locale = (typeof locales)[number];
 
 export default getRequestConfig(async ({ locale }) => {
-    // Validate that the incoming `locale` parameter is valid
-    if (!locales.includes(locale as Locale)) notFound();
+    // Fallback to default locale if not provided or invalid
+    const activeLocale = locale || 'en';
 
-    const messages = locale === 'en' ? en : tr;
+    if (!locales.includes(activeLocale as Locale)) {
+        notFound();
+    }
+
+    const messages = activeLocale === 'tr' ? tr : en;
 
     return {
-        locale,
+        locale: activeLocale,
         messages
     };
 });
+
+// Trigger re-import of messages
