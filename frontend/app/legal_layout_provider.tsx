@@ -9,10 +9,11 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
     const pathname = usePathname();
 
     const links = [
-        { href: "/privacy", label: "Privacy Policy" },
-        { href: "/terms", label: "Terms of Service" },
-        { href: "/kvkk", label: "KVKK" },
-        { href: "/disclaimer", label: "Disclaimer" },
+        { href: "/legal", label: "Legal Hub" },
+        { href: "/legal/privacy", label: "Privacy Policy" },
+        { href: "/legal/kvkk", label: "KVKK" },
+        { href: "/legal/terms", label: "Terms" },
+        { href: "/legal/disclaimer", label: "Disclaimer" },
     ];
 
     return (
@@ -27,7 +28,7 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
                                 <Link
                                     key={link.href}
                                     href={link.href}
-                                    className={`block px-6 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${pathname === link.href
+                                    className={`block px-6 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${pathname?.endsWith(link.href)
                                             ? "bg-primary text-white shadow-lg shadow-primary/20"
                                             : "text-zinc-500 hover:text-white hover:bg-white/5"
                                         }`}

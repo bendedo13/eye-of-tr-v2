@@ -1,9 +1,21 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { login as apiLogin, register as apiRegister, me } from "@/lib/api";
+import { login as apiLogin, register as apiRegister, me, resendVerificationCode, verifyEmail } from "@/lib/api";
 
-type User = { id: number; email: string } | null;
+type User =
+  | {
+      id: number;
+      email: string;
+      username: string;
+      credits: number;
+      role: string;
+      tier: string;
+      referral_code: string;
+      referral_count: number;
+      is_active?: boolean;
+    }
+  | null;
 
 type AuthContextType = {
   user: User;
@@ -11,7 +23,10 @@ type AuthContextType = {
   loading: boolean;
   mounted: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, username: string, password: string, referralCode?: string) => Promise<void>;
+  register: (email: string, username: string, password: string, referralCode?: string) => Promise<{ needsVerification: boolean; email: string }>;
+  verifyEmail: (email: string, code: string) => Promise<void>;
+  resendCode: (email: string) => Promise<void>;
+  refresh: () => Promise<void>;
   logout: () => void;
 };
 
@@ -57,10 +72,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const register = async (email: string, username: string, password: string, referralCode?: string) => {
-    const { access_token } = await apiRegister(email, username, password, referralCode);
+    const result = await apiRegister(email, username, password, referralCode);
+    if (!result.access_token) {
+      return { needsVerification: true, email };
+    }
+    localStorage.setItem(TOKEN_KEY, result.access_token);
+    setToken(result.access_token);
+    const u = await me(result.access_token);
+    setUser(u);
+    return { needsVerification: false, email };
+  };
+
+  const completeVerification = async (email: string, code: string) => {
+    const { access_token } = await verifyEmail(email, code);
     localStorage.setItem(TOKEN_KEY, access_token);
     setToken(access_token);
     const u = await me(access_token);
+    setUser(u);
+  };
+
+  const resendCode = async (email: string) => {
+    await resendVerificationCode(email);
+  };
+
+  const refresh = async () => {
+    const t = localStorage.getItem(TOKEN_KEY);
+    if (!t) return;
+    setToken(t);
+    const u = await me(t);
     setUser(u);
   };
 
@@ -71,7 +110,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, mounted, login, register, logout }}>
+    <AuthContext.Provider
+      value={{ user, token, loading, mounted, login, register, verifyEmail: completeVerification, resendCode, refresh, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

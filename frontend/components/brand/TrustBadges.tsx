@@ -1,28 +1,28 @@
 "use client";
 
 import React from 'react';
-import { Shield, Lock, Eye, Award } from 'lucide-react';
+import { Shield, Lock, Eye, Trash2 } from 'lucide-react';
 
 export default function TrustBadges() {
     const badges = [
         {
             icon: Lock,
-            text: 'SSL Secure',
+            text: 'Encrypted in Transit',
             color: '#fbbf24'
         },
         {
             icon: Shield,
-            text: 'GDPR Compliant',
+            text: 'Abuse Protection',
             color: '#00d9ff'
         },
         {
             icon: Eye,
-            text: 'Privacy Encrypted',
+            text: 'Privacy-First',
             color: '#8b5cf6'
         },
         {
-            icon: Award,
-            text: 'ISO 27001',
+            icon: Trash2,
+            text: 'No Image Storage',
             color: '#10b981'
         }
     ];

@@ -1,7 +1,18 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-export async function GET() {
+function requireAdminKey(request: Request) {
+  const adminKey = process.env.ADMIN_API_KEY;
+  const provided = request.headers.get("x-admin-key");
+  if (!adminKey || !provided || provided !== adminKey) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  return null;
+}
+
+export async function GET(request: Request) {
+  const auth = requireAdminKey(request);
+  if (auth) return auth;
   try {
     const plans = await prisma.pricingPlan.findMany({ orderBy: { sortOrder: "asc" } });
     return NextResponse.json(plans);
@@ -11,6 +22,8 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const auth = requireAdminKey(request);
+  if (auth) return auth;
   try {
     const data = await request.json();
     const plan = await prisma.pricingPlan.create({ data });
@@ -21,6 +34,8 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
+  const auth = requireAdminKey(request);
+  if (auth) return auth;
   try {
     const { id, ...data } = await request.json();
     const plan = await prisma.pricingPlan.update({ where: { id }, data });
@@ -31,6 +46,8 @@ export async function PATCH(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const auth = requireAdminKey(request);
+  if (auth) return auth;
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");

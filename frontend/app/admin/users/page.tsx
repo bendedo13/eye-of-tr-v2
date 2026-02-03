@@ -12,6 +12,11 @@ export default function AdminUsersPage() {
   const [creditAmount, setCreditAmount] = useState("");
 
   useEffect(() => {
+    const adminKey = localStorage.getItem("adminKey");
+    if (!adminKey) {
+      window.location.href = "/admin/login";
+      return;
+    }
     fetchUsers();
   }, [search, statusFilter]);
 
@@ -22,7 +27,10 @@ export default function AdminUsersPage() {
       if (search) params.append("search", search);
       if (statusFilter) params.append("status", statusFilter);
 
-      const res = await fetch(`/api/admin/users?${params}`);
+      const adminKey = localStorage.getItem("adminKey") || "";
+      const res = await fetch(`/api/admin/users?${params}`, {
+        headers: { "x-admin-key": adminKey }
+      });
       const data = await res.json();
       setUsers(data.users || []);
       setTotal(data.total || 0);
@@ -35,9 +43,10 @@ export default function AdminUsersPage() {
 
   const handleAction = async (userId: string, action: string, value?: string) => {
     try {
+      const adminKey = localStorage.getItem("adminKey") || "";
       await fetch("/api/admin/users", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-admin-key": adminKey },
         body: JSON.stringify({ userId, action, value }),
       });
       fetchUsers();
@@ -51,7 +60,8 @@ export default function AdminUsersPage() {
   const handleDelete = async (userId: string) => {
     if (!confirm("Bu kullanıcıyı silmek istediğinize emin misiniz?")) return;
     try {
-      await fetch(`/api/admin/users?userId=${userId}`, { method: "DELETE" });
+      const adminKey = localStorage.getItem("adminKey") || "";
+      await fetch(`/api/admin/users?userId=${userId}`, { method: "DELETE", headers: { "x-admin-key": adminKey } });
       fetchUsers();
     } catch (error) {
       console.error("Delete error:", error);

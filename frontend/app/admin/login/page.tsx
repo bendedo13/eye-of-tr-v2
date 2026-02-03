@@ -29,6 +29,7 @@ export default function AdminLoginPage() {
       if (!res.ok) throw new Error(data.error || "Giriş başarısız");
 
       localStorage.setItem("admin", JSON.stringify(data.admin));
+      localStorage.setItem("adminKey", password);
       router.push("/admin");
     } catch (err: any) {
       setError(err.message);

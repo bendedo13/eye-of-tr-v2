@@ -52,6 +52,31 @@ class Settings(BaseSettings):
     # FaceCheck
     FACECHECK_ENABLED: bool = True
     FACECHECK_RATE_LIMIT_PER_MINUTE: int = 30
+
+    # Rate limiting
+    RATE_LIMIT_UPLOAD_PER_MINUTE: int = 12
+    RATE_LIMIT_SEARCH_PER_MINUTE: int = 12
+    RATE_LIMIT_AUTH_PER_MINUTE: int = 20
+    RATE_LIMIT_LOCATION_INTELLIGENCE_PER_MINUTE: int = 8
+
+    LOCATION_INTELLIGENCE_SPAM_PER_MINUTE: int = 4
+    LOCATION_INTELLIGENCE_SPAM_PER_DAY: int = 60
+
+    # Registration protection
+    MAX_ACCOUNTS_PER_IP_PER_DAY: int = 3
+    EMAIL_VERIFICATION_CODE_TTL_MINUTES: int = 15
+    EMAIL_VERIFICATION_RESEND_COOLDOWN_SECONDS: int = 60
+
+    # Email (SMTP)
+    SMTP_HOST: Optional[str] = None
+    SMTP_PORT: int = 587
+    SMTP_USER: Optional[str] = None
+    SMTP_PASS: Optional[str] = None
+    SMTP_FROM: Optional[str] = None
+
+    # Location intelligence
+    LOCATION_INTELLIGENCE_SPAM_PER_MINUTE: int = 6
+    LOCATION_INTELLIGENCE_SPAM_PER_DAY: int = 50
     
     # LemonSqueezy
     LEMONSQUEEZY_API_KEY: Optional[str] = None

@@ -8,12 +8,18 @@ export default function AdminSettingsPage() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
+    const adminKey = localStorage.getItem("adminKey");
+    if (!adminKey) {
+      window.location.href = "/admin/login";
+      return;
+    }
     fetchSettings();
   }, []);
 
   const fetchSettings = async () => {
     try {
-      const res = await fetch("/api/admin/settings");
+      const adminKey = localStorage.getItem("adminKey") || "";
+      const res = await fetch("/api/admin/settings", { headers: { "x-admin-key": adminKey } });
       const data = await res.json();
       setSettings(data || {});
     } catch (error) {
@@ -26,9 +32,10 @@ export default function AdminSettingsPage() {
   const saveSetting = async (key: string, value: any) => {
     setSaving(true);
     try {
+      const adminKey = localStorage.getItem("adminKey") || "";
       await fetch("/api/admin/settings", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-admin-key": adminKey },
         body: JSON.stringify({ key, value }),
       });
       setSettings({ ...settings, [key]: value });

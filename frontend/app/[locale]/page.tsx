@@ -11,6 +11,8 @@ import ClientOnly from "@/components/ClientOnly";
 import { Button } from "@/components/ui/Button";
 import FacialRecognitionDemo from "@/components/brand/FacialRecognitionDemo";
 import { GlassCard } from "@/components/ui/GlassCard";
+import ReferralPromo from "@/components/marketing/ReferralPromo";
+import TrustCounter from "@/components/marketing/TrustCounter";
 import {
   ShieldCheck,
   Search,
@@ -54,6 +56,7 @@ export default function Home({
     <ClientOnly>
       <div className="min-h-screen bg-background text-slate-200 selection:bg-primary/30 selection:text-white">
         <Navbar />
+        <TrustCounter locale={locale} />
 
         {/* Face Seek Hero Section */}
         <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden py-24 px-6 circuit-pattern">
@@ -73,6 +76,11 @@ export default function Home({
             {/* Status Badge */}
             <div className="inline-flex items-center gap-2 bg-[#00d9ff]/10 border border-[#00d9ff]/30 px-4 py-2 rounded-full text-[#00d9ff] text-[10px] font-black uppercase tracking-[0.2em] mb-10 glow-cyan">
               <Sparkles size={12} className="animate-pulse" /> {t('badge')}
+            </div>
+            <div className="flex justify-center mb-10 -mt-6">
+              <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] text-zinc-300">
+                <ShieldCheck size={12} className="text-primary" /> We don’t store images
+              </div>
             </div>
 
             {/* Main Heading with Face Seek Branding */}
@@ -142,6 +150,10 @@ export default function Home({
             </div>
           </div>
         </section>
+
+        <div className="px-6 -mt-10">
+          <ReferralPromo locale={locale} />
+        </div>
 
         {/* Live Stats Section */}
         <section className="py-24 px-6">
@@ -261,16 +273,18 @@ export default function Home({
               <div className="space-y-6">
                 <h4 className="text-[10px] font-black text-white uppercase tracking-[0.3em]">Company</h4>
                 <div className="flex flex-col gap-4">
-                  <Link href={`/${locale}/about`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">About Us</Link>
+                  <Link href={`/${locale}/legal/about`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">About Us</Link>
                   <Link href={`/${locale}/blog`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Blog</Link>
-                  <Link href={`/${locale}/contact`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Contact</Link>
+                  <a href="mailto:contact@face-seek.com" className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Contact</a>
                 </div>
               </div>
               <div className="space-y-6">
                 <h4 className="text-[10px] font-black text-white uppercase tracking-[0.3em]">Legal</h4>
                 <div className="flex flex-col gap-4">
-                  <Link href={`/${locale}/privacy`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Privacy Policy</Link>
-                  <Link href={`/${locale}/terms`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Terms of Service</Link>
+                  <Link href={`/${locale}/legal`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Legal Hub</Link>
+                  <Link href={`/${locale}/legal/privacy`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Privacy Policy</Link>
+                  <Link href={`/${locale}/legal/kvkk`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">KVKK</Link>
+                  <Link href={`/${locale}/legal/terms`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Terms</Link>
                   <Link href={`/${locale}/legal/disclaimer`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">Disclaimer</Link>
                 </div>
               </div>
@@ -279,9 +293,8 @@ export default function Home({
           <div className="max-w-7xl mx-auto mt-24 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
             <p className="text-zinc-600 text-[10px] font-black uppercase tracking-[0.3em]">© 2026 FaceSeek. All protocols reserved.</p>
             <div className="flex items-center gap-6">
-              <span className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">ISO 27001 CLOUD</span>
-              <span className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">GDPR COMPLIANT</span>
-              <span className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">ENCRYPTED NODE</span>
+              <span className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">WE DON'T STORE IMAGES</span>
+              <span className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">PRIVACY-FIRST</span>
             </div>
           </div>
         </footer>

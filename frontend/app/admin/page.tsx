@@ -21,12 +21,18 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const adminKey = localStorage.getItem("adminKey");
+    if (!adminKey) {
+      window.location.href = "/admin/login";
+      return;
+    }
     fetchStats();
   }, []);
 
   const fetchStats = async () => {
     try {
-      const res = await fetch("/api/admin/stats");
+      const adminKey = localStorage.getItem("adminKey") || "";
+      const res = await fetch("/api/admin/stats", { headers: { "x-admin-key": adminKey } });
       const data = await res.json();
       setStats(data.stats);
       setRecentUsers(data.recentUsers || []);

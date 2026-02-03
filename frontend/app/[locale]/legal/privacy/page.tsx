@@ -26,9 +26,10 @@ export default function PrivacyPage({
           </p>
           <ul className="list-disc pl-6 space-y-2 text-zinc-500">
             <li><strong>Image Uploads:</strong> When you upload an image for facial recognition search, the file is processed locally and transiently to generate a mathematical biometric vector (facial signature).</li>
-            <li><strong>Temporary Storage:</strong> Uploaded images are automatically deleted after search completion or within 24 hours maximum. We do not build permanent facial recognition databases from user uploads.</li>
+            <li><strong>No Image Storage:</strong> We do not store uploaded images. Images are processed transiently for the purpose of your request and are not retained as a user-upload image archive.</li>
             <li><strong>Search Metadata:</strong> We collect anonymized search metadata (timestamp, query type, result count) for system optimization and abuse prevention, but never link this to personally identifiable information.</li>
             <li><strong>No Third-Party Sales:</strong> Your facial data, image uploads, and biometric signatures are NEVER sold, shared, or transferred to third parties for commercial purposes.</li>
+            <li><strong>Location Intelligence:</strong> If you use FaceSeek Location Intelligence, the system analyzes environmental cues in the uploaded image (not the face) to generate a predictive location estimate. The uploaded image is not stored.</li>
           </ul>
         </section>
 

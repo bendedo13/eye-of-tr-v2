@@ -39,11 +39,18 @@ export default function SearchPage({
   const [results, setResults] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [includeFacecheck, setIncludeFacecheck] = useState(false);
+  const [acceptedDisclaimer, setAcceptedDisclaimer] = useState(false);
   const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   const resolveUrl = (url?: string | null) => {
     if (!url) return undefined;
     return url.startsWith("/") ? `${apiBase}${url}` : url;
   };
+
+  useEffect(() => {
+    if (mounted && !loading && !user) {
+      router.push(`/${locale}/login`);
+    }
+  }, [mounted, loading, user, router, locale]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -55,6 +62,7 @@ export default function SearchPage({
 
       setFile(selectedFile);
       setError(null);
+      setAcceptedDisclaimer(false);
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreview(reader.result as string);
@@ -68,11 +76,16 @@ export default function SearchPage({
     setPreview(null);
     setResults(null);
     setError(null);
+    setAcceptedDisclaimer(false);
   };
 
   const handleSearch = async () => {
-    if (!file) {
+    if (!file || !token) {
       toast.error("Lütfen bir fotoğraf seçin.");
+      return;
+    }
+    if (!acceptedDisclaimer) {
+      toast.error("Aramaya başlamadan önce sorumluluk beyanını kabul edin.");
       return;
     }
 
@@ -85,8 +98,14 @@ export default function SearchPage({
     try {
       const searchRes = await fetch(`${apiBase}/search-face?top_k=3&include_facecheck=${includeFacecheck ? "true" : "false"}`, {
         method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
+      if (searchRes.status === 402) {
+        toast.error("Krediniz bitti. Fiyatlandırma sayfasına yönlendiriliyorsunuz.");
+        router.push(`/${locale}/pricing`);
+        return;
+      }
       const searchData = await searchRes.json();
       if (!searchRes.ok) throw new Error(searchData.detail || "Search failed");
 
@@ -107,6 +126,8 @@ export default function SearchPage({
       </div>
     );
   }
+
+  if (!user) return null;
 
   return (
     <ClientOnly>
@@ -151,6 +172,9 @@ export default function SearchPage({
                   </div>
                   <h3 className="text-2xl font-black text-white mb-3 uppercase tracking-tight">HEDEF GÖRSELİ YÜKLE</h3>
                   <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.2em]">JPG, PNG, WEBP • MAX 10MB</p>
+                  <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-zinc-300">
+                    <ShieldCheck size={14} className="text-primary" /> We don’t store images
+                  </div>
                 </label>
               </div>
             ) : (
@@ -179,13 +203,31 @@ export default function SearchPage({
                     onClick={handleSearch}
                     className="flex-1 h-14"
                     isLoading={searching}
-                    disabled={searching}
+                    disabled={searching || !acceptedDisclaimer}
                   >
                     <Target className="mr-2" size={18} /> TARAMAYI BAŞLAT
                   </Button>
                 </div>
 
-                <div className="flex items-center justify-center gap-3 pt-2">
+                <div className="flex flex-col items-center justify-center gap-4 pt-2">
+                  <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                    <input
+                      type="checkbox"
+                      checked={acceptedDisclaimer}
+                      onChange={(e) => setAcceptedDisclaimer(e.target.checked)}
+                      className="accent-primary"
+                      disabled={searching}
+                    />
+                    SORUMLULUK BEYANINI KABUL EDİYORUM
+                  </label>
+                  <a
+                    href={`/${locale}/legal/disclaimer`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[10px] font-black uppercase tracking-widest text-primary hover:text-white transition-colors"
+                  >
+                    BEYANI OKU
+                  </a>
                   <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-zinc-600">
                     <input
                       type="checkbox"

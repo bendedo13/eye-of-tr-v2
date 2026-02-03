@@ -9,11 +9,13 @@ class UserRegister(BaseModel):
     username: str
     password: str
     referral_code: Optional[str] = None  # Referral code ile kayıt
+    device_id: str
 
 
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+    device_id: Optional[str] = None
 
 
 class Token(BaseModel):
@@ -21,8 +23,45 @@ class Token(BaseModel):
     token_type: str = "bearer"
 
 
+class RegisterResponse(BaseModel):
+    verification_required: bool = True
+
+
+class VerifyEmailRequest(BaseModel):
+    email: EmailStr
+    code: str
+    device_id: str
+
+
+class ResendCodeRequest(BaseModel):
+    email: EmailStr
+    device_id: str
+
+
+class RequestPasswordReset(BaseModel):
+    email: EmailStr
+    device_id: str
+    reset_url_base: Optional[str] = None
+
+
+class ResetPasswordRequest(BaseModel):
+    email: EmailStr
+    token: str
+    new_password: str
+    device_id: str
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+
+class UpdateProfileRequest(BaseModel):
+    username: str
+
+
 class UserResponse(BaseModel):
-    id: str
+    id: int
     email: str
     username: str
     credits: int

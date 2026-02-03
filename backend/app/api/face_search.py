@@ -2,9 +2,14 @@ from pathlib import Path
 import time
 import uuid
 
-from fastapi import APIRouter, File, HTTPException, UploadFile, Query
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
+from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.api.deps import get_current_user
+from app.db.database import get_db
+from app.models.user import User
+from app.services.credit_service import CreditService
 from app.services.embedding_service import EmbeddingError, get_embedder
 from app.services.faiss_service import FaissError, get_faiss_store
 
@@ -31,7 +36,12 @@ def _validate_image_filename(filename: str) -> str:
 @router.post("/upload-face")
 async def upload_face(
     file: UploadFile = File(...),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
+    if user.role != "admin":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+
     faces_dir = _faces_dir()
     faces_dir.mkdir(parents=True, exist_ok=True)
 
@@ -43,14 +53,12 @@ async def upload_face(
         raise HTTPException(status_code=413, detail="Dosya boyutu limiti aşıldı")
 
     filename = f"{uuid.uuid4()}{ext}"
-    file_path = faces_dir / filename
-    file_path.write_bytes(content)
 
     try:
         embedder = get_embedder()
         emb = embedder.embed(content)
         store = get_faiss_store()
-        item = await store.add(vector=emb.vector, filename=filename, file_path=str(file_path), model=emb.model)
+        item = await store.add(vector=emb.vector, filename=filename, file_path="", model=emb.model)
     except EmbeddingError as e:
         raise HTTPException(status_code=422, detail=str(e))
     except FaissError as e:
@@ -61,7 +69,7 @@ async def upload_face(
         "face_id": item.face_id,
         "filename": filename,
         "model": item.model,
-        "image_url": f"/uploads/faces/{filename}",
+        "image_url": None,
     }
 
 
@@ -70,6 +78,8 @@ async def search_face(
     file: UploadFile = File(...),
     top_k: int = Query(default=settings.FAISS_TOP_K_DEFAULT, ge=1, le=50),
     include_facecheck: bool = Query(default=False),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
     started = time.time()
     ext = _validate_image_filename(file.filename or "query.jpg")
@@ -78,6 +88,10 @@ async def search_face(
         raise HTTPException(status_code=400, detail="Boş dosya")
     if len(content) > settings.MAX_UPLOAD_SIZE:
         raise HTTPException(status_code=413, detail="Dosya boyutu limiti aşıldı")
+
+    ok = CreditService.consume_credit(user, db, 1)
+    if not ok:
+        raise HTTPException(status_code=status.HTTP_402_PAYMENT_REQUIRED, detail="Insufficient credits")
 
     try:
         embedder = get_embedder()
@@ -97,7 +111,7 @@ async def search_face(
                 "platform": "faiss",
                 "username": meta.get("filename") or meta.get("face_id"),
                 "profile_url": f"/uploads/faces/{meta.get('filename')}",
-                "image_url": f"/uploads/faces/{meta.get('filename')}",
+                "image_url": None,
                 "confidence": float(similarity) * 100.0,
                 "metadata": {
                     "face_id": meta.get("face_id"),
@@ -119,16 +133,22 @@ async def search_face(
         query_path = faces_dir / query_filename
         query_path.write_bytes(content)
 
-        adapter = get_facecheck_adapter(
-            {
-                "api_key": settings.FACECHECK_API_KEY,
-                "api_url": settings.FACECHECK_API_URL,
-                "timeout": 60,
-            }
-        )
-        external_res = await adapter.search_with_timing(str(query_path))
-        external = external_res.to_dict()
-        providers_used.append("facecheck")
+        try:
+            adapter = get_facecheck_adapter(
+                {
+                    "api_key": settings.FACECHECK_API_KEY,
+                    "api_url": settings.FACECHECK_API_URL,
+                    "timeout": 60,
+                }
+            )
+            external_res = await adapter.search_with_timing(str(query_path))
+            external = external_res.to_dict()
+            providers_used.append("facecheck")
+        finally:
+            try:
+                query_path.unlink(missing_ok=True)
+            except Exception:
+                pass
 
     elapsed_ms = int((time.time() - started) * 1000)
     return {

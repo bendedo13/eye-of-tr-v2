@@ -27,8 +27,8 @@ export default function Footer() {
           <div>
             <h3 className="font-bold mb-4">Company</h3>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/about" className="text-gray-400 hover:text-white transition-colors">About Us</Link></li>
-              <li><Link href="/contact" className="text-gray-400 hover:text-white transition-colors">Contact</Link></li>
+              <li><Link href="/legal/about" className="text-gray-400 hover:text-white transition-colors">About Us</Link></li>
+              <li><a href="mailto:contact@face-seek.com" className="text-gray-400 hover:text-white transition-colors">Contact</a></li>
               <li><Link href="/blog" className="text-gray-400 hover:text-white transition-colors">Blog</Link></li>
             </ul>
           </div>
@@ -36,9 +36,11 @@ export default function Footer() {
           <div>
             <h3 className="font-bold mb-4">Legal</h3>
             <ul className="space-y-2 text-sm">
-              <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Terms of Service</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Cookie Policy</a></li>
+              <li><Link href="/legal" className="text-gray-400 hover:text-white transition-colors">Legal Hub</Link></li>
+              <li><Link href="/legal/privacy" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/legal/kvkk" className="text-gray-400 hover:text-white transition-colors">KVKK</Link></li>
+              <li><Link href="/legal/terms" className="text-gray-400 hover:text-white transition-colors">Terms</Link></li>
+              <li><Link href="/legal/disclaimer" className="text-gray-400 hover:text-white transition-colors">Disclaimer</Link></li>
             </ul>
           </div>
         </div>
@@ -47,6 +49,9 @@ export default function Footer() {
           <p className="text-gray-400 text-sm">
             © 2026 FaceSeek. All rights reserved.
           </p>
+          <div className="text-[10px] font-black uppercase tracking-widest text-gray-500 mt-4 md:mt-0">
+            We don’t store images
+          </div>
         </div>
       </div>
     </footer>

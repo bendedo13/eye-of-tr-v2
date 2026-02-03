@@ -9,12 +9,18 @@ export default function AdminPricingPage() {
   const [formData, setFormData] = useState({ name: "", price: "", credits: "", features: "" });
 
   useEffect(() => {
+    const adminKey = localStorage.getItem("adminKey");
+    if (!adminKey) {
+      window.location.href = "/admin/login";
+      return;
+    }
     fetchPlans();
   }, []);
 
   const fetchPlans = async () => {
     try {
-      const res = await fetch("/api/admin/pricing");
+      const adminKey = localStorage.getItem("adminKey") || "";
+      const res = await fetch("/api/admin/pricing", { headers: { "x-admin-key": adminKey } });
       const data = await res.json();
       setPlans(data || []);
     } catch (error) {
@@ -32,17 +38,18 @@ export default function AdminPricingPage() {
         credits: parseInt(formData.credits),
         features: { tr: formData.features.split("\n"), en: formData.features.split("\n") },
       };
+      const adminKey = localStorage.getItem("adminKey") || "";
 
       if (editingPlan?.id) {
         await fetch("/api/admin/pricing", {
           method: "PATCH",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "x-admin-key": adminKey },
           body: JSON.stringify({ id: editingPlan.id, ...payload }),
         });
       } else {
         await fetch("/api/admin/pricing", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "x-admin-key": adminKey },
           body: JSON.stringify(payload),
         });
       }
@@ -57,7 +64,8 @@ export default function AdminPricingPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Bu planı silmek istediğinize emin misiniz?")) return;
     try {
-      await fetch(`/api/admin/pricing?id=${id}`, { method: "DELETE" });
+      const adminKey = localStorage.getItem("adminKey") || "";
+      await fetch(`/api/admin/pricing?id=${id}`, { method: "DELETE", headers: { "x-admin-key": adminKey } });
       fetchPlans();
     } catch (error) {
       console.error("Delete error:", error);

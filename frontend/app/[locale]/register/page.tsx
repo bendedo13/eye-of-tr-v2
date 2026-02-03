@@ -62,8 +62,12 @@ export default function RegisterPage({
     setIsLoading(true);
 
     try {
-      await register(formData.username, formData.email, formData.password, formData.referralCode);
-      router.push(`/${locale}/dashboard`);
+      const res = await register(formData.email, formData.username, formData.password, formData.referralCode);
+      if (res.needsVerification) {
+        router.push(`/${locale}/verify-email?email=${encodeURIComponent(res.email)}`);
+      } else {
+        router.push(`/${locale}/dashboard`);
+      }
     } catch (err: any) {
       setError(err.message || "Kayıt başarısız. Lütfen bilgilerinizi kontrol edin.");
     } finally {

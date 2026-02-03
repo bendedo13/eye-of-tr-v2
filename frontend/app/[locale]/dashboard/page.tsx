@@ -57,9 +57,8 @@ export default function DashboardPage({
       if (!token) return;
 
       try {
-        if (!user?.id) return;
         const [stats, sub] = await Promise.all([
-          getDashboardStats(user.id, token),
+          getDashboardStats(token),
           getCurrentSubscription(token)
         ]);
 

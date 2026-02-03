@@ -30,7 +30,8 @@ export default function AdminLayout({
 
   useEffect(() => {
     const adminData = localStorage.getItem("admin");
-    if (!adminData && pathname !== "/admin/login") {
+    const adminKey = localStorage.getItem("adminKey");
+    if ((!adminData || !adminKey) && pathname !== "/admin/login") {
       router.push("/admin/login");
     } else if (adminData && !isAdmin) {
       setIsAdmin(true);
@@ -52,6 +53,7 @@ export default function AdminLayout({
 
   const handleLogout = () => {
     localStorage.removeItem("admin");
+    localStorage.removeItem("adminKey");
     router.push("/admin/login");
   };
 

@@ -53,7 +53,7 @@ export default function Footer() {
             <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4">Company</h3>
             <ul className="space-y-3">
               <li>
-                <Link href="/about" className="text-slate-400 hover:text-[#00d9ff] transition-colors text-sm">
+                <Link href="/legal/about" className="text-slate-400 hover:text-[#00d9ff] transition-colors text-sm">
                   About Us
                 </Link>
               </li>
@@ -75,23 +75,28 @@ export default function Footer() {
             <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4">Legal</h3>
             <ul className="space-y-3">
               <li>
-                <Link href="/privacy" className="text-slate-400 hover:text-[#00d9ff] transition-colors text-sm">
+                <Link href="/legal" className="text-slate-400 hover:text-[#00d9ff] transition-colors text-sm">
+                  Legal Hub
+                </Link>
+              </li>
+              <li>
+                <Link href="/legal/privacy" className="text-slate-400 hover:text-[#00d9ff] transition-colors text-sm">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="/terms" className="text-slate-400 hover:text-[#00d9ff] transition-colors text-sm">
-                  Terms of Service
+                <Link href="/legal/terms" className="text-slate-400 hover:text-[#00d9ff] transition-colors text-sm">
+                  Terms
                 </Link>
               </li>
               <li>
-                <Link href="/security" className="text-slate-400 hover:text-[#00d9ff] transition-colors text-sm">
-                  Security
+                <Link href="/legal/kvkk" className="text-slate-400 hover:text-[#00d9ff] transition-colors text-sm">
+                  KVKK
                 </Link>
               </li>
               <li>
-                <Link href="/cookies" className="text-slate-400 hover:text-[#00d9ff] transition-colors text-sm">
-                  Cookie Policy
+                <Link href="/legal/disclaimer" className="text-slate-400 hover:text-[#00d9ff] transition-colors text-sm">
+                  Disclaimer
                 </Link>
               </li>
             </ul>

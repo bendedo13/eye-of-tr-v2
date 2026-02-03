@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 class APIError extends Error {
   constructor(
@@ -36,36 +36,56 @@ export async function api<T>(
   return res.json();
 }
 
+function getOrCreateDeviceId() {
+  if (typeof window === "undefined") return "server";
+  const key = "face-seek-device-id";
+  const existing = window.localStorage.getItem(key);
+  if (existing) return existing;
+  const id =
+    typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  window.localStorage.setItem(key, id);
+  return id;
+}
+
 export async function register(email: string, username: string, password: string, referralCode?: string) {
-  const result = await api<{ message: string; userId: string; access_token: string }>("/api/auth/register", {
+  const result = await api<{ access_token?: string; verification_required?: boolean }>("/api/auth/register", {
     method: "POST",
-    body: JSON.stringify({ email, name: username, password, referral_code: referralCode }),
+    body: JSON.stringify({ email, username, password, referral_code: referralCode, device_id: getOrCreateDeviceId() }),
   });
-  return { access_token: result.access_token, user: { id: result.userId, email } };
+  return { access_token: result.access_token, verification_required: !!result.verification_required };
 }
 
 export async function login(email: string, password: string) {
-  const result = await api<{ message: string; access_token: string; user: any }>("/api/auth/login", {
+  const result = await api<{ access_token: string }>("/api/auth/login", {
     method: "POST",
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email, password, device_id: getOrCreateDeviceId() }),
   });
-  return { access_token: result.access_token, user: result.user };
+  return { access_token: result.access_token };
 }
 
 export async function me(token: string) {
-  const result = await api<{ user: any }>("/api/auth/me", {
-    method: "POST",
-    body: JSON.stringify({ token }),
-  });
-  return result.user;
+  return api<any>("/api/auth/me", { method: "GET", token });
 }
 
-export async function getDashboardStats(userId: string | number, token: string) {
-  return api<any>("/api/dashboard/stats", {
+export async function verifyEmail(email: string, code: string) {
+  const result = await api<{ access_token: string }>("/api/auth/verify-email", {
     method: "POST",
-    token, // Pass token in header
-    body: JSON.stringify({ userId }),
+    body: JSON.stringify({ email, code, device_id: getOrCreateDeviceId() }),
   });
+  return { access_token: result.access_token };
+}
+
+export async function resendVerificationCode(email: string) {
+  return api<{ status: string }>("/api/auth/resend-code", {
+    method: "POST",
+    body: JSON.stringify({ email, device_id: getOrCreateDeviceId() }),
+  });
+}
+
+export async function getDashboardStats(token: string) {
+  return api<any>("/api/dashboard/stats", { method: "GET", token });
 }
 
 export async function getLiveStats() {
@@ -95,6 +115,45 @@ export async function confirmPayment(token: string, paymentId: number) {
 export async function getCurrentSubscription(token: string) {
   return api<any>("/api/pricing/subscription", {
     method: "GET",
+    token,
+  });
+}
+
+export async function requestPasswordReset(email: string, locale: string) {
+  const base =
+    typeof window !== "undefined" ? `${window.location.origin}/${locale}/reset-password` : `/${locale}/reset-password`;
+  return api<{ status: string }>("/api/auth/request-password-reset", {
+    method: "POST",
+    body: JSON.stringify({ email, device_id: getOrCreateDeviceId(), reset_url_base: base }),
+  });
+}
+
+export async function resetPassword(email: string, token: string, newPassword: string) {
+  return api<{ status: string }>("/api/auth/reset-password", {
+    method: "POST",
+    body: JSON.stringify({ email, token, new_password: newPassword, device_id: getOrCreateDeviceId() }),
+  });
+}
+
+export async function changePassword(token: string, currentPassword: string, newPassword: string) {
+  return api<{ status: string }>("/api/auth/change-password", {
+    method: "POST",
+    token,
+    body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
+  });
+}
+
+export async function updateProfile(token: string, username: string) {
+  return api<any>("/api/auth/profile", {
+    method: "PATCH",
+    token,
+    body: JSON.stringify({ username }),
+  });
+}
+
+export async function deleteAccount(token: string) {
+  return api<{ status: string }>("/api/auth/account", {
+    method: "DELETE",
     token,
   });
 }

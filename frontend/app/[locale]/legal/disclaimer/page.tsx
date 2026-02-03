@@ -46,6 +46,24 @@ export default function DisclaimerPage({
                 </section>
 
                 <section className="space-y-4">
+                    <h2 className="text-xl font-black">3. LOCATION INTELLIGENCE (PREDICTIVE) LIMITATIONS</h2>
+                    <p>
+                        FaceSeek Location Intelligence generates predictive location estimates by analyzing environmental cues in an image (architecture, vegetation, climate traces, terrain, signage presence, and urban density). This feature does not provide certainty and must not be treated as verified geolocation.
+                    </p>
+                    <ul className="list-disc pl-6 space-y-2 text-zinc-500">
+                        <li><strong>Predictions, not facts:</strong> Results may be incomplete, wrong, or misleading due to image quality, framing, indoor scenes, staged scenes, or AI-generated content.</li>
+                        <li><strong>No user-upload image storage:</strong> We do not store uploaded images for this feature; processing is performed only to fulfill your request.</li>
+                        <li><strong>User consent required:</strong> Analysis cannot be started unless you explicitly accept the required consent statement in the interface.</li>
+                        <li><strong>Liability:</strong> You are solely responsible for verifying outcomes and for any actions taken based on the results.</li>
+                    </ul>
+                    <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-5">
+                        <p className="text-[10px] font-bold uppercase tracking-widest leading-relaxed text-amber-200">
+                            <strong>MANDATORY NOTICE:</strong> Bu sonuçlar yapay zekâ tarafından üretilmiş tahminlerdir. Kesinlik içermez. Tüm hukuki ve fiili sorumluluk kullanıcıya aittir.
+                        </p>
+                    </div>
+                </section>
+
+                <section className="space-y-4">
                     <h2 className="text-xl font-black">3. USER RESPONSIBILITY & ETHICAL USE</h2>
                     <p>
                         Users of our facial search engine are solely responsible for:

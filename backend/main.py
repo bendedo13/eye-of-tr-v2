@@ -17,12 +17,15 @@ from app.api.auth import router as auth_router
 from app.api.dashboard import router as dashboard_router
 from app.api.pricing import router as pricing_router
 from app.api.webhooks import router as webhooks_router
+from app.api.location_intelligence import router as location_intelligence_router
 from app.db.database import engine, Base, SessionLocal  # Use database.py directly
+from app.middleware.rate_limit import RateLimitMiddleware
 
 # Import all models for DB table creation
 from app.models.user import User
 from app.models.subscription import Subscription, Payment
 from app.models.analytics import SiteVisit, SearchLog, ReferralLog
+from app.models.verification import EmailVerification, DeviceRegistration, IpRegistration, PasswordReset
 
 # Logging ayarla
 logging.basicConfig(
@@ -47,6 +50,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(RateLimitMiddleware)
 
 # Request logging middleware
 @app.middleware("http")
@@ -77,11 +82,13 @@ app.include_router(auth_router)
 app.include_router(dashboard_router)
 app.include_router(pricing_router)
 app.include_router(webhooks_router)
+app.include_router(location_intelligence_router)
 logger.info("✅ Face search router: /upload-face, /search-face")
 logger.info(f"✅ Auth router: {auth_router.prefix}")
 logger.info(f"✅ Dashboard router: {dashboard_router.prefix}")
 logger.info(f"✅ Pricing router: {pricing_router.prefix}")
 logger.info(f"✅ Webhooks router: {webhooks_router.prefix}")
+logger.info(f"✅ Location intelligence router: {location_intelligence_router.prefix}")
 logger.info("=" * 50)
 
 # Security
