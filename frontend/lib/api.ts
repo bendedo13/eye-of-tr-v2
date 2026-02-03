@@ -40,15 +40,15 @@ export async function register(email: string, username: string, password: string
     method: "POST",
     body: JSON.stringify({ email, name: username, password, referral_code: referralCode }),
   });
-  return { access_token: result.userId, user: { id: result.userId, email } };
+  return { access_token: result.access_token, user: { id: result.userId, email } };
 }
 
 export async function login(email: string, password: string) {
-  const result = await api<{ message: string; user: any }>("/api/auth/login", {
+  const result = await api<{ message: string; access_token: string; user: any }>("/api/auth/login", {
     method: "POST",
     body: JSON.stringify({ email, password }),
   });
-  return { access_token: result.user.id, user: result.user };
+  return { access_token: result.access_token, user: result.user };
 }
 
 export async function me(token: string) {

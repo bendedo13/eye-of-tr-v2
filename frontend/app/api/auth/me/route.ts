@@ -5,15 +5,26 @@ const prisma = new PrismaClient();
 
 export async function POST(request: Request) {
   try {
-    const { userId } = await request.json();
+    const { userId: token } = await request.json();
 
-    if (!userId) {
-      return NextResponse.json({ error: "User ID gerekli" }, { status: 400 });
+    if (!token) {
+      return NextResponse.json({ error: "Token gerekli" }, { status: 400 });
     }
+
+    // JWT doğrula
+    const jwt = require("jsonwebtoken");
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET || "eye-of-tr-v2-super-secret-key-2026");
+    } catch (e) {
+      return NextResponse.json({ error: "Geçersiz token" }, { status: 401 });
+    }
+
+    const userId = decoded.sub;
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, email: true, name: true, credits: true },
+      select: { id: true, email: true, name: true, credits: true, role: true },
     });
 
     if (!user) {

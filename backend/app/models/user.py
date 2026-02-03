@@ -10,7 +10,7 @@ class User(Base):
     __tablename__ = "users"
 
     # Basic info
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(String(50), primary_key=True, index=True)
     email = Column(String(255), unique=True, index=True, nullable=False)
     username = Column(String(50), unique=True, index=True, nullable=False)
     hashed_password = Column(String(255), nullable=False)
@@ -18,6 +18,7 @@ class User(Base):
     # Subscription & Credits
     tier = Column(String(20), default="free", nullable=False)  # free, premium, unlimited
     credits = Column(Integer, default=1, nullable=False)  # Yeni kayıt = 1 ücretsiz kredi
+    role = Column(String(20), default="user", nullable=False)  # user, admin
     is_active = Column(Boolean, default=True, nullable=False)
     
     # Referral System

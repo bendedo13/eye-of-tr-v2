@@ -22,10 +22,11 @@ class Token(BaseModel):
 
 
 class UserResponse(BaseModel):
-    id: int
+    id: str
     email: str
     username: str
     credits: int
+    role: str
     tier: str
     referral_code: str
     referral_count: int
