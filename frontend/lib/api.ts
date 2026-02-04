@@ -218,7 +218,7 @@ export async function advancedSearchFace(
     queryParams.append("region_filter", params.region_filter);
   }
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
   const res = await fetch(
     `${API_BASE}/search-face-advanced?${queryParams.toString()}`,
     {
