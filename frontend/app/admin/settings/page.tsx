@@ -11,7 +11,8 @@ export default function AdminSettingsPage() {
   useEffect(() => {
     const adminKey = localStorage.getItem("adminKey");
     if (!adminKey) {
-      window.location.href = "/admin/login";
+      setSettings({});
+      setLoading(false);
       return;
     }
     fetchSettings();

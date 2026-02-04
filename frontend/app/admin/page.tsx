@@ -20,7 +20,8 @@ export default function AdminDashboard() {
   useEffect(() => {
     const adminKey = localStorage.getItem("adminKey");
     if (!adminKey) {
-      window.location.href = "/admin/login";
+      setOverview(null);
+      setLoading(false);
       return;
     }
     fetchOverview();

@@ -28,7 +28,8 @@ export default function AdminAuditPage() {
   useEffect(() => {
     const adminKey = localStorage.getItem("adminKey");
     if (!adminKey) {
-      window.location.href = "/admin/login";
+      setItems([]);
+      setLoading(false);
       return;
     }
     fetchAudit();
@@ -129,4 +130,3 @@ export default function AdminAuditPage() {
     </div>
   );
 }
-

@@ -24,7 +24,8 @@ export default function AdminMediaPage() {
   useEffect(() => {
     const adminKey = localStorage.getItem("adminKey");
     if (!adminKey) {
-      window.location.href = "/admin/login";
+      setItems([]);
+      setLoading(false);
       return;
     }
     fetchData();
@@ -100,4 +101,3 @@ export default function AdminMediaPage() {
     </div>
   );
 }
-

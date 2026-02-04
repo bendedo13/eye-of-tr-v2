@@ -42,7 +42,8 @@ export default function AdminBlogPage() {
   useEffect(() => {
     const k = localStorage.getItem("adminKey");
     if (!k) {
-      window.location.href = "/admin/login";
+      setItems([]);
+      setLoading(false);
       return;
     }
     fetchList();
@@ -256,4 +257,3 @@ export default function AdminBlogPage() {
     </div>
   );
 }
-

@@ -17,7 +17,9 @@ export default function AdminUsersPage() {
   useEffect(() => {
     const adminKey = localStorage.getItem("adminKey");
     if (!adminKey) {
-      window.location.href = "/admin/login";
+      setUsers([]);
+      setTotal(0);
+      setLoading(false);
       return;
     }
     fetchUsers();

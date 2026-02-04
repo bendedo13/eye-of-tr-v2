@@ -22,7 +22,8 @@ export default function AdminPricingPage() {
   useEffect(() => {
     const adminKey = localStorage.getItem("adminKey");
     if (!adminKey) {
-      window.location.href = "/admin/login";
+      setPlans([]);
+      setLoading(false);
       return;
     }
     fetchPlans();
