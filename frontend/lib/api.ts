@@ -162,3 +162,59 @@ export async function deleteAccount(token: string) {
     token,
   });
 }
+
+export interface AdvancedSearchParams {
+  search_precision: "low" | "medium" | "high";
+  region_filter?: string;
+  confidence_threshold: number;
+  max_results: number;
+  enable_ai_explanation: boolean;
+  include_facecheck?: boolean;
+}
+
+export async function advancedSearchFace(
+  token: string,
+  file: File,
+  params: AdvancedSearchParams
+) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const queryParams = new URLSearchParams({
+    search_precision: params.search_precision,
+    confidence_threshold: params.confidence_threshold.toString(),
+    max_results: params.max_results.toString(),
+    enable_ai_explanation: params.enable_ai_explanation.toString(),
+    include_facecheck: (params.include_facecheck || false).toString(),
+  });
+
+  if (params.region_filter) {
+    queryParams.append("region_filter", params.region_filter);
+  }
+
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  const res = await fetch(
+    `${API_BASE}/search-face-advanced?${queryParams.toString()}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    }
+  );
+
+  if (!res.ok) {
+    if (res.status === 402) {
+      throw new APIError("Insufficient credits", 402);
+    }
+    const err = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new APIError(
+      err.error || err.detail || `HTTP ${res.status}`,
+      res.status,
+      err
+    );
+  }
+
+  return res.json();
+}

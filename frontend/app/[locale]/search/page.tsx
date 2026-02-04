@@ -7,6 +7,10 @@ import Navbar from "@/components/Navbar";
 import ClientOnly from "@/components/ClientOnly";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/Button";
+import AdvancedSearchModal, {
+  AdvancedSearchParams,
+} from "@/components/AdvancedSearchModal";
+import { advancedSearchFace } from "@/lib/api";
 import {
   Upload,
   Search,
@@ -19,7 +23,9 @@ import {
   ExternalLink,
   Target,
   Globe,
-  ArrowRight
+  ArrowRight,
+  Sliders,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "@/lib/toast";
 
@@ -40,6 +46,8 @@ export default function SearchPage({
   const [error, setError] = useState<string | null>(null);
   const [includeFacecheck, setIncludeFacecheck] = useState(false);
   const [acceptedDisclaimer, setAcceptedDisclaimer] = useState(false);
+  const [showAdvancedModal, setShowAdvancedModal] = useState(false);
+  const [isAdvancedSearch, setIsAdvancedSearch] = useState(false);
   const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   const resolveUrl = (url?: string | null) => {
     if (!url) return undefined;
@@ -118,6 +126,40 @@ export default function SearchPage({
     }
   };
 
+  const handleAdvancedSearch = async (params: AdvancedSearchParams) => {
+    if (!file || !token) {
+      toast.error("Lütfen bir fotoğraf seçin.");
+      return;
+    }
+
+    setSearching(true);
+    setResults(null);
+    setError(null);
+    setShowAdvancedModal(false);
+    setIsAdvancedSearch(true);
+
+    try {
+      const searchData = await advancedSearchFace(token, file, {
+        ...params,
+        include_facecheck: includeFacecheck,
+      });
+
+      setResults(searchData);
+    } catch (err: any) {
+      if (err.statusCode === 402) {
+        toast.error(
+          "Krediniz bitti. Fiyatlandırma sayfasına yönlendiriliyorsunuz."
+        );
+        router.push(`/${locale}/pricing`);
+        return;
+      }
+      setError(err.message || "Arama başarısız");
+      toast.error("Sistem hatası: Sunucuya bağlanılamadı.");
+    } finally {
+      setSearching(false);
+    }
+  };
+
   if (!mounted || loading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center space-y-4">
@@ -189,24 +231,43 @@ export default function SearchPage({
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-6 max-w-sm mx-auto">
-                  <Button
-                    onClick={handleChangeImage}
-                    variant="outline"
-                    className="flex-1 h-14 bg-white/5 border-white/5 hover:bg-white/10"
-                    disabled={searching}
-                  >
-                    <RotateCcw className="mr-2" size={18} /> DEĞİŞTİR
-                  </Button>
+                <div className="flex flex-col gap-4 max-w-md mx-auto">
+                  <div className="flex gap-4">
+                    <Button
+                      onClick={handleChangeImage}
+                      variant="outline"
+                      className="flex-1 h-14 bg-white/5 border-white/5 hover:bg-white/10"
+                      disabled={searching}
+                    >
+                      <RotateCcw className="mr-2" size={18} /> DEĞİŞTİR
+                    </Button>
+
+                    <Button
+                      onClick={handleSearch}
+                      className="flex-1 h-14"
+                      isLoading={searching}
+                      disabled={searching || !acceptedDisclaimer}
+                    >
+                      <Target className="mr-2" size={18} /> TARAMAYI BAŞLAT
+                    </Button>
+                  </div>
 
                   <Button
-                    onClick={handleSearch}
-                    className="flex-1 h-14"
-                    isLoading={searching}
-                    disabled={searching || !acceptedDisclaimer}
+                    onClick={() => setShowAdvancedModal(true)}
+                    variant="outline"
+                    className="w-full h-14 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/30 hover:border-primary/50 hover:bg-primary/20"
+                    disabled={searching}
                   >
-                    <Target className="mr-2" size={18} /> TARAMAYI BAŞLAT
+                    <Sliders className="mr-2" size={18} />
+                    DETAYLI ARAMA
+                    <span className="ml-auto text-[10px] font-black uppercase tracking-widest px-3 py-1 bg-primary/20 rounded-full border border-primary/40">
+                      2 KREDİ
+                    </span>
                   </Button>
+
+                  <div className="text-center text-[9px] text-zinc-600 font-bold uppercase tracking-widest">
+                    Normal Arama: 1 Kredi • Detaylı Arama: 2 Kredi
+                  </div>
                 </div>
 
                 <div className="flex flex-col items-center justify-center gap-4 pt-2">
@@ -265,6 +326,26 @@ export default function SearchPage({
                   </div>
                 </div>
               </div>
+
+              {/* AI Explanation Section */}
+              {results.ai_explanation && (
+                <div className="mb-12 bg-gradient-to-r from-primary/10 to-purple-500/10 border border-primary/20 rounded-[32px] p-8">
+                  <div className="flex items-start gap-4">
+                    <div className="w-14 h-14 bg-primary/20 rounded-2xl flex items-center justify-center text-primary flex-shrink-0">
+                      <Sparkles size={24} />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-black text-white uppercase tracking-tight mb-3">AI DESTEKLİ ANALİZ</h3>
+                      <p className="text-zinc-300 text-sm leading-relaxed font-medium">
+                        {results.ai_explanation}
+                      </p>
+                      <div className="mt-4 text-[9px] text-zinc-600 font-bold uppercase tracking-widest flex items-center gap-2">
+                        <ShieldCheck size={12} /> Bu açıklama ChatGPT tarafından üretilmiştir ve bilgilendirme amaçlıdır.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {results.matches && results.matches.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -336,6 +417,14 @@ export default function SearchPage({
             </div>
           )}
         </div>
+
+        {/* Advanced Search Modal */}
+        <AdvancedSearchModal
+          isOpen={showAdvancedModal}
+          onClose={() => setShowAdvancedModal(false)}
+          onSearch={handleAdvancedSearch}
+          isSearching={searching}
+        />
       </div>
     </ClientOnly>
   );

@@ -11,7 +11,10 @@ PHONE_RE = re.compile(r"(\+?\d[\d\-\s().]{6,}\d)")
 def mask_email(s: str) -> str:
     def repl(m: re.Match) -> str:
         first = m.group(1)
+        rest = m.group(2)
         domain = m.group(4)
+        if not rest:
+            return f"{first}***@{domain}"
         return f"{first}***@{domain}"
 
     return EMAIL_RE.sub(repl, s)
@@ -38,4 +41,3 @@ def mask_pii(value: Any) -> Any:
     if isinstance(value, dict):
         return {k: mask_pii(v) for k, v in value.items()}
     return value
-

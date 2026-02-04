@@ -61,4 +61,3 @@ def compute_dual_hash(image_bytes: bytes) -> DualHash:
 
 def stable_image_id(image_bytes: bytes) -> str:
     return hashlib.sha256(image_bytes).hexdigest()
-
