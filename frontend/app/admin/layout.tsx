@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -33,9 +33,12 @@ export default function AdminLayout({
   const [checking, setChecking] = useState(true);
   const pathname = usePathname();
   const router = useRouter();
+  const redirectingRef = useRef(false);
 
   useEffect(() => {
-    if (pathname === "/admin/login") {
+    const isLoginRoute = pathname === "/admin/login" || pathname.startsWith("/admin/login/");
+    if (isLoginRoute) {
+      redirectingRef.current = false;
       setChecking(false);
       return;
     }
@@ -44,9 +47,13 @@ export default function AdminLayout({
     if (!adminData || !adminKey) {
       setIsAdmin(false);
       setChecking(false);
-      router.push("/admin/login");
+      if (!redirectingRef.current) {
+        redirectingRef.current = true;
+        router.replace("/admin/login");
+      }
       return;
     }
+    redirectingRef.current = false;
     setChecking(true);
     adminPing(adminKey)
       .then(() => setIsAdmin(true))
@@ -54,12 +61,15 @@ export default function AdminLayout({
         localStorage.removeItem("admin");
         localStorage.removeItem("adminKey");
         setIsAdmin(false);
-        router.push("/admin/login");
+        if (!redirectingRef.current) {
+          redirectingRef.current = true;
+          router.replace("/admin/login");
+        }
       })
       .finally(() => setChecking(false));
   }, [pathname, router]);
 
-  if (pathname === "/admin/login") {
+  if (pathname === "/admin/login" || pathname.startsWith("/admin/login/")) {
     return <>{children}</>;
   }
 
