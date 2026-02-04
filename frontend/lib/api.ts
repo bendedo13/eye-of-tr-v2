@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { toast } from "@/lib/toast";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
 
 class APIError extends Error {
   constructor(
@@ -44,6 +44,12 @@ export async function api<T>(
         toast.warning("Planlı bakım çalışması, lütfen sonra tekrar deneyin.");
       }
       const err = await res.json().catch(() => ({ detail: res.statusText }));
+      
+      // Handle network errors or server downtime gracefully
+      if (res.status === 502 || res.status === 503 || res.status === 504) {
+         throw new APIError("Sunucu şu anda yoğun veya bakımda. Lütfen birazdan tekrar deneyin.", res.status);
+      }
+
       throw new APIError(
         err.error || err.detail || `HTTP ${res.status}`,
         res.status,
