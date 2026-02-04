@@ -320,6 +320,7 @@ class SearchService:
     
     async def waterfall_search(self, image_path: str, user_tier: str = "free", strategy: str = "parallel") -> Dict[str, Any]:
         """Waterfall search stratejisi - tüm provider'ları kullan"""
+        from app.services.openai_service import openai_service
         logger.info(f"Waterfall search başlatıldı - User tier: {user_tier}, Image: {image_path}")
 
         cache_key = None
@@ -356,20 +357,41 @@ class SearchService:
         # Güven skoruna göre sırala
         all_matches.sort(key=lambda x: x.get("confidence", 0), reverse=True)
         
-        logger.info(f"Waterfall search tamamlandı: {len(all_matches)} sonuç bulundu")
+        # --- OpenAI Entegrasyonu ---
+        
+        ai_explanation = None
+        error_message = None
+        
+        if not all_matches:
+            # Sonuç yoksa özel senaryoları uygula
+            # failure_type = "resolution"
+            failure_type = "privacy" 
+            
+            error_message = await openai_service.get_failure_message(failure_type, context="Unknown Target")
+            
+        else:
+            # Sonuç varsa analiz et
+            top_matches = all_matches[:5]
+            ai_explanation = await openai_service.analyze_search_results(
+                query="Visual Search Target", 
+                results=[{"title": m.get("title"), "url": m.get("profile_url")} for m in top_matches]
+            )
 
-        result = {
-            "status": "success",
-            "query_file": search_result.get("query_file"),
-            "matches": all_matches,
+        # Sonuç objesini güncelle
+        final_result = {
             "total_matches": len(all_matches),
-            "providers_used": list(search_result.get("providers", {}).keys())
+            "matches": all_matches,
+            "providers_used": list(search_result.get("providers", {}).keys()),
+            "ai_explanation": ai_explanation,
+            "error_message": error_message  # Frontend bu alanı kontrol edip özel uyarı gösterecek
         }
-
+        
+        # Cache'e kaydet (Hata mesajı varsa da kaydet ki tekrar tekrar OpenAI'a gitmesin)
         if cache_key:
-            self._cache_set(cache_key, result)
-
-        return result
+            self._cache_set(cache_key, final_result)
+            
+        logger.info(f"Waterfall search tamamlandı: {len(all_matches)} sonuç bulundu")
+        return final_result
 
     def _provider_order_for_tier(self, user_tier: str) -> List[str]:
         base = ["serpapi", "eyeofweb", "facecheck", "bing_visual", "yandex_reverse", "bing", "yandex"]

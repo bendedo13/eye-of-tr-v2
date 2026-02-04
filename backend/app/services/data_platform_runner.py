@@ -106,12 +106,28 @@ async def _iterate_documents(source: DataSource, job: CrawlJob) -> AsyncIterator
             yield item
 
 
+from bs4 import BeautifulSoup
+import re
+from urllib.parse import urljoin, urlparse
+from app.models.user import User  # User modelini import et
+
 async def run_job(job_id: int) -> None:
     db = SessionLocal()
     try:
         job, source = _load_job_and_source(db, job_id)
         if job.status in ("cancelled", "failed", "succeeded"):
             return
+            
+        # --- UNLIMITED KONTROLÜ ---
+        user = db.query(User).filter(User.id == job.owner_user_id).first()
+        if not user or user.tier != "unlimited":
+            job.status = "failed"
+            job.message = "Erişim Reddedildi: Bu özellik sadece Unlimited paket kullanıcıları içindir."
+            job.finished_at = now_utc()
+            db.commit()
+            await job_bus.publish(job_id, JobEvent(type="error", payload={"message": job.message}))
+            return
+        # ---------------------------
 
         if not job.consent_received:
             job.status = "failed"
@@ -140,6 +156,63 @@ async def run_job(job_id: int) -> None:
             job.discovered_count += 1
             content_text = fetched.content_text or ""
             title = fetched.title
+            
+            # --- ZENGİN VERİ AYRIŞTIRMA (BS4) ---
+            # fetched.raw_text içinde HTML olduğunu varsayıyoruz (crawl_website implementation'ına bağlı)
+            # Eğer raw_text boşsa veya HTML değilse bu adım atlanabilir.
+            extracted_data = fetched.extracted or {}
+            
+            if fetched.raw_text:
+                try:
+                    soup = BeautifulSoup(fetched.raw_text, "html.parser")
+                    base_url = fetched.url
+                    
+                    # Görseller
+                    images = []
+                    for img in soup.find_all("img"):
+                        src = img.get("src")
+                        if src:
+                            full_url = urljoin(base_url, src)
+                            images.append({"src": full_url, "alt": img.get("alt", "")})
+                    
+                    # Linkler
+                    links = []
+                    profiles = []
+                    for a in soup.find_all("a", href=True):
+                        href = a["href"]
+                        full_url = urljoin(base_url, href)
+                        links.append({"href": full_url, "text": a.get_text(strip=True)})
+                        
+                        # Profil Tespiti
+                        if any(p in full_url for p in ["twitter.com", "linkedin.com", "instagram.com", "facebook.com", "tiktok.com"]):
+                            profiles.append(full_url)
+                            
+                    # Videolar
+                    videos = []
+                    for video in soup.find_all("video"):
+                        src = video.get("src")
+                        if src: videos.append(urljoin(base_url, src))
+                    for iframe in soup.find_all("iframe"):
+                        src = iframe.get("src")
+                        if src and ("youtube" in src or "vimeo" in src):
+                            videos.append(src)
+                            
+                    # İletişim (Regex)
+                    emails = list(set(re.findall(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', content_text)))
+                    phones = list(set([p for p in re.findall(r'\+?[0-9][0-9 \-\(\)]{8,}[0-9]', content_text) if len(re.sub(r'\D', '', p)) > 8]))
+                    
+                    # Mevcut extracted veriye ekle
+                    extracted_data.update({
+                        "images": images[:50], # Limit
+                        "links": links[:50],
+                        "profiles": list(set(profiles)),
+                        "videos": videos,
+                        "emails": emails,
+                        "phones": phones
+                    })
+                except Exception:
+                    pass # Parsing hatası akışı bozmasın
+            # -------------------------------------
 
             if redact:
                 content_text, changed = redact_pii(content_text)
@@ -172,7 +245,7 @@ async def run_job(job_id: int) -> None:
                 existing.last_seen_at = now_utc()
                 existing.title = title or existing.title
                 existing.content_text = content_text
-                existing.extracted_json = _json_dumps(fetched.extracted or {})
+                existing.extracted_json = _json_dumps(extracted_data) # Güncellenmiş veri
                 existing.language = lang
                 existing.category = category
                 existing.tags_json = _json_dumps(tags)
@@ -191,7 +264,7 @@ async def run_job(job_id: int) -> None:
                     title=title,
                     content_text=content_text,
                     raw_text=fetched.raw_text,
-                    extracted_json=_json_dumps(fetched.extracted or {}),
+                    extracted_json=_json_dumps(extracted_data), # Güncellenmiş veri
                     language=lang,
                     category=category,
                     tags_json=_json_dumps(tags),
