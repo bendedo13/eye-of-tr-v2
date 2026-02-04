@@ -1,0 +1,17 @@
+[Unit]
+Description=FaceSeek Frontend (Next.js)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/faceseek/frontend
+EnvironmentFile=/etc/faceseek/frontend.env
+User=faceseek
+Group=faceseek
+ExecStart=/usr/bin/npm run start -- -p 3000
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
+
