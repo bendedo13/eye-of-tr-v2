@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { toast } from "@/lib/toast";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
 class APIError extends Error {
   constructor(
@@ -26,19 +26,39 @@ export async function api<T>(
   if (token) {
     (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
   }
-  const res = await fetch(`${API_BASE}${path}`, { ...init, headers });
-  if (!res.ok) {
-    if (res.status === 404) {
-      toast.warning("Planlı bakım çalışması, lütfen sonra tekrar deneyin.");
+
+  // Add timeout
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+
+  try {
+    const res = await fetch(`${API_BASE}${path}`, { 
+      ...init, 
+      headers,
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+      if (res.status === 404) {
+        toast.warning("Planlı bakım çalışması, lütfen sonra tekrar deneyin.");
+      }
+      const err = await res.json().catch(() => ({ detail: res.statusText }));
+      throw new APIError(
+        err.error || err.detail || `HTTP ${res.status}`,
+        res.status,
+        err
+      );
     }
-    const err = await res.json().catch(() => ({ detail: res.statusText }));
-    throw new APIError(
-      err.error || err.detail || `HTTP ${res.status}`,
-      res.status,
-      err
-    );
+    return res.json();
+  } catch (error: any) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      toast.error("İstek zaman aşımına uğradı. Bağlantınızı kontrol edin.");
+      throw new APIError("Timeout", 408);
+    }
+    throw error;
   }
-  return res.json();
 }
 
 function getOrCreateDeviceId() {

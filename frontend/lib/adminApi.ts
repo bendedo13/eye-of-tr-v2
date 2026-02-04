@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
 export class AdminAPIError extends Error {
   constructor(
@@ -34,12 +34,32 @@ async function adminFetch<T>(path: string, options: RequestInit & { adminKey: st
     "x-admin-key": adminKey,
     ...(adminEmail ? { "x-admin-email": adminEmail } : {}),
   };
-  const res = await fetch(`${API_BASE}${path}`, { ...init, headers });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ detail: res.statusText }));
-    throw new AdminAPIError(err.error || err.detail || `HTTP ${res.status}`, res.status, err);
+
+  // Add timeout
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
+  try {
+    const res = await fetch(`${API_BASE}${path}`, { 
+      ...init, 
+      headers,
+      signal: controller.signal 
+    });
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: res.statusText }));
+      throw new AdminAPIError(err.error || err.detail || `HTTP ${res.status}`, res.status, err);
+    }
+    return res.json();
+  } catch (error: any) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      throw new AdminAPIError("Sunucu yanıt vermiyor (Timeout). Lütfen bağlantınızı kontrol edin.", 408);
+    }
+    if (error instanceof AdminAPIError) throw error;
+    throw new AdminAPIError(error.message || "Bağlantı hatası", 0);
   }
-  return res.json();
 }
 
 export function adminPing(adminKey: string) {
