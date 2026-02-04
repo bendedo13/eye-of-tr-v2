@@ -5,10 +5,12 @@ const withNextIntl = createNextIntlPlugin('./i18n.ts');
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     async rewrites() {
+        const apiUrl = process.env.SERVER_API_URL || 'http://localhost:8000';
+        console.log(`Rewriting /api requests to: ${apiUrl}`);
         return [
             {
                 source: '/api/:path*',
-                destination: 'http://localhost:8000/api/:path*',
+                destination: `${apiUrl}/api/:path*`,
             },
         ];
     },
