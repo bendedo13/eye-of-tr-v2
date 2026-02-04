@@ -15,6 +15,7 @@ import {
   FileText,
   Image as ImageIcon,
   Gift,
+  ClipboardList,
   Bell,
   Search,
   Zap,
@@ -74,6 +75,7 @@ export default function AdminLayout({
     { label: "Medya", icon: <ImageIcon size={20} />, href: "/admin/media" },
     { label: "Fiyatlandırma", icon: <CreditCard size={20} />, href: "/admin/pricing" },
     { label: "Sistem Ayarları", icon: <Settings size={20} />, href: "/admin/settings" },
+    { label: "Audit Log", icon: <ClipboardList size={20} />, href: "/admin/audit" },
   ];
 
   const handleLogout = () => {

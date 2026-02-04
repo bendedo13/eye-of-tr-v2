@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { toast } from "@/lib/toast";
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 class APIError extends Error {
@@ -26,6 +28,9 @@ export async function api<T>(
   }
   const res = await fetch(`${API_BASE}${path}`, { ...init, headers });
   if (!res.ok) {
+    if (res.status === 404) {
+      toast.warning("Planlı bakım çalışması, lütfen sonra tekrar deneyin.");
+    }
     const err = await res.json().catch(() => ({ detail: res.statusText }));
     throw new APIError(
       err.error || err.detail || `HTTP ${res.status}`,

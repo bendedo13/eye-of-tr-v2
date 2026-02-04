@@ -1,6 +1,6 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException, Depends, Request
+from fastapi import FastAPI, File, UploadFile, HTTPException, Depends, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.staticfiles import StaticFiles
 import uvicorn
@@ -24,6 +24,7 @@ from app.api.public import router as public_router
 from app.api.analytics import router as analytics_router
 from app.api.data_platform import router as data_platform_router
 from app.api.external_search import router as external_search_router
+from app.api.reverse_search import router as reverse_search_router
 from app.db.database import engine, Base, SessionLocal  # Use database.py directly
 from app.middleware.rate_limit import RateLimitMiddleware
 
@@ -36,6 +37,8 @@ from app.models.cms import SiteSetting, MediaAsset, BlogPost
 from app.models.activity import ActivityDaily
 from app.models.provider_metrics import ProviderDailyMetric
 from app.models.data_platform import DataSource, CrawlJob, Document
+from app.models.search_results import SearchResult
+from app.models.admin_audit import AdminAuditLog
 
 # Logging ayarla
 logging.basicConfig(
@@ -43,6 +46,9 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+if not settings.SECRET_KEY and not settings.DEBUG:
+    raise RuntimeError("SECRET_KEY is not configured")
 
 # FastAPI app
 app = FastAPI(
@@ -66,13 +72,38 @@ app.add_middleware(RateLimitMiddleware)
 # Request logging middleware
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
+    import time
+
     trace_id = request.headers.get("x-trace-id") or request.headers.get("x-request-id") or str(uuid.uuid4())
     request.state.trace_id = trace_id
+    started = time.perf_counter()
     logger.info(f"🔵 REQUEST: {request.method} {request.url} trace_id={trace_id}")
     response = await call_next(request)
     response.headers["x-trace-id"] = trace_id
     logger.info(f"🟢 RESPONSE: {response.status_code} trace_id={trace_id}")
+    try:
+        from prometheus_client import Counter, Histogram
+
+        global _REQ_COUNTER, _REQ_LATENCY
+        if "_REQ_COUNTER" not in globals():
+            _REQ_COUNTER = Counter("faceseek_http_requests_total", "HTTP requests", ["method", "path", "status"])
+            _REQ_LATENCY = Histogram("faceseek_http_request_duration_seconds", "HTTP request duration", ["method", "path"])
+        path = request.url.path
+        _REQ_COUNTER.labels(request.method, path, str(response.status_code)).inc()
+        _REQ_LATENCY.labels(request.method, path).observe(max(0.0, time.perf_counter() - started))
+    except Exception:
+        pass
     return response
+
+
+@app.get("/metrics")
+async def metrics():
+    try:
+        from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
+
+        return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
+    except Exception:
+        raise HTTPException(status_code=503, detail="Metrics not configured")
 
 # Upload klasörü
 UPLOAD_DIR = (Path(__file__).resolve().parent / settings.UPLOAD_DIR).resolve()
@@ -102,6 +133,7 @@ app.include_router(public_router)
 app.include_router(analytics_router)
 app.include_router(data_platform_router)
 app.include_router(external_search_router)
+app.include_router(reverse_search_router)
 logger.info("✅ Face search router: /upload-face, /search-face")
 logger.info(f"✅ Auth router: {auth_router.prefix}")
 logger.info(f"✅ Dashboard router: {dashboard_router.prefix}")
@@ -114,6 +146,7 @@ logger.info(f"✅ Public router: {public_router.prefix}")
 logger.info(f"✅ Analytics router: {analytics_router.prefix}")
 logger.info(f"✅ Data platform router: {data_platform_router.prefix}")
 logger.info(f"✅ External search router: {external_search_router.prefix}")
+logger.info(f"✅ Reverse search router: {reverse_search_router.prefix}")
 logger.info("=" * 50)
 
 # Security

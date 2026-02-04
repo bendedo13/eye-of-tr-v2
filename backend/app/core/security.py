@@ -23,6 +23,8 @@ def get_password_hash(password: str) -> str:
 
 def create_access_token(subject: str | int, expires_delta: Optional[timedelta] = None) -> str:
     """JWT access token oluştur"""
+    if not settings.SECRET_KEY:
+        raise RuntimeError("SECRET_KEY is not configured")
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
@@ -33,6 +35,8 @@ def create_access_token(subject: str | int, expires_delta: Optional[timedelta] =
 
 def decode_token(token: str) -> Optional[str]:
     """JWT token decode et, subject (user id) döndür"""
+    if not settings.SECRET_KEY:
+        return None
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
         return payload.get("sub")

@@ -12,6 +12,7 @@ from app.core.config import settings
 from app.db.database import get_db
 from app.models.activity import ActivityDaily
 from app.models.analytics import SearchLog, ReferralLog
+from app.models.admin_audit import AdminAuditLog
 from app.models.cms import BlogPost, MediaAsset, SiteSetting
 from app.models.subscription import Payment
 from app.models.user import User
@@ -36,6 +37,41 @@ def _client_ip(request: Request) -> str:
     if request.client:
         return request.client.host
     return "unknown"
+
+
+def _admin_email(request: Request) -> str | None:
+    email = (request.headers.get("x-admin-email") or "").strip()
+    if not email:
+        return None
+    if len(email) > 255:
+        return email[:255]
+    return email
+
+
+def _audit(
+    *,
+    db: Session,
+    request: Request,
+    action: str,
+    resource_type: str | None = None,
+    resource_id: str | None = None,
+    meta: dict[str, Any] | None = None,
+):
+    try:
+        meta_json = json.dumps(meta, ensure_ascii=False) if meta is not None else None
+    except Exception:
+        meta_json = None
+    row = AdminAuditLog(
+        action=str(action)[:80],
+        actor_email=_admin_email(request),
+        actor_ip=_client_ip(request),
+        user_agent=(request.headers.get("user-agent") or "")[:255] or None,
+        trace_id=getattr(getattr(request, "state", None), "trace_id", None),
+        resource_type=(resource_type or "")[:80] or None,
+        resource_id=(resource_id or "")[:80] or None,
+        meta_json=meta_json,
+    )
+    db.add(row)
 
 
 @router.get("/ping")
@@ -248,6 +284,7 @@ def admin_update_user(user_id: int, request: Request, payload: dict[str, Any], d
     if "role" in payload:
         user.role = str(payload["role"])
 
+    _audit(db=db, request=request, action="user.update", resource_type="user", resource_id=str(user.id), meta=payload)
     db.commit()
     db.refresh(user)
     return {"status": "ok"}
@@ -334,6 +371,7 @@ def admin_set_site_setting(request: Request, payload: dict[str, Any], db: Sessio
     else:
         row = SiteSetting(key=key, value_json=value_json)
         db.add(row)
+    _audit(db=db, request=request, action="site_setting.set", resource_type="site_setting", resource_id=key, meta={"key": key, "value": value})
     db.commit()
     return {"status": "ok"}
 
@@ -407,6 +445,14 @@ def admin_create_blog_post(request: Request, payload: dict[str, Any], db: Sessio
         published_at=datetime.now(timezone.utc) if payload.get("is_published") else None,
     )
     db.add(p)
+    _audit(
+        db=db,
+        request=request,
+        action="blog_post.create",
+        resource_type="blog_post",
+        resource_id=str(payload.get("slug") or ""),
+        meta={"locale": payload.get("locale"), "slug": payload.get("slug"), "title": payload.get("title"), "is_published": bool(payload.get("is_published", False))},
+    )
     db.commit()
     db.refresh(p)
     return {"id": p.id}
@@ -427,6 +473,7 @@ def admin_update_blog_post(post_id: int, request: Request, payload: dict[str, An
             p.published_at = datetime.now(timezone.utc)
         if not p.is_published:
             p.published_at = None
+    _audit(db=db, request=request, action="blog_post.update", resource_type="blog_post", resource_id=str(p.id), meta=payload)
     db.commit()
     return {"status": "ok"}
 
@@ -437,6 +484,7 @@ def admin_delete_blog_post(post_id: int, request: Request, db: Session = Depends
     p = db.query(BlogPost).filter(BlogPost.id == post_id).first()
     if not p:
         raise HTTPException(status_code=404, detail="Not found")
+    _audit(db=db, request=request, action="blog_post.delete", resource_type="blog_post", resource_id=str(p.id), meta={"slug": p.slug, "locale": p.locale, "title": p.title})
     db.delete(p)
     db.commit()
     return {"status": "ok"}
@@ -480,10 +528,54 @@ async def admin_upload_media(
         url=url,
     )
     db.add(asset)
+    _audit(
+        db=db,
+        request=request,
+        action="media.upload",
+        resource_type="media",
+        resource_id=name,
+        meta={"content_type": file.content_type, "size_bytes": len(content), "folder": safe_folder},
+    )
     db.commit()
     db.refresh(asset)
 
     return {"id": asset.id, "url": url, "filename": name}
+
+
+@router.get("/audit")
+def admin_audit(
+    request: Request,
+    q: str | None = None,
+    action: str | None = None,
+    limit: int = 100,
+    offset: int = 0,
+    db: Session = Depends(get_db),
+):
+    _require_admin_key(request)
+    query = db.query(AdminAuditLog)
+    if action:
+        query = query.filter(AdminAuditLog.action == action)
+    if q:
+        like = f"%{q.strip()}%"
+        query = query.filter((AdminAuditLog.actor_email.ilike(like)) | (AdminAuditLog.resource_id.ilike(like)) | (AdminAuditLog.action.ilike(like)))
+    rows = query.order_by(desc(AdminAuditLog.created_at)).offset(offset).limit(min(limit, 500)).all()
+    return {
+        "items": [
+            {
+                "id": r.id,
+                "action": r.action,
+                "actor_email": r.actor_email,
+                "actor_ip": r.actor_ip,
+                "user_agent": r.user_agent,
+                "trace_id": r.trace_id,
+                "resource_type": r.resource_type,
+                "resource_id": r.resource_id,
+                "meta_json": r.meta_json,
+                "created_at": r.created_at,
+            }
+            for r in rows
+        ]
+    }
 
 
 @router.get("/media")

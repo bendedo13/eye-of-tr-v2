@@ -14,10 +14,25 @@ export class AdminAPIError extends Error {
 
 async function adminFetch<T>(path: string, options: RequestInit & { adminKey: string } ): Promise<T> {
   const { adminKey, ...init } = options;
+  const adminEmail =
+    typeof window !== "undefined"
+      ? (() => {
+          try {
+            const raw = window.localStorage.getItem("admin");
+            if (!raw) return undefined;
+            const parsed = JSON.parse(raw);
+            const email = typeof parsed?.email === "string" ? parsed.email.trim() : "";
+            return email || undefined;
+          } catch {
+            return undefined;
+          }
+        })()
+      : undefined;
   const headers: HeadersInit = {
     ...(init.headers as Record<string, string>),
     ...(init.body instanceof FormData ? {} : { "Content-Type": "application/json" }),
     "x-admin-key": adminKey,
+    ...(adminEmail ? { "x-admin-email": adminEmail } : {}),
   };
   const res = await fetch(`${API_BASE}${path}`, { ...init, headers });
   if (!res.ok) {
@@ -116,3 +131,12 @@ export function adminListMedia(adminKey: string, params: { offset?: number; limi
   return adminFetch<{ items: any[] }>(`/api/admin/media${qs ? `?${qs}` : ""}`, { method: "GET", adminKey });
 }
 
+export function adminListAudit(adminKey: string, params: { q?: string; action?: string; offset?: number; limit?: number } = {}) {
+  const usp = new URLSearchParams();
+  if (params.q) usp.set("q", params.q);
+  if (params.action) usp.set("action", params.action);
+  if (params.offset != null) usp.set("offset", String(params.offset));
+  if (params.limit != null) usp.set("limit", String(params.limit));
+  const qs = usp.toString();
+  return adminFetch<{ items: any[] }>(`/api/admin/audit${qs ? `?${qs}` : ""}`, { method: "GET", adminKey });
+}

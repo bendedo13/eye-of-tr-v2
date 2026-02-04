@@ -27,13 +27,15 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///./faceseek.db"
     
     # Security
-    SECRET_KEY: str
+    SECRET_KEY: str = ""
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
 
     # Admin
     ADMIN_EMAIL: Optional[str] = None
     ADMIN_API_KEY: Optional[str] = None
+
+    REDIS_URL: Optional[str] = None
     
     # CORS - String olarak, virgülle ayrılmış
     CORS_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000"
@@ -79,6 +81,7 @@ class Settings(BaseSettings):
     # Rate limiting
     RATE_LIMIT_UPLOAD_PER_MINUTE: int = 12
     RATE_LIMIT_SEARCH_PER_MINUTE: int = 12
+    RATE_LIMIT_REVERSE_SEARCH_PER_MINUTE: int = 5
     RATE_LIMIT_AUTH_PER_MINUTE: int = 20
     RATE_LIMIT_LOCATION_INTELLIGENCE_PER_MINUTE: int = 8
     RATE_LIMIT_VISUAL_LOCATION_PER_MINUTE: int = 6
@@ -91,6 +94,8 @@ class Settings(BaseSettings):
     VISUAL_LOCATION_SPAM_PER_DAY: int = 40
 
     SEARCH_RESULT_CACHE_TTL_SECONDS: int = 3600
+    REVERSE_SEARCH_CACHE_TTL_SECONDS: int = 21600
+    REVERSE_SEARCH_RESULT_TTL_SECONDS: int = 86400
     SEARCH_FALLBACK_MIN_MATCHES: int = 5
     REVERSE_IMAGE_SUCCESS_RATE_THRESHOLD: float = 0.90
 
@@ -113,14 +118,10 @@ class Settings(BaseSettings):
     SMTP_PASS: Optional[str] = None
     SMTP_FROM: Optional[str] = None
 
-    # Location intelligence
-    LOCATION_INTELLIGENCE_SPAM_PER_MINUTE: int = 6
-    LOCATION_INTELLIGENCE_SPAM_PER_DAY: int = 50
-    
     # LemonSqueezy
     LEMONSQUEEZY_API_KEY: Optional[str] = None
     LEMONSQUEEZY_STORE_ID: Optional[str] = None
-    LEMONSQUEEZY_WEBHOOK_SECRET: str = "eyeoftr_secret_2024"
+    LEMONSQUEEZY_WEBHOOK_SECRET: str = ""
     
     @property
     def cors_origins_list(self):

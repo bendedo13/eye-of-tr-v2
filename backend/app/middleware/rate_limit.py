@@ -8,6 +8,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 
 from app.core.config import settings
+from app.services.redis_rate_limiter import allow_fixed_window
 
 
 @dataclass
@@ -62,6 +63,8 @@ def _limit_for_path(path: str) -> Optional[int]:
         return settings.RATE_LIMIT_UPLOAD_PER_MINUTE
     if p in ("/api/search", "/search-face"):
         return settings.RATE_LIMIT_SEARCH_PER_MINUTE
+    if p in ("/api/reverse-search",):
+        return settings.RATE_LIMIT_REVERSE_SEARCH_PER_MINUTE
     if p in ("/api/location-intelligence/analyze",):
         return settings.RATE_LIMIT_LOCATION_INTELLIGENCE_PER_MINUTE
     if p in ("/api/visual-location/analyze",):
@@ -79,7 +82,10 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
         ip = _client_ip(request)
         key = f"{request.url.path}:{ip}"
-        ok = await _limiter.allow(key, limit_per_minute=limit)
+        if (settings.REDIS_URL or "").strip():
+            ok = await allow_fixed_window(key=key, limit=int(limit), window_seconds=60)
+        else:
+            ok = await _limiter.allow(key, limit_per_minute=limit)
         if not ok:
             return JSONResponse(
                 status_code=429,
