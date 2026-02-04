@@ -1,0 +1,589 @@
+================================================================================
+FACESEEK - FRONTEND GÜNCEL DOSYALAR
+Advanced Search & OpenAI Integration
+Tarih: 2026-02-04
+================================================================================
+
+Bu döküman FaceSeek projesine eklenen Advanced Search özelliği için
+oluşturulan ve değiştirilen tüm frontend dosyalarını içerir.
+
+================================================================================
+YENİ DOSYALAR (New Files)
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+DOSYA 1/3: AdvancedSearchModal.tsx
+Konum: frontend/components/AdvancedSearchModal.tsx
+Açıklama: Detaylı arama modal bileşeni (7 parametre + AI toggle)
+────────────────────────────────────────────────────────────────────────────────
+
+"use client";
+
+import { useState } from "react";
+import { GlassCard } from "@/components/ui/GlassCard";
+import { Button } from "@/components/ui/Button";
+import {
+    X,
+    Sliders,
+    Zap,
+    Shield,
+    Info,
+    AlertCircle,
+    Sparkles,
+} from "lucide-react";
+
+interface AdvancedSearchModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSearch: (params: AdvancedSearchParams) => void;
+    isSearching: boolean;
+}
+
+export interface AdvancedSearchParams {
+    search_precision: "low" | "medium" | "high";
+    region_filter?: string;
+    confidence_threshold: number;
+    max_results: number;
+    enable_ai_explanation: boolean;
+}
+
+export default function AdvancedSearchModal({
+    isOpen,
+    onClose,
+    onSearch,
+    isSearching,
+}: AdvancedSearchModalProps) {
+    const [precision, setPrecision] = useState<"low" | "medium" | "high">("medium");
+    const [confidenceThreshold, setConfidenceThreshold] = useState<number>(50);
+    const [maxResults, setMaxResults] = useState<number>(10);
+    const [enableAI, setEnableAI] = useState<boolean>(false);
+    const [acceptedDisclaimer, setAcceptedDisclaimer] = useState<boolean>(false);
+
+    if (!isOpen) return null;
+
+    const handleSearch = () => {
+        if (!acceptedDisclaimer) return;
+
+        const params: AdvancedSearchParams = {
+            search_precision: precision,
+            confidence_threshold: confidenceThreshold / 100, // Convert to 0-1 range
+            max_results: maxResults,
+            enable_ai_explanation: enableAI,
+        };
+
+        onSearch(params);
+    };
+
+    const precisionLabels = {
+        low: "Düşük",
+        medium: "Orta",
+        high: "Yüksek",
+    };
+
+    const precisionDescriptions = {
+        low: "Daha fazla sonuç, daha geniş eşleşme",
+        medium: "Dengeli sonuç kalitesi",
+        high: "Daha az, daha yüksek kaliteli sonuç",
+    };
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
+            <GlassCard className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                <div className="p-8 md:p-12">
+                    {/* Header */}
+                    <div className="flex items-start justify-between mb-8">
+                        <div>
+                            <h2 className="text-3xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
+                                <Sliders className="text-primary" size={28} />
+                                DETAYLI ARAMA
+                            </h2>
+                            <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest mt-2">
+                                Gelişmiş Parametreler & AI Destekli Analiz
+                            </p>
+                        </div>
+                        <button
+                            onClick={onClose}
+                            disabled={isSearching}
+                            className="w-10 h-10 bg-white/5 hover:bg-white/10 rounded-xl flex items-center justify-center text-zinc-400 hover:text-white transition-colors disabled:opacity-50"
+                        >
+                            <X size={20} />
+                        </button>
+                    </div>
+
+                    {/* Credit Cost Notice */}
+                    <div className="mb-8 bg-primary/10 border border-primary/20 rounded-2xl p-6 flex items-center gap-4">
+                        <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center text-primary flex-shrink-0">
+                            <Zap size={24} />
+                        </div>
+                        <div>
+                            <h3 className="text-sm font-black text-white uppercase tracking-wide">
+                                2 Kredi Gerekli
+                            </h3>
+                            <p className="text-xs text-zinc-400 font-medium mt-1">
+                                Normal aramadan daha gelişmiş özellikler sunar
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Search Precision */}
+                    <div className="mb-8">
+                        <label className="block text-sm font-black text-white uppercase tracking-wide mb-4">
+                            Arama Hassasiyeti
+                        </label>
+                        <div className="grid grid-cols-3 gap-4">
+                            {(["low", "medium", "high"] as const).map((level) => (
+                                <button
+                                    key={level}
+                                    onClick={() => setPrecision(level)}
+                                    disabled={isSearching}
+                                    className={`p-4 rounded-xl border-2 transition-all ${
+                                        precision === level
+                                            ? "bg-primary/20 border-primary text-white"
+                                            : "bg-white/5 border-white/10 text-zinc-400 hover:border-white/20"
+                                    } disabled:opacity-50`}
+                                >
+                                    <div className="text-xs font-black uppercase tracking-widest mb-1">
+                                        {precisionLabels[level]}
+                                    </div>
+                                    <div className="text-[10px] text-zinc-500 font-medium">
+                                        {precisionDescriptions[level]}
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Confidence Threshold */}
+                    <div className="mb-8">
+                        <label className="block text-sm font-black text-white uppercase tracking-wide mb-4 flex items-center gap-2">
+                            Güven Eşiği: {confidenceThreshold}%
+                            <div className="relative group">
+                                <Info size={14} className="text-zinc-500 cursor-help" />
+                                <div className="absolute left-0 bottom-full mb-2 hidden group-hover:block w-64 bg-zinc-900 text-xs text-zinc-300 p-3 rounded-lg border border-white/10">
+                                    Bu değerin altındaki eşleşmeler filtrelenir
+                                </div>
+                            </div>
+                        </label>
+                        <div className="relative">
+                            <input
+                                type="range"
+                                min="0"
+                                max="100"
+                                step="5"
+                                value={confidenceThreshold}
+                                onChange={(e) => setConfidenceThreshold(Number(e.target.value))}
+                                disabled={isSearching}
+                                className="w-full h-2 bg-white/5 rounded-lg appearance-none cursor-pointer accent-primary disabled:opacity-50"
+                            />
+                            <div className="flex justify-between text-[10px] text-zinc-600 font-black uppercase tracking-widest mt-2">
+                                <span>0%</span>
+                                <span>50%</span>
+                                <span>100%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Max Results */}
+                    <div className="mb-8">
+                        <label className="block text-sm font-black text-white uppercase tracking-wide mb-4">
+                            Maksimum Sonuç Sayısı
+                        </label>
+                        <div className="flex gap-3">
+                            {[5, 10, 15, 20].map((num) => (
+                                <button
+                                    key={num}
+                                    onClick={() => setMaxResults(num)}
+                                    disabled={isSearching}
+                                    className={`flex-1 py-3 rounded-xl border-2 transition-all text-sm font-black ${
+                                        maxResults === num
+                                            ? "bg-primary/20 border-primary text-white"
+                                            : "bg-white/5 border-white/10 text-zinc-400 hover:border-white/20"
+                                    } disabled:opacity-50`}
+                                >
+                                    {num}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* AI Explanation Toggle */}
+                    <div className="mb-8 bg-white/5 border border-white/10 rounded-2xl p-6">
+                        <div className="flex items-start gap-4">
+                            <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center text-primary flex-shrink-0">
+                                <Sparkles size={24} />
+                            </div>
+                            <div className="flex-1">
+                                <h3 className="text-sm font-black text-white uppercase tracking-wide mb-2">
+                                    AI Destekli Açıklama
+                                </h3>
+                                <p className="text-xs text-zinc-400 font-medium mb-4">
+                                    ChatGPT kullanarak sonuçları detaylı açıkla
+                                </p>
+                                <label className="flex items-center gap-3 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={enableAI}
+                                        onChange={(e) => setEnableAI(e.target.checked)}
+                                        disabled={isSearching}
+                                        className="w-5 h-5 accent-primary disabled:opacity-50"
+                                    />
+                                    <span className="text-xs font-black text-zinc-300 uppercase tracking-widest">
+                                        AI Açıklamayı Etkinleştir
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Disclaimer */}
+                    <div className="mb-8 bg-amber-500/10 border border-amber-500/20 rounded-2xl p-6">
+                        <div className="flex items-start gap-4 mb-4">
+                            <AlertCircle className="text-amber-500 flex-shrink-0" size={20} />
+                            <div className="text-xs text-amber-200 font-medium leading-relaxed">
+                                Sonuçlar bilimsel analize dayanmaktadır. FaceSeek kimlik
+                                iddiasında bulunmaz. Sonuçlar bilgilendirme amaçlıdır ve kesinlik
+                                içermez.
+                            </div>
+                        </div>
+                        <label className="flex items-center gap-3 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={acceptedDisclaimer}
+                                onChange={(e) => setAcceptedDisclaimer(e.target.checked)}
+                                disabled={isSearching}
+                                className="w-4 h-4 accent-amber-500 disabled:opacity-50"
+                            />
+                            <span className="text-[10px] font-black text-amber-300 uppercase tracking-widest">
+                                Sorumluluk beyanını kabul ediyorum
+                            </span>
+                        </label>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-4">
+                        <Button
+                            onClick={onClose}
+                            variant="outline"
+                            className="flex-1 h-14 bg-white/5 border-white/10 hover:bg-white/10"
+                            disabled={isSearching}
+                        >
+                            İPTAL
+                        </Button>
+                        <Button
+                            onClick={handleSearch}
+                            className="flex-1 h-14"
+                            isLoading={isSearching}
+                            disabled={isSearching || !acceptedDisclaimer}
+                        >
+                            <Shield className="mr-2" size={18} />
+                            DETAYLI ARAMA BAŞLAT
+                        </Button>
+                    </div>
+                </div>
+            </GlassCard>
+        </div>
+    );
+}
+
+────────────────────────────────────────────────────────────────────────────────
+DOSYA SONU: AdvancedSearchModal.tsx
+────────────────────────────────────────────────────────────────────────────────
+
+
+================================================================================
+DEĞİŞTİRİLEN DOSYALAR (Modified Files)
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+DOSYA 2/3: api.ts (GÜNCEL EKLENTİLER)
+Konum: frontend/lib/api.ts
+Açıklama: advancedSearchFace() fonksiyonu ve AdvancedSearchParams interface eklendi
+Değişiklik: Dosya sonuna eklenen kod (satır 166-220)
+────────────────────────────────────────────────────────────────────────────────
+
+// ... (Dosyanın önceki tüm kodları aynı kalıyor)
+// ... (satır 1-165 değişmedi)
+
+export interface AdvancedSearchParams {
+  search_precision: "low" | "medium" | "high";
+  region_filter?: string;
+  confidence_threshold: number;
+  max_results: number;
+  enable_ai_explanation: boolean;
+  include_facecheck?: boolean;
+}
+
+export async function advancedSearchFace(
+  token: string,
+  file: File,
+  params: AdvancedSearchParams
+) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const queryParams = new URLSearchParams({
+    search_precision: params.search_precision,
+    confidence_threshold: params.confidence_threshold.toString(),
+    max_results: params.max_results.toString(),
+    enable_ai_explanation: params.enable_ai_explanation.toString(),
+    include_facecheck: (params.include_facecheck || false).toString(),
+  });
+
+  if (params.region_filter) {
+    queryParams.append("region_filter", params.region_filter);
+  }
+
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  const res = await fetch(
+    `${API_BASE}/search-face-advanced?${queryParams.toString()}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    }
+  );
+
+  if (!res.ok) {
+    if (res.status === 402) {
+      throw new APIError("Insufficient credits", 402);
+    }
+    const err = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new APIError(
+      err.error || err.detail || `HTTP ${res.status}`,
+      res.status,
+      err
+    );
+  }
+
+  return res.json();
+}
+
+────────────────────────────────────────────────────────────────────────────────
+DOSYA SONU: api.ts eklentileri
+────────────────────────────────────────────────────────────────────────────────
+
+
+────────────────────────────────────────────────────────────────────────────────
+DOSYA 3/3: search/page.tsx (ÖNEMLİ DEĞİŞİKLİKLER)
+Konum: frontend/app/[locale]/search/page.tsx
+Açıklama: Advanced Search modal entegrasyonu ve AI explanation display
+Değişiklikler: Import'lar, state yönetimi, handler fonksiyonları, UI güncellemeleri
+────────────────────────────────────────────────────────────────────────────────
+
+ÖNEMLİ DEĞİŞİKLİKLER:
+
+1. YENİ IMPORT'LAR (satır 1-32):
+────────────────────────────────────────────────────────────────────────────────
+import AdvancedSearchModal, {
+  AdvancedSearchParams,
+} from "@/components/AdvancedSearchModal";
+import { advancedSearchFace } from "@/lib/api";
+import {
+  // ... mevcut import'lar
+  Sliders,      // YENİ
+  Sparkles,     // YENİ
+} from "lucide-react";
+────────────────────────────────────────────────────────────────────────────────
+
+2. YENİ STATE DEĞİŞKENLERİ (satır 49-50):
+────────────────────────────────────────────────────────────────────────────────
+const [showAdvancedModal, setShowAdvancedModal] = useState(false);
+const [isAdvancedSearch, setIsAdvancedSearch] = useState(false);
+────────────────────────────────────────────────────────────────────────────────
+
+3. YENİ HANDLER FONKSİYONU (satır 120-154):
+────────────────────────────────────────────────────────────────────────────────
+const handleAdvancedSearch = async (params: AdvancedSearchParams) => {
+  if (!file || !token) {
+    toast.error("Lütfen bir fotoğraf seçin.");
+    return;
+  }
+
+  setSearching(true);
+  setResults(null);
+  setError(null);
+  setShowAdvancedModal(false);
+  setIsAdvancedSearch(true);
+
+  try {
+    const searchData = await advancedSearchFace(token, file, {
+      ...params,
+      include_facecheck: includeFacecheck,
+    });
+
+    setResults(searchData);
+  } catch (err: any) {
+    if (err.statusCode === 402) {
+      toast.error(
+        "Krediniz bitti. Fiyatlandırma sayfasına yönlendiriliyorsunuz."
+      );
+      router.push(`/${locale}/pricing`);
+      return;
+    }
+    setError(err.message || "Arama başarısız");
+    toast.error("Sistem hatası: Sunucuya bağlanılamadı.");
+  } finally {
+    setSearching(false);
+  }
+};
+────────────────────────────────────────────────────────────────────────────────
+
+4. UI DEĞİŞİKLİKLERİ - DUAL SEARCH BUTTONS (satır 234-270):
+────────────────────────────────────────────────────────────────────────────────
+<div className="flex flex-col gap-4 max-w-md mx-auto">
+  <div className="flex gap-4">
+    <Button
+      onClick={handleChangeImage}
+      variant="outline"
+      className="flex-1 h-14 bg-white/5 border-white/5 hover:bg-white/10"
+      disabled={searching}
+    >
+      <RotateCcw className="mr-2" size={18} /> DEĞİŞTİR
+    </Button>
+
+    <Button
+      onClick={handleSearch}
+      className="flex-1 h-14"
+      isLoading={searching}
+      disabled={searching || !acceptedDisclaimer}
+    >
+      <Target className="mr-2" size={18} /> TARAMAYI BAŞLAT
+    </Button>
+  </div>
+
+  {/* YENİ: ADVANCED SEARCH BUTONU */}
+  <Button
+    onClick={() => setShowAdvancedModal(true)}
+    variant="outline"
+    className="w-full h-14 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/30 hover:border-primary/50 hover:bg-primary/20"
+    disabled={searching}
+  >
+    <Sliders className="mr-2" size={18} />
+    DETAYLI ARAMA
+    <span className="ml-auto text-[10px] font-black uppercase tracking-widest px-3 py-1 bg-primary/20 rounded-full border border-primary/40">
+      2 KREDİ
+    </span>
+  </Button>
+
+  {/* KREDİ BİLGİLENDİRME */}
+  <div className="text-center text-[9px] text-zinc-600 font-bold uppercase tracking-widest">
+    Normal Arama: 1 Kredi • Detaylı Arama: 2 Kredi
+  </div>
+</div>
+────────────────────────────────────────────────────────────────────────────────
+
+5. YENİ: AI EXPLANATION DISPLAY (Sonuç bölümünde, satır 329-349):
+────────────────────────────────────────────────────────────────────────────────
+{/* AI Explanation Section */}
+{results.ai_explanation && (
+  <div className="mb-12 bg-gradient-to-r from-primary/10 to-purple-500/10 border border-primary/20 rounded-[32px] p-8">
+    <div className="flex items-start gap-4">
+      <div className="w-14 h-14 bg-primary/20 rounded-2xl flex items-center justify-center text-primary flex-shrink-0">
+        <Sparkles size={24} />
+      </div>
+      <div className="flex-1">
+        <h3 className="text-lg font-black text-white uppercase tracking-tight mb-3">AI DESTEKLİ ANALİZ</h3>
+        <p className="text-zinc-300 text-sm leading-relaxed font-medium">
+          {results.ai_explanation}
+        </p>
+        <div className="mt-4 text-[9px] text-zinc-600 font-bold uppercase tracking-widest flex items-center gap-2">
+          <ShieldCheck size={12} /> Bu açıklama ChatGPT tarafından üretilmiştir ve bilgilendirme amaçlıdır.
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+────────────────────────────────────────────────────────────────────────────────
+
+6. YENİ: MODAL COMPONENT EKLEME (Sayfa sonunda, satır 401-407):
+────────────────────────────────────────────────────────────────────────────────
+{/* Advanced Search Modal */}
+<AdvancedSearchModal
+  isOpen={showAdvancedModal}
+  onClose={() => setShowAdvancedModal(false)}
+  onSearch={handleAdvancedSearch}
+  isSearching={searching}
+/>
+────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────
+DOSYA SONU: search/page.tsx değişiklikleri
+────────────────────────────────────────────────────────────────────────────────
+
+
+================================================================================
+DEĞİŞİKLİK ÖZETİ
+================================================================================
+
+TOPLAM DEĞİŞİKLİK:
+- 1 YENİ COMPONENT: AdvancedSearchModal.tsx (266 satır)
+- 2 DOSYA GÜNCELLENDİ: api.ts (+63 satır), search/page.tsx (~80 satır değişiklik)
+
+ÖZELLİKLER:
+✅ Detaylı Arama modal UI (7 parametre)
+✅ Search precision seçimi (Low/Medium/High)
+✅ Confidence threshold slider (0-100%)
+✅ Max results seçimi (5/10/15/20)
+✅ AI explanation toggle
+✅ Disclaimer checkbox (zorunlu)
+✅ Dual search buttons (Normal 1 kredi, Advanced 2 kredi)
+✅ AI explanation display component
+✅ Credit cost indicators
+✅ Full mobile responsive design
+✅ Error handling (insufficient credits, API errors)
+
+KOMPATİBİLİTE:
+✅ Backward compatible - mevcut search endpoint değişmedi
+✅ Mevcut UI/UX korundu
+✅ FaceSeek design language'ine uyumlu (glassmorphism, dark mode, primary color)
+
+API ENDPOINT:
+- Backend endpoint: POST /search-face-advanced
+- Credit cost: 2 credits per search
+- AI explanation: Optional (ChatGPT powered)
+
+================================================================================
+KURULUM TALİMATLARI
+================================================================================
+
+1. Bu dosyaları projenize kopyalayın:
+   - components/AdvancedSearchModal.tsx (YENİ)
+   - lib/api.ts (GÜNCEL - advancedSearchFace fonksiyonu eklenmiş)
+   - app/[locale]/search/page.tsx (GÜNCEL - modal entegrasyonu)
+
+2. Backend .env dosyasına ekleyin:
+   OPENAI_API_KEY=sk-proj-your-key-here
+   OPENAI_MODEL=gpt-4o-mini
+   OPENAI_ENABLED=true
+
+3. Frontend'i rebuild edin:
+   npm run dev
+
+4. Test kullanıcısı ile giriş yapın:
+   Email: testalan@gmail.com
+   Şifre: 123456
+
+5. Search sayfasında "DETAYLI ARAMA" butonunu test edin!
+
+================================================================================
+NOTLAR
+================================================================================
+
+- AI açıklamaları için OpenAI API key gereklidir
+- AI açıklaması olmadan da advanced search çalışır
+- Normal search 1 kredi, Advanced search 2 kredi harcar
+- Tüm metinler Türkçe (UI dili: TR)
+- Mobile-first responsive design
+- Glassmorphism & dark mode aesthetic
+
+================================================================================
+İLETİŞİM & DESTEK
+================================================================================
+
+Sorularınız için DELIVERY_REPORT.md dosyasına bakın.
+
+================================================================================
+DÖKÜMAN SONU
+================================================================================

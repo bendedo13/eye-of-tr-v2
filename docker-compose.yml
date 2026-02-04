@@ -2,9 +2,9 @@ services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: faceseek
-      POSTGRES_USER: faceseek
-      POSTGRES_PASSWORD: faceseek
+      POSTGRES_DB: ${POSTGRES_DB:-faceseek}
+      POSTGRES_USER: ${POSTGRES_USER:-faceseek}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:

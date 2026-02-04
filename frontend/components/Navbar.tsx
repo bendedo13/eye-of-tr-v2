@@ -16,7 +16,8 @@ import {
   Sparkles,
   Zap,
   ShieldCheck,
-  Globe
+  Globe,
+  MapPin
 } from "lucide-react";
 import { Button } from "./ui/Button";
 import FaceSeekLogo from "./brand/FaceSeekLogo";
@@ -33,6 +34,7 @@ export default function Navbar() {
   const navLinks = [
     { href: `/${locale}`, label: t('home'), icon: <Zap size={16} /> },
     { href: `/${locale}/search`, label: t('search'), icon: <Search size={16} /> },
+    { href: `/${locale}/visual-location`, label: t('visualLocation'), icon: <MapPin size={16} /> },
     { href: `/${locale}/pricing`, label: t('pricing'), icon: <CreditCard size={16} /> },
     { href: `/${locale}/blog`, label: t('blog'), icon: <ShieldCheck size={16} /> },
   ];
