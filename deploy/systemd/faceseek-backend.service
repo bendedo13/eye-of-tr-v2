@@ -4,17 +4,16 @@ After=network.target
 
 [Service]
 Type=simple
-WorkingDirectory=/opt/faceseek/backend
+WorkingDirectory=/opt/faceseek/repo/backend
 EnvironmentFile=/etc/faceseek/backend.env
 RuntimeDirectory=faceseek
 RuntimeDirectoryMode=0755
 User=faceseek
 Group=www-data
 UMask=0007
-ExecStart=/opt/faceseek/backend/venv/bin/gunicorn -w 2 -k uvicorn.workers.UvicornWorker -b unix:/run/faceseek/backend.sock main:app --access-logfile - --error-logfile -
+ExecStart=/opt/faceseek/repo/backend/venv/bin/gunicorn -w 2 -k uvicorn.workers.UvicornWorker -b unix:/run/faceseek/backend.sock main:app --access-logfile - --error-logfile -
 Restart=always
 RestartSec=2
 
 [Install]
 WantedBy=multi-user.target
-

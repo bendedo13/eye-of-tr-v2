@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 Type=simple
-WorkingDirectory=/opt/faceseek/frontend
+WorkingDirectory=/opt/faceseek/repo/frontend
 EnvironmentFile=/etc/faceseek/frontend.env
 User=faceseek
 Group=faceseek
@@ -14,4 +14,3 @@ RestartSec=2
 
 [Install]
 WantedBy=multi-user.target
-
