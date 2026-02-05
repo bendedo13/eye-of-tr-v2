@@ -93,7 +93,7 @@ def register(data: UserRegister, request: Request, db: Session = Depends(get_db)
         referral_code=referral_code,
         credits=1,  # 1 ücretsiz arama kredisi
         tier="free",
-        is_active=False,
+        is_active=True, # Otomatik aktif et (email doğrulama pasif)
     )
     db.add(user)
     db.commit()
@@ -106,12 +106,18 @@ def register(data: UserRegister, request: Request, db: Session = Depends(get_db)
     if data.referral_code:
         ReferralService.process_referral(user, data.referral_code, db)
     
+    verification_required = False # Doğrulama gerekmiyor
+    debug_code = None
+    
+    # Doğrulama kodu oluşturma (opsiyonel, belki ileride lazım olur diye DB'de dursun)
+    # Ama kullanıcıya göndermeye zorlamıyoruz ve verification_required=False dönüyoruz.
     try:
         debug_code = create_or_replace_verification(db, user)
-    except MailerError:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Email service is not configured")
-    logger.info(f"New user registered (verification pending): {user.email}")
-    return RegisterResponse(verification_required=True, debug_code=debug_code if settings.DEBUG else None)
+    except Exception:
+        pass
+    
+    logger.info(f"New user registered: {user.email} (Active: True)")
+    return RegisterResponse(verification_required=verification_required, debug_code=debug_code if settings.DEBUG else None)
 
 
 @router.post("/login", response_model=Token)
@@ -123,8 +129,12 @@ def login(data: UserLogin, db: Session = Depends(get_db)):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
         )
+    # Email doğrulaması kontrolünü pasif yaptık
     if not user.is_active:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Email doğrulaması gerekli")
+         user.is_active = True
+         db.commit()
+         # raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Email doğrulaması gerekli")
+    
     token = create_access_token(subject=user.id)
     return Token(access_token=token)
 

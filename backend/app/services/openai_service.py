@@ -81,4 +81,23 @@ class OpenAIService:
                 return "Aradığınız kişi kendi verisini korumaya almış ve ücretli olarak kendisini koruyor."
             return "Sonuç bulunamadı."
 
+    def is_available(self) -> bool:
+        """OpenAI servisinin kullanılabilir olup olmadığını kontrol et"""
+        return bool(self.enabled and self.api_key)
+
+    def generate_search_explanation(self, matches: list, total_matches: int, search_params: dict) -> str:
+        """
+        Arama sonuçları için senkron wrapper.
+        Not: Asenkron çağrı yapılamadığı durumlarda veya hızlı mock için.
+        Gerçek implementasyonda asenkron tercih edilmeli.
+        """
+        if not self.is_available():
+            return "AI açıklaması devre dışı."
+        
+        # Basit bir şablon döndür (async çağırmak zor olduğu için şimdilik)
+        return f"Arama kriterlerinize göre {total_matches} eşleşme bulundu. Hassasiyet: {search_params.get('precision')}."
+
 openai_service = OpenAIService()
+
+def get_openai_service() -> OpenAIService:
+    return openai_service

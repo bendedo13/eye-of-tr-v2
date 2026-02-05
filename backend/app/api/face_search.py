@@ -15,6 +15,7 @@ from app.services.credit_service import CreditService
 from app.services.embedding_service import EmbeddingError, get_embedder
 from app.services.faiss_service import FaissError, get_faiss_store
 from app.services.openai_service import get_openai_service
+from app.services.search_service import get_search_service
 
 
 class AdvancedSearchParams(BaseModel):
@@ -90,7 +91,6 @@ async def upload_face(
 async def search_face(
     file: UploadFile = File(...),
     top_k: int = Query(default=settings.FAISS_TOP_K_DEFAULT, ge=1, le=50),
-    include_facecheck: bool = Query(default=False),
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -106,6 +106,7 @@ async def search_face(
     if not ok:
         raise HTTPException(status_code=status.HTTP_402_PAYMENT_REQUIRED, detail="Insufficient credits")
 
+    # 1. FAISS Search
     try:
         embedder = get_embedder()
         emb = embedder.embed(content)
@@ -135,33 +136,47 @@ async def search_face(
             }
         )
 
+    # 2. External Waterfall Search (Automatic)
+    # Saves file temporarily for external services
     external = None
     providers_used = ["faiss"]
-    if include_facecheck and settings.FACECHECK_ENABLED and settings.FACECHECK_API_KEY:
-        from app.adapters.facecheck_adapter import get_facecheck_adapter
-
-        faces_dir = _faces_dir()
-        faces_dir.mkdir(parents=True, exist_ok=True)
-        query_filename = f"query_{uuid.uuid4()}{ext}"
-        query_path = faces_dir / query_filename
+    
+    faces_dir = _faces_dir()
+    faces_dir.mkdir(parents=True, exist_ok=True)
+    query_filename = f"query_{uuid.uuid4()}{ext}"
+    query_path = faces_dir / query_filename
+    
+    try:
         query_path.write_bytes(content)
+        
+        # Use fallback strategy: Try standard providers first, then FaceCheck if needed
+        srv = get_search_service()
+        ext_result = await srv.waterfall_search(
+            str(query_path), 
+            user_tier=user.tier or "free", 
+            strategy="fallback"
+        )
+        
+        if ext_result.get("status") == "success":
+            ext_matches = ext_result.get("matches", [])
+            matches_out.extend(ext_matches)
+            
+            used = ext_result.get("providers_used", [])
+            for p in used:
+                if p not in providers_used:
+                    providers_used.append(p)
+                    
+            external = ext_result.get("external") # Might be None, just mapping fields if needed
 
+    except Exception as e:
+        # Log error but don't fail the whole request
+        print(f"External search failed: {e}")
+    finally:
         try:
-            adapter = get_facecheck_adapter(
-                {
-                    "api_key": settings.FACECHECK_API_KEY,
-                    "api_url": settings.FACECHECK_API_URL,
-                    "timeout": 60,
-                }
-            )
-            external_res = await adapter.search_with_timing(str(query_path))
-            external = external_res.to_dict()
-            providers_used.append("facecheck")
-        finally:
-            try:
-                query_path.unlink(missing_ok=True)
-            except Exception:
-                pass
+            if query_path.exists():
+                query_path.unlink()
+        except Exception:
+            pass
 
     elapsed_ms = int((time.time() - started) * 1000)
     return {
@@ -183,7 +198,6 @@ async def search_face_advanced(
     confidence_threshold: float = Query(default=0.5, ge=0.0, le=1.0),
     max_results: int = Query(default=10, ge=1, le=50),
     enable_ai_explanation: bool = Query(default=False),
-    include_facecheck: bool = Query(default=False),
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -267,48 +281,73 @@ async def search_face_advanced(
     # Limit to max_results
     matches_out = matches_out[:max_results]
 
-    # Include external FaceCheck if requested
+    # 2. External Waterfall Search (Automatic)
     external = None
     providers_used = ["faiss"]
-    if include_facecheck and settings.FACECHECK_ENABLED and settings.FACECHECK_API_KEY:
-        from app.adapters.facecheck_adapter import get_facecheck_adapter
-
-        faces_dir = _faces_dir()
-        faces_dir.mkdir(parents=True, exist_ok=True)
-        query_filename = f"query_{uuid.uuid4()}{ext}"
-        query_path = faces_dir / query_filename
+    
+    faces_dir = _faces_dir()
+    faces_dir.mkdir(parents=True, exist_ok=True)
+    query_filename = f"query_{uuid.uuid4()}{ext}"
+    query_path = faces_dir / query_filename
+    
+    try:
         query_path.write_bytes(content)
-
+        
+        srv = get_search_service()
+        ext_result = await srv.waterfall_search(
+            str(query_path), 
+            user_tier=user.tier or "free", 
+            strategy="fallback"
+        )
+        
+        if ext_result.get("status") == "success":
+            ext_matches = ext_result.get("matches", [])
+            matches_out.extend(ext_matches)
+            
+            used = ext_result.get("providers_used", [])
+            for p in used:
+                if p not in providers_used:
+                    providers_used.append(p)
+    except Exception as e:
+        print(f"External search failed: {e}")
+    finally:
         try:
-            adapter = get_facecheck_adapter(
-                {
-                    "api_key": settings.FACECHECK_API_KEY,
-                    "api_url": settings.FACECHECK_API_URL,
-                    "timeout": 60,
-                }
-            )
-            external_res = await adapter.search_with_timing(str(query_path))
-            external = external_res.to_dict()
-            providers_used.append("facecheck")
-        finally:
-            try:
-                query_path.unlink(missing_ok=True)
-            except Exception:
-                pass
+            if query_path.exists():
+                query_path.unlink()
+        except Exception:
+            pass
 
     # Generate AI explanation if enabled
     ai_explanation = None
+    error_message = None
+    openai_service = get_openai_service()
+    
     if enable_ai_explanation:
-        openai_service = get_openai_service()
-        if openai_service.is_available():
-            ai_explanation = openai_service.generate_search_explanation(
-                matches=matches_out,
-                total_matches=len(matches_out),
-                search_params={
-                    "precision": search_precision,
-                    "confidence_threshold": confidence_threshold,
-                }
-            )
+        if len(matches_out) > 0:
+            # Sonuç varsa ve OpenAI aktifse detaylı analiz yap
+            if openai_service.is_available():
+                try:
+                    ai_explanation = await openai_service.analyze_search_results(
+                        query="Visual Search Target",
+                        results=[{"title": m.get("username"), "confidence": m.get("confidence")} for m in matches_out[:5]]
+                    )
+                except Exception as e:
+                    # Fallback to simple explanation
+                    pass
+            
+            # OpenAI yoksa veya hata verdiyse basit açıklama
+            if not ai_explanation:
+                ai_explanation = openai_service.generate_search_explanation(
+                    matches=matches_out,
+                    total_matches=len(matches_out),
+                    search_params={
+                        "precision": search_precision,
+                        "confidence_threshold": confidence_threshold,
+                    }
+                )
+        else:
+            # Sonuç yoksa "Gizlilik" senaryosunu uygula (OpenAI olmasa bile fallback döner)
+            error_message = await openai_service.get_failure_message("privacy", context="Target Person")
 
     elapsed_ms = int((time.time() - started) * 1000)
     return {
@@ -327,5 +366,6 @@ async def search_face_advanced(
             "ai_enabled": enable_ai_explanation,
         },
         "ai_explanation": ai_explanation,
+        "error_message": error_message, # Frontend için hata/gizlilik mesajı
         "credits_consumed": 2,
     }

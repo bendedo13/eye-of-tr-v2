@@ -92,21 +92,21 @@ export default function TrustCounter({ locale }: { locale: string }) {
   }, [locale]);
 
   return (
-    <div className="fixed right-6 bottom-6 z-50 hidden md:block">
-      <GlassCard className="w-[360px] p-5 bg-black/60 border border-white/10 shadow-2xl shadow-black/60" hasScanline>
-        <div className="flex items-start justify-between gap-4">
-          <div className="space-y-1">
-            <div className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500">{labels.sim}</div>
-            <div className="text-white font-black tracking-tight flex items-center gap-2">
-              <Sparkles size={16} className="text-primary" /> {labels.title}
+    <div className="fixed right-4 bottom-4 z-50 hidden md:block scale-75 origin-bottom-right opacity-90 hover:opacity-100 transition-opacity">
+      <GlassCard className="w-[280px] p-4 bg-black/60 border border-white/10 shadow-2xl shadow-black/60" hasScanline>
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-0.5">
+            <div className="text-[8px] font-black uppercase tracking-[0.3em] text-zinc-500">{labels.sim}</div>
+            <div className="text-white text-xs font-black tracking-tight flex items-center gap-1.5">
+              <Sparkles size={12} className="text-primary" /> {labels.title}
             </div>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-black text-primary tracking-tighter">{count.toLocaleString(locale === "tr" ? "tr-TR" : "en-US")}</div>
+            <div className="text-lg font-black text-primary tracking-tighter">{count.toLocaleString(locale === "tr" ? "tr-TR" : "en-US")}</div>
           </div>
         </div>
 
-        <div className="mt-4 space-y-3">
+        <div className="mt-3 space-y-2">
           {events.map((e, idx) => {
             const minutes = Math.floor((Date.now() - e.at) / 60000);
             const when = minutes <= 0 ? labels.justNow : `${minutes} ${labels.minute}`;
@@ -114,20 +114,20 @@ export default function TrustCounter({ locale }: { locale: string }) {
             return (
               <div
                 key={`${e.name}-${e.at}-${idx}`}
-                className="flex items-center justify-between bg-white/5 border border-white/5 rounded-2xl px-4 py-3 animate-in fade-in slide-in-from-bottom-2 duration-500"
+                className="flex items-center justify-between bg-white/5 border border-white/5 rounded-xl px-3 py-2 animate-in fade-in slide-in-from-bottom-2 duration-500"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
-                    <Icon size={16} />
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+                    <Icon size={12} />
                   </div>
                   <div>
-                    <div className="text-white text-xs font-black tracking-tight">
+                    <div className="text-white text-[10px] font-black tracking-tight leading-tight">
                       {e.name}{" "}
-                      <span className="text-zinc-500 font-bold">
+                      <span className="text-zinc-500 font-bold block">
                         {labels.bought} {e.item}
                       </span>
                     </div>
-                    <div className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{when}</div>
+                    <div className="text-[8px] font-black uppercase tracking-widest text-zinc-600 mt-0.5">{when}</div>
                   </div>
                 </div>
               </div>

@@ -24,6 +24,7 @@ import {
   Globe
 } from "lucide-react";
 import { toast } from "@/lib/toast";
+import WelcomeModal from "@/components/WelcomeModal";
 
 interface DashboardData {
   user: any;
@@ -90,6 +91,7 @@ export default function DashboardPage({
 
   return (
     <ClientOnly>
+      <WelcomeModal />
       <div className="min-h-screen bg-background text-slate-200">
         <Navbar />
 

@@ -37,7 +37,7 @@ export default function AdvancedSearchModal({
     const [precision, setPrecision] = useState<"low" | "medium" | "high">("medium");
     const [confidenceThreshold, setConfidenceThreshold] = useState<number>(50);
     const [maxResults, setMaxResults] = useState<number>(10);
-    const [enableAI, setEnableAI] = useState<boolean>(false);
+    // const [enableAI, setEnableAI] = useState<boolean>(false);
     const [acceptedDisclaimer, setAcceptedDisclaimer] = useState<boolean>(false);
 
     if (!isOpen) return null;
@@ -49,7 +49,7 @@ export default function AdvancedSearchModal({
             search_precision: precision,
             confidence_threshold: confidenceThreshold / 100, // Convert to 0-1 range
             max_results: maxResults,
-            enable_ai_explanation: enableAI,
+            enable_ai_explanation: true, // Always enable AI
         };
 
         onSearch(params);
@@ -182,35 +182,6 @@ export default function AdvancedSearchModal({
                                     {num}
                                 </button>
                             ))}
-                        </div>
-                    </div>
-
-                    {/* AI Explanation Toggle */}
-                    <div className="mb-8 bg-white/5 border border-white/10 rounded-2xl p-6">
-                        <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center text-primary flex-shrink-0">
-                                <Sparkles size={24} />
-                            </div>
-                            <div className="flex-1">
-                                <h3 className="text-sm font-black text-white uppercase tracking-wide mb-2">
-                                    AI Destekli Açıklama
-                                </h3>
-                                <p className="text-xs text-zinc-400 font-medium mb-4">
-                                    ChatGPT kullanarak sonuçları detaylı açıkla
-                                </p>
-                                <label className="flex items-center gap-3 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={enableAI}
-                                        onChange={(e) => setEnableAI(e.target.checked)}
-                                        disabled={isSearching}
-                                        className="w-5 h-5 accent-primary disabled:opacity-50"
-                                    />
-                                    <span className="text-xs font-black text-zinc-300 uppercase tracking-widest">
-                                        AI Açıklamayı Etkinleştir
-                                    </span>
-                                </label>
-                            </div>
                         </div>
                     </div>
 

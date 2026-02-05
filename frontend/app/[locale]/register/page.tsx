@@ -68,7 +68,7 @@ export default function RegisterPage({
         if (res.debugCode) qp.set("debug_code", res.debugCode);
         router.push(`/${locale}/verify-email?${qp.toString()}`);
       } else {
-        router.push(`/${locale}/dashboard`);
+        router.push(`/${locale}/dashboard?welcome=true`);
       }
     } catch (err: any) {
       setError(err.message || "Kayıt başarısız. Lütfen bilgilerinizi kontrol edin.");

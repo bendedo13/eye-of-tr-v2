@@ -44,7 +44,7 @@ export default function SearchPage({
   const [searching, setSearching] = useState(false);
   const [results, setResults] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
-  const [includeFacecheck, setIncludeFacecheck] = useState(false);
+  // const [includeFacecheck, setIncludeFacecheck] = useState(false);
   const [acceptedDisclaimer, setAcceptedDisclaimer] = useState(false);
   const [showAdvancedModal, setShowAdvancedModal] = useState(false);
   const [isAdvancedSearch, setIsAdvancedSearch] = useState(false);
@@ -289,16 +289,6 @@ export default function SearchPage({
                   >
                     BEYANI OKU
                   </a>
-                  <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-zinc-600">
-                    <input
-                      type="checkbox"
-                      checked={includeFacecheck}
-                      onChange={(e) => setIncludeFacecheck(e.target.checked)}
-                      className="accent-primary"
-                      disabled={searching}
-                    />
-                    FACECHECK DAHİL ET
-                  </label>
                 </div>
               </div>
             )}
@@ -405,13 +395,30 @@ export default function SearchPage({
                   ))}
                 </div>
               ) : (
-                <GlassCard className="p-20 text-center max-w-2xl mx-auto">
-                  <div className="w-20 h-20 bg-zinc-800 rounded-[28px] flex items-center justify-center text-zinc-600 mx-auto mb-8">
-                    <Search size={32} />
-                  </div>
-                  <h3 className="text-2xl font-black text-white mb-4 uppercase tracking-tight">EŞLEŞME BULUNAMADI</h3>
-                  <p className="text-zinc-500 text-sm font-medium leading-relaxed">Sistem internet genelindeki açık kaynakları taradı ancak görselle eşleşen bir sonuç bulamadı. Lütfen farklı bir açıdan çekilmiş görsel deneyin.</p>
-                </GlassCard>
+                <>
+                  {results.error_message ? (
+                    <GlassCard className="p-12 text-center max-w-2xl mx-auto border-primary/20 bg-primary/5">
+                      <div className="w-20 h-20 bg-primary/20 rounded-[28px] flex items-center justify-center text-primary mx-auto mb-8 shadow-[0_0_40px_rgba(0,217,255,0.2)]">
+                        <ShieldCheck size={40} />
+                      </div>
+                      <h3 className="text-2xl font-black text-white mb-4 uppercase tracking-tight">GİZLİLİK PROTOKOLÜ DEVREDE</h3>
+                      <p className="text-zinc-300 text-sm font-medium leading-relaxed mb-8">{results.error_message}</p>
+                      <div className="flex justify-center">
+                         <div className="px-4 py-2 bg-black/40 rounded-lg border border-primary/20 text-[10px] font-black uppercase tracking-widest text-primary">
+                            Code: PRIVACY_BLOCK_ACTIVE
+                         </div>
+                      </div>
+                    </GlassCard>
+                  ) : (
+                    <GlassCard className="p-20 text-center max-w-2xl mx-auto">
+                      <div className="w-20 h-20 bg-zinc-800 rounded-[28px] flex items-center justify-center text-zinc-600 mx-auto mb-8">
+                        <Search size={32} />
+                      </div>
+                      <h3 className="text-2xl font-black text-white mb-4 uppercase tracking-tight">EŞLEŞME BULUNAMADI</h3>
+                      <p className="text-zinc-500 text-sm font-medium leading-relaxed">Sistem internet genelindeki açık kaynakları taradı ancak görselle eşleşen bir sonuç bulamadı. Lütfen farklı bir açıdan çekilmiş görsel deneyin.</p>
+                    </GlassCard>
+                  )}
+                </>
               )}
 
             </div>

@@ -81,7 +81,7 @@ function getOrCreateDeviceId() {
 }
 
 export async function register(email: string, username: string, password: string, referralCode?: string) {
-  const result = await api<{ access_token?: string; verification_required?: boolean; debug_code?: string }>("/api/auth/register", {
+  const result = await api<{ access_token?: string; verification_required?: boolean; debug_code?: string }>("/auth/register", {
     method: "POST",
     body: JSON.stringify({ email, username, password, referral_code: referralCode, device_id: getOrCreateDeviceId() }),
   });
@@ -89,7 +89,7 @@ export async function register(email: string, username: string, password: string
 }
 
 export async function login(email: string, password: string) {
-  const result = await api<{ access_token: string }>("/api/auth/login", {
+  const result = await api<{ access_token: string }>("/auth/login", {
     method: "POST",
     body: JSON.stringify({ email, password, device_id: getOrCreateDeviceId() }),
   });
@@ -97,11 +97,11 @@ export async function login(email: string, password: string) {
 }
 
 export async function me(token: string) {
-  return api<any>("/api/auth/me", { method: "GET", token });
+  return api<any>("/auth/me", { method: "GET", token });
 }
 
 export async function verifyEmail(email: string, code: string) {
-  const result = await api<{ access_token: string }>("/api/auth/verify-email", {
+  const result = await api<{ access_token: string }>("/auth/verify-email", {
     method: "POST",
     body: JSON.stringify({ email, code, device_id: getOrCreateDeviceId() }),
   });
@@ -109,14 +109,14 @@ export async function verifyEmail(email: string, code: string) {
 }
 
 export async function resendVerificationCode(email: string) {
-  return api<{ status: string; debug_code?: string }>("/api/auth/resend-code", {
+  return api<{ status: string; debug_code?: string }>("/auth/resend-code", {
     method: "POST",
     body: JSON.stringify({ email, device_id: getOrCreateDeviceId() }),
   });
 }
 
 export async function getDashboardStats(token: string) {
-  return api<any>("/api/dashboard/stats", { method: "GET", token });
+  return api<any>("/dashboard/stats", { method: "GET", token });
 }
 
 export async function getLiveStats() {
@@ -124,12 +124,12 @@ export async function getLiveStats() {
 }
 
 export async function getPricingPlans() {
-  const data = await api<any>("/api/pricing/plans");
+  const data = await api<any>("/pricing/plans");
   return data.plans;
 }
 
 export async function subscribe(token: string, planId: string) {
-  return api<any>("/api/pricing/subscribe", {
+  return api<any>("/pricing/subscribe", {
     method: "POST",
     token,
     body: JSON.stringify({ plan_id: planId }),
@@ -137,14 +137,14 @@ export async function subscribe(token: string, planId: string) {
 }
 
 export async function confirmPayment(token: string, paymentId: number) {
-  return api<any>(`/api/pricing/confirm-payment/${paymentId}`, {
+  return api<any>(`/pricing/confirm-payment/${paymentId}`, {
     method: "POST",
     token,
   });
 }
 
 export async function getCurrentSubscription(token: string) {
-  return api<any>("/api/pricing/subscription", {
+  return api<any>("/pricing/subscription", {
     method: "GET",
     token,
   });
@@ -153,21 +153,21 @@ export async function getCurrentSubscription(token: string) {
 export async function requestPasswordReset(email: string, locale: string) {
   const base =
     typeof window !== "undefined" ? `${window.location.origin}/${locale}/reset-password` : `/${locale}/reset-password`;
-  return api<{ status: string; debug_reset_url?: string }>("/api/auth/request-password-reset", {
+  return api<{ status: string; debug_reset_url?: string }>("/auth/request-password-reset", {
     method: "POST",
     body: JSON.stringify({ email, device_id: getOrCreateDeviceId(), reset_url_base: base }),
   });
 }
 
 export async function resetPassword(email: string, token: string, newPassword: string) {
-  return api<{ status: string }>("/api/auth/reset-password", {
+  return api<{ status: string }>("/auth/reset-password", {
     method: "POST",
     body: JSON.stringify({ email, token, new_password: newPassword, device_id: getOrCreateDeviceId() }),
   });
 }
 
 export async function changePassword(token: string, currentPassword: string, newPassword: string) {
-  return api<{ status: string }>("/api/auth/change-password", {
+  return api<{ status: string }>("/auth/change-password", {
     method: "POST",
     token,
     body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
@@ -175,7 +175,7 @@ export async function changePassword(token: string, currentPassword: string, new
 }
 
 export async function updateProfile(token: string, username: string) {
-  return api<any>("/api/auth/profile", {
+  return api<any>("/auth/profile", {
     method: "PATCH",
     token,
     body: JSON.stringify({ username }),
@@ -183,7 +183,7 @@ export async function updateProfile(token: string, username: string) {
 }
 
 export async function deleteAccount(token: string) {
-  return api<{ status: string }>("/api/auth/account", {
+  return api<{ status: string }>("/auth/account", {
     method: "DELETE",
     token,
   });
@@ -218,7 +218,6 @@ export async function advancedSearchFace(
     queryParams.append("region_filter", params.region_filter);
   }
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
   const res = await fetch(
     `${API_BASE}/search-face-advanced?${queryParams.toString()}`,
     {

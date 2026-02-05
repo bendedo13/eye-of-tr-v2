@@ -121,7 +121,7 @@ Base.metadata.create_all(bind=engine)
 # Routers
 logger.info("=" * 50)
 logger.info("ROUTERS YÜKLENİYOR...")
-app.include_router(face_search_router)
+app.include_router(face_search_router, prefix="/api")
 app.include_router(auth_router)
 app.include_router(dashboard_router)
 app.include_router(pricing_router)
@@ -134,7 +134,7 @@ app.include_router(analytics_router)
 app.include_router(data_platform_router)
 app.include_router(external_search_router)
 app.include_router(reverse_search_router)
-logger.info("✅ Face search router: /upload-face, /search-face")
+logger.info("✅ Face search router: /api/upload-face, /api/search-face")
 logger.info(f"✅ Auth router: {auth_router.prefix}")
 logger.info(f"✅ Dashboard router: {dashboard_router.prefix}")
 logger.info(f"✅ Pricing router: {pricing_router.prefix}")
@@ -345,6 +345,38 @@ async def get_providers():
         "status": "success",
         "providers": search_service.get_available_providers()
     }
+
+@app.on_event("startup")
+def create_initial_data():
+    """Başlangıçta admin hesabı oluştur"""
+    try:
+        db = SessionLocal()
+        from app.core.security import get_password_hash
+        
+        # Admin User
+        admin_email = settings.ADMIN_EMAIL or "admin@faceseek.io"
+        admin = db.query(User).filter(User.email == admin_email).first()
+        if not admin:
+            logger.info(f"Creating default admin user: {admin_email}")
+            admin_pass = settings.ADMIN_API_KEY or "admin123" # Fallback password
+            user = User(
+                email=admin_email,
+                username="Admin",
+                hashed_password=get_password_hash(admin_pass),
+                referral_code="ADMIN001",
+                credits=999999,
+                tier="unlimited",
+                role="admin",
+                is_active=True
+            )
+            db.add(user)
+            db.commit()
+            logger.info("Admin user created successfully")
+        
+        db.close()
+    except Exception as e:
+        logger.error(f"Error creating initial data: {e}")
+
 
 
 if __name__ == "__main__":

@@ -63,11 +63,11 @@ async function adminFetch<T>(path: string, options: RequestInit & { adminKey: st
 }
 
 export function adminPing(adminKey: string) {
-  return adminFetch<{ status: string }>("/api/admin/ping", { method: "GET", adminKey });
+  return adminFetch<{ status: string }>("/admin/ping", { method: "GET", adminKey });
 }
 
 export function adminOverview(adminKey: string) {
-  return adminFetch<any>("/api/admin/overview", { method: "GET", adminKey });
+  return adminFetch<any>("/admin/overview", { method: "GET", adminKey });
 }
 
 export function adminListUsers(adminKey: string, params: { q?: string; status?: string; offset?: number; limit?: number } = {}) {
@@ -77,11 +77,11 @@ export function adminListUsers(adminKey: string, params: { q?: string; status?: 
   if (params.offset != null) usp.set("offset", String(params.offset));
   if (params.limit != null) usp.set("limit", String(params.limit));
   const qs = usp.toString();
-  return adminFetch<{ items: any[] }>(`/api/admin/users${qs ? `?${qs}` : ""}`, { method: "GET", adminKey });
+  return adminFetch<{ items: any[] }>(`/admin/users${qs ? `?${qs}` : ""}`, { method: "GET", adminKey });
 }
 
 export function adminUpdateUser(adminKey: string, userId: number, patch: any) {
-  return adminFetch<{ status: string }>(`/api/admin/users/${userId}`, { method: "PATCH", body: JSON.stringify(patch), adminKey });
+  return adminFetch<{ status: string }>(`/admin/users/${userId}`, { method: "PATCH", body: JSON.stringify(patch), adminKey });
 }
 
 export function adminListPayments(adminKey: string, params: { status?: string; offset?: number; limit?: number } = {}) {
@@ -90,7 +90,7 @@ export function adminListPayments(adminKey: string, params: { status?: string; o
   if (params.offset != null) usp.set("offset", String(params.offset));
   if (params.limit != null) usp.set("limit", String(params.limit));
   const qs = usp.toString();
-  return adminFetch<{ items: any[] }>(`/api/admin/payments${qs ? `?${qs}` : ""}`, { method: "GET", adminKey });
+  return adminFetch<{ items: any[] }>(`/admin/payments${qs ? `?${qs}` : ""}`, { method: "GET", adminKey });
 }
 
 export function adminListReferrals(adminKey: string, params: { offset?: number; limit?: number } = {}) {
@@ -98,45 +98,45 @@ export function adminListReferrals(adminKey: string, params: { offset?: number; 
   if (params.offset != null) usp.set("offset", String(params.offset));
   if (params.limit != null) usp.set("limit", String(params.limit));
   const qs = usp.toString();
-  return adminFetch<{ items: any[] }>(`/api/admin/referrals${qs ? `?${qs}` : ""}`, { method: "GET", adminKey });
+  return adminFetch<{ items: any[] }>(`/admin/referrals${qs ? `?${qs}` : ""}`, { method: "GET", adminKey });
 }
 
 export function adminGetSiteSettings(adminKey: string) {
-  return adminFetch<{ settings: any }>("/api/admin/site-settings", { method: "GET", adminKey });
+  return adminFetch<{ settings: any }>("/admin/site-settings", { method: "GET", adminKey });
 }
 
 export function adminSetSiteSetting(adminKey: string, key: string, value: any) {
-  return adminFetch<{ status: string }>("/api/admin/site-settings", { method: "POST", body: JSON.stringify({ key, value }), adminKey });
+  return adminFetch<{ status: string }>("/admin/site-settings", { method: "POST", body: JSON.stringify({ key, value }), adminKey });
 }
 
 export function adminListBlogPosts(adminKey: string, params: { locale?: string } = {}) {
   const usp = new URLSearchParams();
   if (params.locale) usp.set("locale", params.locale);
   const qs = usp.toString();
-  return adminFetch<{ items: any[] }>(`/api/admin/blog-posts${qs ? `?${qs}` : ""}`, { method: "GET", adminKey });
+  return adminFetch<{ items: any[] }>(`/admin/blog-posts${qs ? `?${qs}` : ""}`, { method: "GET", adminKey });
 }
 
 export function adminGetBlogPost(adminKey: string, id: number) {
-  return adminFetch<{ post: any }>(`/api/admin/blog-posts/${id}`, { method: "GET", adminKey });
+  return adminFetch<{ post: any }>(`/admin/blog-posts/${id}`, { method: "GET", adminKey });
 }
 
 export function adminCreateBlogPost(adminKey: string, payload: any) {
-  return adminFetch<{ id: number }>("/api/admin/blog-posts", { method: "POST", body: JSON.stringify(payload), adminKey });
+  return adminFetch<{ id: number }>("/admin/blog-posts", { method: "POST", body: JSON.stringify(payload), adminKey });
 }
 
 export function adminUpdateBlogPost(adminKey: string, id: number, payload: any) {
-  return adminFetch<{ status: string }>(`/api/admin/blog-posts/${id}`, { method: "PUT", body: JSON.stringify(payload), adminKey });
+  return adminFetch<{ status: string }>(`/admin/blog-posts/${id}`, { method: "PUT", body: JSON.stringify(payload), adminKey });
 }
 
 export function adminDeleteBlogPost(adminKey: string, id: number) {
-  return adminFetch<{ status: string }>(`/api/admin/blog-posts/${id}`, { method: "DELETE", adminKey });
+  return adminFetch<{ status: string }>(`/admin/blog-posts/${id}`, { method: "DELETE", adminKey });
 }
 
 export function adminUploadMedia(adminKey: string, file: File, folder = "admin") {
   const form = new FormData();
   form.append("file", file);
   form.append("folder", folder);
-  return adminFetch<{ id: number; url: string; filename: string }>("/api/admin/media/upload", {
+  return adminFetch<{ id: number; url: string; filename: string }>("/admin/media/upload", {
     method: "POST",
     body: form,
     adminKey,
@@ -148,7 +148,39 @@ export function adminListMedia(adminKey: string, params: { offset?: number; limi
   if (params.offset != null) usp.set("offset", String(params.offset));
   if (params.limit != null) usp.set("limit", String(params.limit));
   const qs = usp.toString();
-  return adminFetch<{ items: any[] }>(`/api/admin/media${qs ? `?${qs}` : ""}`, { method: "GET", adminKey });
+  return adminFetch<{ items: any[] }>(`/admin/media${qs ? `?${qs}` : ""}`, { method: "GET", adminKey });
+}
+
+export function adminListNotifications(adminKey: string, params: { offset?: number; limit?: number } = {}) {
+  const usp = new URLSearchParams();
+  if (params.offset != null) usp.set("offset", String(params.offset));
+  if (params.limit != null) usp.set("limit", String(params.limit));
+  const qs = usp.toString();
+  return adminFetch<{ items: any[] }>(`/admin/notifications${qs ? `?${qs}` : ""}`, { method: "GET", adminKey });
+}
+
+export function adminCreateNotification(adminKey: string, payload: any) {
+  return adminFetch<{ id: number; status: string }>("/admin/notifications", {
+    method: "POST",
+    body: JSON.stringify(payload),
+    adminKey,
+  });
+}
+
+export function adminStartScraping(adminKey: string, url: string) {
+  return adminFetch<any>("/admin/scraping/start", {
+    method: "POST",
+    body: JSON.stringify({ url }),
+    adminKey,
+  });
+}
+
+export function adminChangePassword(adminKey: string, newPassword: string) {
+  return adminFetch<any>("/admin/change-password", {
+    method: "POST",
+    body: JSON.stringify({ new_password: newPassword }),
+    adminKey,
+  });
 }
 
 export function adminListAudit(adminKey: string, params: { q?: string; action?: string; offset?: number; limit?: number } = {}) {
@@ -158,5 +190,5 @@ export function adminListAudit(adminKey: string, params: { q?: string; action?: 
   if (params.offset != null) usp.set("offset", String(params.offset));
   if (params.limit != null) usp.set("limit", String(params.limit));
   const qs = usp.toString();
-  return adminFetch<{ items: any[] }>(`/api/admin/audit${qs ? `?${qs}` : ""}`, { method: "GET", adminKey });
+  return adminFetch<{ items: any[] }>(`/admin/audit${qs ? `?${qs}` : ""}`, { method: "GET", adminKey });
 }
