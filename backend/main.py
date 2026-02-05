@@ -25,6 +25,7 @@ from app.api.analytics import router as analytics_router
 from app.api.data_platform import router as data_platform_router
 from app.api.external_search import router as external_search_router
 from app.api.reverse_search import router as reverse_search_router
+from app.api.lens_analysis import router as lens_analysis_router
 from app.db.database import engine, Base, SessionLocal  # Use database.py directly
 from app.middleware.rate_limit import RateLimitMiddleware
 
@@ -39,6 +40,7 @@ from app.models.provider_metrics import ProviderDailyMetric
 from app.models.data_platform import DataSource, CrawlJob, Document
 from app.models.search_results import SearchResult
 from app.models.admin_audit import AdminAuditLog
+from app.models.lens import LensAnalysisLog
 
 # Logging ayarla
 logging.basicConfig(
@@ -134,6 +136,7 @@ app.include_router(analytics_router)
 app.include_router(data_platform_router)
 app.include_router(external_search_router)
 app.include_router(reverse_search_router)
+app.include_router(lens_analysis_router, prefix="/api/v1") # User requested /api/v1/lens-analysis
 logger.info("✅ Face search router: /api/upload-face, /api/search-face")
 logger.info(f"✅ Auth router: {auth_router.prefix}")
 logger.info(f"✅ Dashboard router: {dashboard_router.prefix}")
@@ -147,6 +150,7 @@ logger.info(f"✅ Analytics router: {analytics_router.prefix}")
 logger.info(f"✅ Data platform router: {data_platform_router.prefix}")
 logger.info(f"✅ External search router: {external_search_router.prefix}")
 logger.info(f"✅ Reverse search router: {reverse_search_router.prefix}")
+logger.info(f"✅ Lens analysis router: /api/v1/lens-analysis")
 logger.info("=" * 50)
 
 # Security

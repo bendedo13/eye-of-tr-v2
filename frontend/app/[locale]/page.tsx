@@ -20,6 +20,11 @@ export async function generateMetadata({
   return {
     title,
     description,
+    icons: {
+        icon: '/favicon.svg',
+        shortcut: '/favicon.svg',
+        apple: '/favicon.svg',
+    },
     openGraph: {
       title,
       description,

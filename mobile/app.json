@@ -1,0 +1,65 @@
+{
+  "expo": {
+    "name": "FaceSeek",
+    "slug": "faceseek-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "faceseek",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.faceseek.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0a0e27",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "backgroundImage": "./assets/images/android-icon-background.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+      },
+      "package": "com.faceseek.app",
+      "permissions": [
+          "CAMERA",
+          "READ_EXTERNAL_STORAGE",
+          "WRITE_EXTERNAL_STORAGE",
+          "INTERNET"
+      ],
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#0a0e27",
+          "dark": {
+            "backgroundColor": "#0a0e27"
+          }
+        }
+      ],
+      [
+          "expo-image-picker",
+          {
+            "photosPermission": "The app accesses your photos to let you upload images for face search analysis.",
+            "cameraPermission": "The app accesses your camera to let you take photos for face search analysis."
+          }
+      ],
+      "expo-secure-store"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}

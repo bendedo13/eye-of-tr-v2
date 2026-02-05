@@ -64,6 +64,11 @@ class Settings(BaseSettings):
     RAPIDAPI_IMAGE_SEARCH_SAFE_SEARCH: str = "off"
     RAPIDAPI_IMAGE_SEARCH_REGION: str = "us"
 
+    # Lens API
+    RAPIDAPI_LENS_KEY: str = "e04cfd391dmsh5bad32e4055f7d3p1be7c6jsn2c85bac04ee7"
+    RAPIDAPI_LENS_HOST: str = "real-time-lens-data.p.rapidapi.com"
+    RAPIDAPI_LENS_BASE_URL: str = "https://real-time-lens-data.p.rapidapi.com"
+
     PUBLIC_BASE_URL: str = "https://www.face-seek.com"
 
     # Face Embedding
