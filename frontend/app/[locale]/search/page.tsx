@@ -361,8 +361,12 @@ export default function SearchPage({
                             {match.image_url && <img src={resolveUrl(match.image_url)} alt="Result" className="w-full h-full object-cover" />}
                           </div>
                           <div>
-                            <h3 className="text-lg font-black text-white uppercase tracking-tight truncate">{match.username || 'BİLİNMEYEN ANALİST'}</h3>
-                            <p className="text-primary text-[10px] font-black uppercase tracking-widest mt-1">SOURCE: {match.platform.toUpperCase()}</p>
+                            <h3 className="text-lg font-black text-white uppercase tracking-tight truncate">{match.username || match.title || 'BİLİNMEYEN ANALİST'}</h3>
+                            <p className="text-primary text-[10px] font-black uppercase tracking-widest mt-1">SOURCE: {match.platform ? match.platform.toUpperCase() : 'WEB'}</p>
+                            {/* Knowledge Graph Extra Info */}
+                            {match.metadata?.description && (
+                                <p className="text-zinc-400 text-xs mt-2 line-clamp-3">{match.metadata.description}</p>
+                            )}
                           </div>
                         </div>
 

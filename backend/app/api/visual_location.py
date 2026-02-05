@@ -123,6 +123,8 @@ async def analyze_visual_location(
             tmp_path = f.name
 
         search_service = get_search_service()
+        # Visual Location için "waterfall_search" kullanırken RapidAPI Lens'i de içermesi için strategy="fallback" 
+        # ve user_tier kontrolü önemli. SearchService içinde RapidAPI Lens eklendiği için otomatik devreye girecek.
         web_result = await search_service.waterfall_search(tmp_path, user_tier=user.tier, strategy="fallback")
         providers_used.extend(web_result.get("providers_used", []) or [])
         for m in web_result.get("matches", []) or []:

@@ -13,6 +13,7 @@ from app.adapters.yandex_adapter import get_yandex_adapter
 from app.adapters.facecheck_adapter import get_facecheck_adapter
 from app.adapters.yandex_reverse_adapter import get_yandex_reverse_adapter
 from app.adapters.serpapi_lens_adapter import get_serpapi_lens_adapter
+from app.adapters.rapidapi_lens_adapter import get_rapidapi_lens_adapter
 from app.core.config import settings
 from app.services.provider_metrics_service import provider_metrics_service
 from app.services.runtime_metrics import runtime_metrics
@@ -118,6 +119,22 @@ class SearchService:
         else:
             logger.info("SerpAPI API key veya PUBLIC_BASE_URL bulunamadı - atlandı")
         
+        # RapidAPI Lens adapter
+        if settings.RAPIDAPI_LENS_KEY:
+            try:
+                lens_config = {
+                    "api_key": settings.RAPIDAPI_LENS_KEY,
+                    "api_host": settings.RAPIDAPI_LENS_HOST,
+                    "base_url": settings.RAPIDAPI_LENS_BASE_URL,
+                    "timeout": 45
+                }
+                self.adapters["rapidapi_lens"] = get_rapidapi_lens_adapter(lens_config)
+                logger.info("✅ RapidAPI Lens adapter yüklendi")
+            except Exception as e:
+                logger.warning(f"RapidAPI Lens adapter yüklenemedi: {e}")
+        else:
+            logger.info("RapidAPI Lens API key bulunamadı - atlandı")
+
         logger.info(f"📊 Toplam {len(self.adapters)} adapter aktif: {list(self.adapters.keys())}")
 
     def _file_sha256(self, image_path: str) -> str:
@@ -394,9 +411,11 @@ class SearchService:
         return final_result
 
     def _provider_order_for_tier(self, user_tier: str) -> List[str]:
-        base = ["serpapi", "eyeofweb", "facecheck", "bing_visual", "yandex_reverse", "bing", "yandex"]
+        # RapidAPI Lens is premium/expensive, put it towards the end or middle
+        base = ["serpapi", "eyeofweb", "facecheck", "bing_visual", "yandex_reverse", "bing", "yandex", "rapidapi_lens"]
         if str(user_tier).lower() in ("free", "basic"):
-            return ["serpapi", "eyeofweb", "bing_visual", "yandex_reverse", "bing", "yandex", "facecheck"]
+            # Free users get cheaper providers first
+            return ["serpapi", "eyeofweb", "bing_visual", "yandex_reverse", "bing", "yandex", "facecheck", "rapidapi_lens"]
         return base
     
     def get_available_providers(self) -> List[str]:
