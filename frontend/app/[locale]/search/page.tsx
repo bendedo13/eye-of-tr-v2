@@ -44,7 +44,7 @@ export default function SearchPage({
   const [searching, setSearching] = useState(false);
   const [results, setResults] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
-  // const [includeFacecheck, setIncludeFacecheck] = useState(false);
+  const [includeFacecheck, setIncludeFacecheck] = useState(false);
   const [acceptedDisclaimer, setAcceptedDisclaimer] = useState(false);
   const [showAdvancedModal, setShowAdvancedModal] = useState(false);
   const [isAdvancedSearch, setIsAdvancedSearch] = useState(false);
