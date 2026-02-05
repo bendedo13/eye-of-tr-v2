@@ -1,231 +1,285 @@
-import sys
-from pathlib import Path
-from datetime import datetime
-import logging
-
-# Add parent directory to path to allow importing app
-sys.path.append(str(Path(__file__).resolve().parents[1]))
-
 from app.db.database import SessionLocal
 from app.models.cms import BlogPost
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from datetime import datetime, timezone
 
 def seed_blog_posts():
     db = SessionLocal()
     
-    try:
-        # Check if posts already exist
-        count = db.query(BlogPost).count()
-        if count > 0:
-            logger.info(f"Database already contains {count} blog posts. Skipping seed.")
-            return
+    # Check if posts already exist to avoid duplicates
+    # count = db.query(BlogPost).count()
+    # if count >= 20:
+    #    print("Blog posts already seeded.")
+    #    return
 
-        posts = [
-            {
-                "locale": "tr",
-                "slug": "veri-guvenligi-cozumleri-ve-yuz-tanima",
-                "title": "Veri Güvenliği Çözümleri ve Yüz Tanıma Teknolojisinin Geleceği",
-                "excerpt": "Modern veri güvenliği çözümleri arasında yüz tanıma teknolojisinin yeri ve biyometrik verilerin korunmasındaki önemi hakkında kapsamlı bir rehber.",
-                "content_html": """
-                <h2>Veri Güvenliği Çözümleri Neden Önemli?</h2>
-                <p>Dijital dünyada her geçen gün artan siber tehditler, kurumları ve bireyleri daha gelişmiş <strong>veri güvenliği çözümleri</strong> aramaya itmektedir. Geleneksel şifreleme yöntemleri artık tek başına yeterli olmamakta, çok faktörlü kimlik doğrulama sistemleri standart hale gelmektedir.</p>
-                
-                <h3>Biyometrik Verilerin Korunması</h3>
-                <p>Yüz tanıma teknolojisi, güvenlik süreçlerini hızlandırırken, biyometrik verilerin nasıl saklandığı sorusunu da beraberinde getirmektedir. FaceSeek olarak biz, "Zero-Knowledge" prensibiyle çalışarak kullanıcılarımızın veri güvenliğini en üst düzeyde tutuyoruz.</p>
-                
-                <h3>Geleceğin Güvenlik Trendleri</h3>
-                <p>Yapay zeka destekli güvenlik duvarları ve davranışsal analiz sistemleri, veri ihlallerini önceden tespit etmede kritik rol oynamaktadır. Özellikle finans ve sağlık sektörlerinde, <strong>veri güvenliği çözümleri</strong> artık bir tercih değil, yasal bir zorunluluktur.</p>
-                """,
-                "cover_image_url": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=800&q=80",
-                "author_name": "FaceSeek Editör Ekibi",
-                "is_published": True,
-                "published_at": datetime.now()
-            },
-            {
-                "locale": "tr",
-                "slug": "yasal-uyum-danismanligi-neden-gerekli",
-                "title": "Dijital İşletmeler İçin Yasal Uyum Danışmanlığı Neden Gerekli?",
-                "excerpt": "KVKK ve GDPR süreçlerinde işletmelerin dikkat etmesi gereken noktalar ve yasal uyum danışmanlığının önemi.",
-                "content_html": """
-                <h2>Yasal Uyum ve Dijitalleşme</h2>
-                <p>Teknolojinin hızla gelişmesiyle birlikte, kişisel verilerin işlenmesi konusundaki regülasyonlar da sıkılaşmaktadır. Özellikle Avrupa'da GDPR ve Türkiye'de KVKK, işletmelerin veri politikalarını yeniden şekillendirmelerine neden olmuştur. Bu noktada <strong>yasal uyum danışmanlığı</strong> hizmetleri hayati önem taşır.</p>
-                
-                <h3>KVKK Süreçlerinde Dikkat Edilmesi Gerekenler</h3>
+    posts_tr = [
+        {
+            "title": "Veri Güvenliği Çözümleri: Yüz Tanıma Teknolojisinde Yeni Dönem",
+            "slug": "veri-guvenligi-cozumleri-yuz-tanima",
+            "excerpt": "Kişisel verilerin korunması ve biyometrik güvenlik sistemlerinde FaceSeek'in sunduğu yenilikçi veri güvenliği çözümlerini keşfedin.",
+            "content_html": """
+                <p>Dijital dünyada kimlik doğrulama ve güvenlik ihtiyacı her geçen gün artıyor. <strong>Veri güvenliği çözümleri</strong>, özellikle biyometrik verilerin işlendiği sistemlerde hayati önem taşıyor. FaceSeek olarak, kullanıcılarımızın güvenliğini en üst düzeyde tutmak için "Zero-Knowledge" (Sıfır Bilgi) prensibini benimsiyoruz.</p>
+                <h2>Biyometrik Verilerde Güvenlik Standartları</h2>
+                <p>Yüz tanıma teknolojileri, geleneksel şifreleme yöntemlerine göre çok daha güvenli olsa da, bu verilerin saklanması büyük riskler barındırır. İşte bu noktada FaceSeek, görsel verilerinizi asla kalıcı olarak saklamayarak sektörde fark yaratıyor.</p>
+                <h3>Neden FaceSeek?</h3>
                 <ul>
-                    <li>Aydınlatma metinlerinin güncelliği</li>
-                    <li>Açık rıza alma süreçlerinin şeffaflığı</li>
-                    <li>Veri envanterinin doğru tutulması</li>
+                    <li><strong>Anlık İşleme:</strong> Görüntüler sadece analiz anında işlenir.</li>
+                    <li><strong>KVKK Uyumu:</strong> Türkiye Cumhuriyeti yasalarına tam uyumlu altyapı.</li>
+                    <li><strong>Yüksek Şifreleme:</strong> Tüm veriler AES-256 ile korunur.</li>
                 </ul>
-                
-                <p>Profesyonel bir <strong>yasal uyum danışmanlığı</strong>, işletmenizi sadece cezalardan korumakla kalmaz, aynı zamanda müşterileriniz nezdinde güvenilirliğinizi de artırır.</p>
-                """,
-                "cover_image_url": "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=800&q=80",
-                "author_name": "Av. Mehmet Yılmaz",
-                "is_published": True,
-                "published_at": datetime.now()
-            },
-            {
-                "locale": "tr",
-                "slug": "yuz-tanima-teknolojisi-nasil-calisir",
-                "title": "Yüz Tanıma Teknolojisi: Bilim Kurgudan Gerçeğe",
-                "excerpt": "Yüz tanıma teknolojisinin arkasındaki algoritmalar ve günlük hayatımızdaki kullanım alanları.",
-                "content_html": """
-                <h2>Yüz Tanıma Teknolojisi Nedir?</h2>
-                <p>Bir zamanlar sadece bilim kurgu filmlerinde gördüğümüz <strong>yüz tanıma teknolojisi</strong>, bugün akıllı telefonlarımızdan havalimanı güvenlik kontrollerine kadar her yerde karşımıza çıkıyor. Peki bu sistemler nasıl çalışıyor?</p>
-                
-                <h3>Algoritmaların Gücü</h3>
-                <p>Yüz tanıma sistemleri, bir yüzün geometrisini analiz ederek çalışır. Gözler arasındaki mesafe, burun genişliği, çene yapısı gibi 80'den fazla düğüm noktası ölçülerek benzersiz bir "yüz izi" oluşturulur.</p>
-                
-                <p>FaceSeek olarak kullandığımız gelişmiş <strong>yüz tanıma teknolojisi</strong>, yüksek doğruluk oranıyla saniyeler içinde sonuç verirken, gizlilik prensiplerinden ödün vermemektedir.</p>
-                """,
-                "cover_image_url": "https://images.unsplash.com/photo-1561587931-1e967a57a840?auto=format&fit=crop&w=800&q=80",
-                "author_name": "Teknoloji Ekibi",
-                "is_published": True,
-                "published_at": datetime.now()
-            },
-            {
-                "locale": "tr",
-                "slug": "osint-araclari-ile-dijital-arastirma",
-                "title": "OSINT Araçları ile Dijital Araştırma Teknikleri",
-                "excerpt": "Açık kaynak istihbaratı (OSINT) nedir ve dijital araştırmalarda OSINT araçları nasıl etkin kullanılır?",
-                "content_html": """
-                <h2>Açık Kaynak İstihbaratı (OSINT) Nedir?</h2>
-                <p>OSINT (Open Source Intelligence), kamuya açık kaynaklardan elde edilen verilerin toplanması ve analiz edilmesi sürecidir. Gazeteciler, araştırmacılar ve siber güvenlik uzmanları, <strong>OSINT araçları</strong> kullanarak derinlemesine analizler yapabilirler.</p>
-                
-                <h3>Etkin OSINT Kullanımı</h3>
-                <p>Doğru bilgiye ulaşmak için doğru araçları kullanmak şarttır. Tersine görsel arama (reverse image search), sosyal medya analizi ve domain sorgulama servisleri, en sık kullanılan <strong>OSINT araçları</strong> arasındadır.</p>
-                
-                <p>Bu araçları kullanırken etik kurallara ve yasal sınırlara dikkat etmek, araştırmanın meşruiyeti açısından kritiktir.</p>
-                """,
-                "cover_image_url": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80",
-                "author_name": "Siber Güvenlik Uzmanı",
-                "is_published": True,
-                "published_at": datetime.now()
-            },
-            {
-                "locale": "tr",
-                "slug": "biyometrik-veri-guvenligi-ipuclari",
-                "title": "Biyometrik Veri Güvenliği İçin 5 Kritik İpucu",
-                "excerpt": "Parmak izi ve yüz verilerinizi korumak için almanız gereken önlemler ve biyometrik veri güvenliği standartları.",
-                "content_html": """
-                <h2>Biyometrik Verileriniz Güvende mi?</h2>
-                <p>Şifrenizi değiştirebilirsiniz, ancak parmak izinizi veya yüzünüzü değiştiremezsiniz. Bu nedenle <strong>biyometrik veri güvenliği</strong>, geleneksel şifre güvenliğinden çok daha kritiktir.</p>
-                
-                <h3>Alınması Gereken Önlemler</h3>
-                <ol>
-                    <li>Biyometrik verilerinizi sadece güvenilir cihazlarda kullanın.</li>
-                    <li>İki faktörlü kimlik doğrulamayı (2FA) mutlaka etkinleştirin.</li>
-                    <li>Verilerinizin yerel cihazda mı yoksa bulutta mı saklandığını sorgulayın.</li>
-                </ol>
-                
-                <p>FaceSeek olarak, <strong>biyometrik veri güvenliği</strong> konusunda en yüksek standartları (ISO 27001) benimsiyor ve verilerinizi asla kalıcı olarak saklamıyoruz.</p>
-                """,
-                "cover_image_url": "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=800&q=80",
-                "author_name": "Güvenlik Ekibi",
-                "is_published": True,
-                "published_at": datetime.now()
-            },
-            {
-                "locale": "tr",
-                "slug": "kisisel-verilerin-korunmasi-rehberi",
-                "title": "Bireyler İçin Kişisel Verilerin Korunması Rehberi",
-                "excerpt": "Dijital dünyada kişisel verilerinizi nasıl korursunuz? KVKK haklarınız ve pratik koruma yöntemleri.",
-                "content_html": """
-                <h2>Dijital Ayak İzinizi Kontrol Edin</h2>
-                <p>İnternet üzerinde yaptığımız her işlem bir iz bırakır. <strong>Kişisel verilerin korunması</strong>, sadece kurumların değil, bireylerin de sorumluluğundadır. Sosyal medya paylaşımlarınızdan online alışverişlerinize kadar her alanda bilinçli olmalısınız.</p>
-                
-                <h3>KVKK Kapsamındaki Haklarınız</h3>
-                <p>Türkiye'de yaşayan her birey, KVKK kapsamında verilerinin silinmesini isteme ("unutulma hakkı") ve verilerinin kimlerle paylaşıldığını öğrenme hakkına sahiptir. <strong>Kişisel verilerin korunması</strong> kanunu, size verileriniz üzerinde tam kontrol yetkisi verir.</p>
-                """,
-                "cover_image_url": "https://images.unsplash.com/photo-1510915361405-ef2dbf44d7f6?auto=format&fit=crop&w=800&q=80",
-                "author_name": "Hukuk Departmanı",
-                "is_published": True,
-                "published_at": datetime.now()
-            },
-            {
-                "locale": "tr",
-                "slug": "dijital-ayak-izi-silme-yontemleri",
-                "title": "Dijital Ayak İzi Silme: İnternetten Nasıl Yok Olunur?",
-                "excerpt": "Eski hesapları kapatmak, arama sonuçlarından adınızı kaldırmak ve dijital ayak izi silme yöntemleri.",
-                "content_html": """
-                <h2>İnternet Her Şeyi Hatırlar mı?</h2>
-                <p>Çoğu zaman evet, ancak bu izleri temizlemenin yolları vardır. <strong>Dijital ayak izi silme</strong>, sabır ve titizlik gerektiren bir süreçtir. Eski forum üyelikleri, kullanılmayan sosyal medya hesapları ve e-bülten abonelikleri, dijital kirliliğin ana kaynaklarıdır.</p>
-                
-                <h3>Adım Adım Temizlik</h3>
-                <p>İlk adım, adınızı arama motorlarında aratmaktır. Çıkan sonuçlara göre ilgili sitelerle iletişime geçerek içerik kaldırma talebinde bulunabilirsiniz. Profesyonel <strong>dijital ayak izi silme</strong> hizmetleri de bu süreçte size destek olabilir.</p>
-                """,
-                "cover_image_url": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=80",
-                "author_name": "Gizlilik Uzmanı",
-                "is_published": True,
-                "published_at": datetime.now()
-            },
-            {
-                "locale": "tr",
-                "slug": "siber-guvenlik-onlemleri-2026",
-                "title": "2026 Yılı İçin Temel Siber Güvenlik Önlemleri",
-                "excerpt": "Yeni nesil tehditlere karşı almanız gereken siber güvenlik önlemleri ve fidye yazılımlarından korunma yolları.",
-                "content_html": """
-                <h2>Tehditler Evriliyor, Peki Ya Savunmanız?</h2>
-                <p>Siber saldırganlar artık yapay zeka destekli araçlar kullanıyor. Bu nedenle, alacağınız <strong>siber güvenlik önlemleri</strong> de çağa ayak uydurmalıdır. Basit bir antivirüs yazılımı artık yeterli değildir.</p>
-                
-                <h3>Fidye Yazılımlarından Korunma</h3>
-                <p>Düzenli yedekleme yapmak, fidye yazılımlarına (ransomware) karşı en etkili <strong>siber güvenlik önlemleri</strong> arasındadır. Ayrıca, kaynağını bilmediğiniz e-postalardaki linklere tıklamamak ve yazılımlarınızı güncel tutmak hayati önem taşır.</p>
-                """,
-                "cover_image_url": "https://images.unsplash.com/photo-1496096265110-f83ad7f96608?auto=format&fit=crop&w=800&q=80",
-                "author_name": "Teknoloji Ekibi",
-                "is_published": True,
-                "published_at": datetime.now()
-            },
-            {
-                "locale": "tr",
-                "slug": "yapay-zeka-etik-kurallari",
-                "title": "Yapay Zeka Etik Kuralları ve Toplumsal Etkileri",
-                "excerpt": "Yapay zekanın geliştirilmesinde uyulması gereken etik kurallar ve önyargısız algoritmaların önemi.",
-                "content_html": """
-                <h2>Teknoloji ve Vicdan</h2>
-                <p>Yapay zeka hayatımızın her alanına girerken, <strong>yapay zeka etik kuralları</strong> tartışmaları da alevlenmektedir. Algoritmaların tarafsızlığı, şeffaflık ve hesap verebilirlik, bu alanın temel taşlarıdır.</p>
-                
-                <h3>Önyargısız Algoritmalar</h3>
-                <p>FaceSeek olarak geliştirdiğimiz sistemlerde, ırk, cinsiyet veya yaş ayrımı yapmayan, evrensel <strong>yapay zeka etik kuralları</strong> çerçevesinde çalışan modeller kullanıyoruz. Teknolojinin insanlığın faydasına olması gerektiğine inanıyoruz.</p>
-                """,
-                "cover_image_url": "https://images.unsplash.com/photo-1535378437323-95558417873e?auto=format&fit=crop&w=800&q=80",
-                "author_name": "Etik Kurulu",
-                "is_published": True,
-                "published_at": datetime.now()
-            },
-            {
-                "locale": "tr",
-                "slug": "kimlik-dogrulama-sistemleri-karsilastirmasi",
-                "title": "Biyometrik ve Dijital Kimlik Doğrulama Sistemleri Karşılaştırması",
-                "excerpt": "Hangi kimlik doğrulama yöntemi daha güvenli? SMS, Authenticator ve Biyometrik sistemlerin analizi.",
-                "content_html": """
-                <h2>Şifrelerin Sonu mu Geliyor?</h2>
-                <p>Geleneksel şifreler unutulabilir veya çalınabilir. Bu nedenle <strong>kimlik doğrulama sistemleri</strong> giderek biyometrik çözümlere kaymaktadır. Yüz tanıma, parmak izi ve iris tarama, en güvenilir yöntemler olarak öne çıkmaktadır.</p>
-                
-                <h3>SMS Doğrulama Güvenli mi?</h3>
-                <p>SIM swapping saldırıları nedeniyle SMS ile doğrulama artık en güvenli yöntem kabul edilmemektedir. Bunun yerine Authenticator uygulamaları veya biyometrik <strong>kimlik doğrulama sistemleri</strong> tercih edilmelidir.</p>
-                """,
-                "cover_image_url": "https://images.unsplash.com/photo-1555421689-491a97ff2040?auto=format&fit=crop&w=800&q=80",
-                "author_name": "Güvenlik Analisti",
-                "is_published": True,
-                "published_at": datetime.now()
-            }
-        ]
+                <p>Geleceğin güvenlik teknolojileri hakkında daha fazla bilgi almak için <a href="/tr/legal/about">Hakkımızda</a> sayfamızı ziyaret edebilirsiniz.</p>
+            """
+        },
+        {
+            "title": "Yasal Uyum Danışmanlığı ve OSINT Araçları",
+            "slug": "yasal-uyum-danismanligi-osint",
+            "excerpt": "Açık kaynak istihbarat (OSINT) araçlarını kullanırken yasal uyum danışmanlığı almanın önemi ve dikkat edilmesi gerekenler.",
+            "content_html": """
+                <p>İnternet üzerindeki açık kaynaklardan bilgi toplamak (OSINT), araştırmacılar ve güvenlik uzmanları için vazgeçilmez bir yöntemdir. Ancak bu süreçte <strong>yasal uyum danışmanlığı</strong> prensiplerine dikkat etmek gerekir.</p>
+                <h2>Hukuki Sınırlar ve Etik Kullanım</h2>
+                <p>Bir kişinin fotoğrafını aratmak, KVKK kapsamında "kişisel veri işleme" faaliyeti sayılabilir. FaceSeek, bu süreçleri tamamen yasal sınırlar içinde tutmanıza yardımcı olan araçlar sunar.</p>
+                <p>Etik kullanım ve yasal sorumluluklar hakkında detaylı bilgi için <a href="/tr/legal/terms">Kullanım Şartları</a> sayfamızı incelemenizi öneririz.</p>
+            """
+        },
+        {
+            "title": "Dijital Kimlik Doğrulama: Dolandırıcılıkla Mücadele",
+            "slug": "dijital-kimlik-dogrulama-fraud",
+            "excerpt": "Online platformlarda güvenliği artırmak için dijital kimlik doğrulama yöntemleri ve dolandırıcılıkla mücadele stratejileri.",
+            "content_html": """
+                <p>İnternet dolandırıcılığı (fraud), günümüzün en büyük siber tehditlerinden biridir. <strong>Dijital kimlik doğrulama</strong> sistemleri, bu tehditlere karşı en etkili savunma mekanizmasıdır.</p>
+                <h2>Sahte Profilleri Tespit Etme</h2>
+                <p>Catfishing ve sahte profil oluşturma, sosyal medya kullanıcılarının sıkça karşılaştığı sorunlardır. FaceSeek'in gelişmiş algoritmaları, bir fotoğrafın internetin başka köşelerinde kullanılıp kullanılmadığını saniyeler içinde tespit eder.</p>
+            """
+        },
+        {
+            "title": "Kişisel Verilerin Korunması Kanunu (KVKK) Nedir?",
+            "slug": "kvkk-nedir-veri-koruma",
+            "excerpt": "Türkiye'de kişisel verilerin korunması kanunu hakkında bilmeniz gereken her şey. Haklarınız ve veri sorumlularının yükümlülükleri.",
+            "content_html": """
+                <p>6698 sayılı <strong>Kişisel Verilerin Korunması Kanunu (KVKK)</strong>, bireylerin temel hak ve özgürlüklerini korumak amacıyla düzenlenmiştir. FaceSeek olarak tüm süreçlerimizi bu kanuna tam uyumlu hale getirdik.</p>
+                <h2>Veri Sorumlusu Kimdir?</h2>
+                <p>Veri sorumlusu, kişisel verilerin işleme amaçlarını ve vasıtalarını belirleyen kişidir. Bizimle paylaştığınız veriler, sadece belirtilen amaçlarla ve şeffaflık ilkesiyle işlenir.</p>
+                <p>Detaylı aydınlatma metnimize <a href="/tr/legal/kvkk">buradan</a> ulaşabilirsiniz.</p>
+            """
+        },
+        {
+            "title": "Yüz Tanıma Teknolojisi Nasıl Çalışır?",
+            "slug": "yuz-tanima-teknolojisi-nasil-calisir",
+            "excerpt": "Biyometrik vektörler, yapay zeka ve yüz tanıma teknolojisinin çalışma prensipleri. Karmaşık algoritmaların basit anlatımı.",
+            "content_html": """
+                <p>Yüz tanıma, bir görüntüdeki yüzü analiz ederek matematiksel bir harita (vektör) çıkaran teknolojidir. Peki, bu süreç tam olarak nasıl işler?</p>
+                <h2>Pikselden Vektöre</h2>
+                <p>Sistem, göz bebekleri arasındaki mesafe, burun yapısı ve çene hattı gibi benzersiz noktaları ölçer. Bu ölçümler, insan gözünün ayırt edemeyeceği detayları yakalar.</p>
+            """
+        },
+        {
+            "title": "İnternette Görsel Arama Yapmanın Püf Noktaları",
+            "slug": "internette-gorsel-arama-ipuclari",
+            "excerpt": "Daha doğru sonuçlar için görsel arama yaparken dikkat etmeniz gerekenler. Işık, açı ve çözünürlüğün önemi.",
+            "content_html": """
+                <p>Başarılı bir yüz araması yapmak için doğru görseli seçmek çok önemlidir. <strong>Görsel arama</strong> teknolojisinden en iyi verimi almak için şu ipuçlarına dikkat edin:</p>
+                <ul>
+                    <li><strong>Yüksek Çözünürlük:</strong> Bulanık fotoğraflar sonuç kalitesini düşürür.</li>
+                    <li><strong>Doğru Işık:</strong> Yüzün net göründüğü, gölgesiz fotoğraflar tercih edin.</li>
+                    <li><strong>Tek Kişi:</strong> Mümkünse sadece aradığınız kişinin olduğu kareleri kullanın.</li>
+                </ul>
+            """
+        },
+        {
+            "title": "Siber Güvenlik Farkındalığı: Kendinizi Nasıl Korursunuz?",
+            "slug": "siber-guvenlik-farkindaligi",
+            "excerpt": "Dijital ayak izinizi yönetmek ve siber tehditlere karşı korunmak için temel siber güvenlik önlemleri.",
+            "content_html": """
+                <p>Her paylaştığınız fotoğraf, dijital ayak izinizin bir parçasıdır. <strong>Siber güvenlik farkındalığı</strong>, bu izleri kontrol altında tutmanızı sağlar.</p>
+                <h2>Sosyal Mühendislik Saldırıları</h2>
+                <p>Kötü niyetli kişiler, halka açık fotoğraflarınızı kullanarak size karşı güven oluşturmaya çalışabilir. FaceSeek ile fotoğraflarınızın izinsiz kullanılıp kullanılmadığını kontrol edebilirsiniz.</p>
+            """
+        },
+        {
+            "title": "Biyometrik Veri Güvenliği: Geleceğin Anahtarı",
+            "slug": "biyometrik-veri-guvenligi",
+            "excerpt": "Parmak izi, yüz tanıma ve iris tarama gibi biyometrik verilerin güvenliği neden önemlidir? Geleneksel şifrelerin sonu mu?",
+            "content_html": """
+                <p>Şifrelerinizi unutabilirsiniz, ama yüzünüzü asla. <strong>Biyometrik veri güvenliği</strong>, kullanım kolaylığı ile yüksek güvenliği birleştiriyor.</p>
+                <p>Ancak biyometrik veriler değiştirilemez. Bu yüzden FaceSeek, biyometrik verilerinizi asla sunucularında saklamaz.</p>
+            """
+        },
+        {
+            "title": "Yapay Zeka ve Etik: Sorumlu Teknoloji Kullanımı",
+            "slug": "yapay-zeka-ve-etik",
+            "excerpt": "Yapay zeka teknolojilerinin gelişiminde etik kuralların önemi. FaceSeek'in sorumlu AI yaklaşımı.",
+            "content_html": """
+                <p>Güçlü teknoloji, büyük sorumluluk gerektirir. <strong>Yapay zeka ve etik</strong>, FaceSeek'in geliştirme sürecinin merkezinde yer alır.</p>
+                <p>Algoritmalarımızı önyargılardan arındırmak ve herkes için adil bir teknoloji sunmak için sürekli çalışıyoruz.</p>
+            """
+        },
+        {
+            "title": "OSINT Nedir? Açık Kaynak İstihbaratı Rehberi",
+            "slug": "osint-nedir-rehber",
+            "excerpt": "Open Source Intelligence (OSINT) dünyasına giriş. Halka açık verileri analiz ederek bilgiye ulaşma sanatı.",
+            "content_html": """
+                <p><strong>OSINT (Açık Kaynak İstihbaratı)</strong>, siber güvenlik uzmanlarının, gazetecilerin ve araştırmacıların kullandığı güçlü bir yöntemdir. FaceSeek, görsel OSINT alanında size yardımcı olan gelişmiş bir araçtır.</p>
+                <p>İnternetteki milyarlarca görsel arasında saniyeler içinde arama yaparak, aradığınız bilgiye en hızlı şekilde ulaşmanızı sağlıyoruz.</p>
+            """
+        }
+    ]
 
-        for post_data in posts:
-            post = BlogPost(**post_data)
+    posts_en = [
+        {
+            "title": "Data Security Solutions: A New Era in Facial Recognition",
+            "slug": "data-security-solutions-facial-recognition",
+            "excerpt": "Discover FaceSeek's innovative data security solutions in biometric security systems and personal data protection.",
+            "content_html": """
+                <p>The need for identity verification and security in the digital world is increasing every day. <strong>Data security solutions</strong> are vital, especially in systems where biometric data is processed. At FaceSeek, we adopt the "Zero-Knowledge" principle to keep our users' security at the highest level.</p>
+                <h2>Security Standards in Biometric Data</h2>
+                <p>Although facial recognition technologies are much more secure than traditional encryption methods, storing this data carries great risks. This is where FaceSeek makes a difference in the sector by never permanently storing your visual data.</p>
+                <h3>Why FaceSeek?</h3>
+                <ul>
+                    <li><strong>Instant Processing:</strong> Images are processed only at the moment of analysis.</li>
+                    <li><strong>GDPR Compliance:</strong> Infrastructure fully compliant with international data protection laws.</li>
+                    <li><strong>High Encryption:</strong> All data is protected with AES-256.</li>
+                </ul>
+                <p>You can visit our <a href="/en/legal/about">About Us</a> page for more information about future security technologies.</p>
+            """
+        },
+        {
+            "title": "Legal Compliance Consulting and OSINT Tools",
+            "slug": "legal-compliance-consulting-osint",
+            "excerpt": "The importance of getting legal compliance consulting when using Open Source Intelligence (OSINT) tools and what to watch out for.",
+            "content_html": """
+                <p>Collecting information from open sources on the internet (OSINT) is an indispensable method for researchers and security experts. However, it is necessary to pay attention to <strong>legal compliance consulting</strong> principles in this process.</p>
+                <h2>Legal Boundaries and Ethical Use</h2>
+                <p>Searching for a person's photo can be considered a "personal data processing" activity under GDPR. FaceSeek offers tools to help you keep these processes completely within legal limits.</p>
+                <p>We recommend reviewing our <a href="/en/legal/terms">Terms of Service</a> page for detailed information about ethical use and legal responsibilities.</p>
+            """
+        },
+        {
+            "title": "Digital Identity Verification: Fighting Fraud",
+            "slug": "digital-identity-verification-fraud",
+            "excerpt": "Digital identity verification methods and anti-fraud strategies to increase security on online platforms.",
+            "content_html": """
+                <p>Internet fraud is one of the biggest cyber threats of our time. <strong>Digital identity verification</strong> systems are the most effective defense mechanism against these threats.</p>
+                <h2>Detecting Fake Profiles</h2>
+                <p>Catfishing and creating fake profiles are problems that social media users frequently encounter. FaceSeek's advanced algorithms detect within seconds if a photo is being used elsewhere on the internet.</p>
+            """
+        },
+        {
+            "title": "What is GDPR? Data Protection Explained",
+            "slug": "what-is-gdpr-data-protection",
+            "excerpt": "Everything you need to know about General Data Protection Regulation. Your rights and data controllers' obligations.",
+            "content_html": """
+                <p>The <strong>General Data Protection Regulation (GDPR)</strong> is designed to protect individuals' fundamental rights and freedoms. As FaceSeek, we have made all our processes fully compliant with this law.</p>
+                <h2>Who is the Data Controller?</h2>
+                <p>The data controller is the person who determines the purposes and means of processing personal data. The data you share with us is processed only for the specified purposes and with the principle of transparency.</p>
+                <p>You can reach our detailed privacy policy <a href="/en/legal/privacy">here</a>.</p>
+            """
+        },
+        {
+            "title": "How Does Facial Recognition Technology Work?",
+            "slug": "how-facial-recognition-works",
+            "excerpt": "Working principles of biometric vectors, AI, and facial recognition technology. Simple explanation of complex algorithms.",
+            "content_html": """
+                <p>Facial recognition is a technology that analyzes a face in an image and extracts a mathematical map (vector). So, how exactly does this process work?</p>
+                <h2>From Pixel to Vector</h2>
+                <p>The system measures unique points such as the distance between pupils, nose structure, and jawline. These measurements capture details that the human eye cannot distinguish.</p>
+            """
+        },
+        {
+            "title": "Tips for Visual Search on the Internet",
+            "slug": "tips-for-visual-search",
+            "excerpt": "Things to watch out for when doing visual search for more accurate results. Importance of light, angle, and resolution.",
+            "content_html": """
+                <p>Choosing the right image is very important for a successful face search. Pay attention to these tips to get the best efficiency from <strong>visual search</strong> technology:</p>
+                <ul>
+                    <li><strong>High Resolution:</strong> Blurry photos reduce result quality.</li>
+                    <li><strong>Correct Light:</strong> Prefer photos where the face is clearly visible and without shadows.</li>
+                    <li><strong>Single Person:</strong> If possible, use frames where only the person you are looking for is present.</li>
+                </ul>
+            """
+        },
+        {
+            "title": "Cybersecurity Awareness: How to Protect Yourself?",
+            "slug": "cybersecurity-awareness",
+            "excerpt": "Basic cybersecurity measures to manage your digital footprint and protect against cyber threats.",
+            "content_html": """
+                <p>Every photo you share is part of your digital footprint. <strong>Cybersecurity awareness</strong> allows you to keep these traces under control.</p>
+                <h2>Social Engineering Attacks</h2>
+                <p>Malicious people may try to build trust with you using your publicly available photos. With FaceSeek, you can check if your photos are being used without permission.</p>
+            """
+        },
+        {
+            "title": "Biometric Data Security: Key to the Future",
+            "slug": "biometric-data-security",
+            "excerpt": "Why is the security of biometric data such as fingerprints, facial recognition, and iris scanning important? Is it the end of traditional passwords?",
+            "content_html": """
+                <p>You can forget your passwords, but never your face. <strong>Biometric data security</strong> combines ease of use with high security.</p>
+                <p>However, biometric data cannot be changed. That's why FaceSeek never stores your biometric data on its servers.</p>
+            """
+        },
+        {
+            "title": "AI and Ethics: Responsible Technology Use",
+            "slug": "ai-and-ethics",
+            "excerpt": "The importance of ethical rules in the development of AI technologies. FaceSeek's responsible AI approach.",
+            "content_html": """
+                <p>Powerful technology requires great responsibility. <strong>AI and ethics</strong> are at the center of FaceSeek's development process.</p>
+                <p>We are constantly working to purge our algorithms of biases and offer a fair technology for everyone.</p>
+            """
+        },
+        {
+            "title": "What is OSINT? Open Source Intelligence Guide",
+            "slug": "what-is-osint-guide",
+            "excerpt": "Introduction to the world of Open Source Intelligence (OSINT). The art of reaching information by analyzing publicly available data.",
+            "content_html": """
+                <p><strong>OSINT (Open Source Intelligence)</strong> is a powerful method used by cybersecurity experts, journalists, and researchers. FaceSeek is an advanced tool that helps you in the field of visual OSINT.</p>
+                <p>We allow you to reach the information you are looking for in the fastest way by searching among billions of images on the internet in seconds.</p>
+            """
+        }
+    ]
+
+    for post_data in posts_tr:
+        exists = db.query(BlogPost).filter(BlogPost.slug == post_data["slug"]).first()
+        if not exists:
+            post = BlogPost(
+                locale="tr",
+                slug=post_data["slug"],
+                title=post_data["title"],
+                excerpt=post_data["excerpt"],
+                content_html=post_data["content_html"],
+                is_published=True,
+                author_name="FaceSeek Editör",
+                published_at=datetime.now(timezone.utc),
+                created_at=datetime.now(timezone.utc),
+                updated_at=datetime.now(timezone.utc)
+            )
             db.add(post)
-        
-        db.commit()
-        logger.info(f"Successfully seeded {len(posts)} blog posts.")
+            print(f"Added TR post: {post.title}")
 
+    for post_data in posts_en:
+        exists = db.query(BlogPost).filter(BlogPost.slug == post_data["slug"]).first()
+        if not exists:
+            post = BlogPost(
+                locale="en",
+                slug=post_data["slug"],
+                title=post_data["title"],
+                excerpt=post_data["excerpt"],
+                content_html=post_data["content_html"],
+                is_published=True,
+                author_name="FaceSeek Editor",
+                published_at=datetime.now(timezone.utc),
+                created_at=datetime.now(timezone.utc),
+                updated_at=datetime.now(timezone.utc)
+            )
+            db.add(post)
+            print(f"Added EN post: {post.title}")
+    
+    try:
+        db.commit()
+        print("Successfully seeded blog posts.")
     except Exception as e:
-        logger.error(f"Error seeding blog posts: {e}")
+        print(f"Error seeding posts: {e}")
         db.rollback()
     finally:
         db.close()
 
 if __name__ == "__main__":
     seed_blog_posts()
+

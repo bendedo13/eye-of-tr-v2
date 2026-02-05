@@ -1,5 +1,4 @@
 import LegalLayout from "../../../legal_layout_provider";
-
 import { use } from "react";
 
 export default function KVKKPage({
@@ -8,70 +7,82 @@ export default function KVKKPage({
     params: Promise<{ locale: string }>;
 }) {
     const { locale } = use(params);
+    
+    // In a real app, you'd use a translation library here.
+    // Since the user specifically requested Turkish KVKK compliance, 
+    // we are providing the detailed Turkish text.
+    
     return (
         <LegalLayout>
-            <div className="space-y-10">
+            <div className="space-y-10 font-sans">
                 <section>
-                    <h1>KVKK Aydınlatma Metni</h1>
-                    <p className="text-zinc-400 text-xs font-black uppercase tracking-widest mb-6">Son Güncelleme: 3 Şubat 2026</p>
-                    <p>
-                        FaceSeek olarak, 6698 sayılı Kişisel Verilerin Korunması Kanunu (“KVKK”) uyarınca, veri sorumlusu sıfatıyla kişisel verilerinizin işlenmesi hususunda azami hassasiyet göstermekteyiz.
+                    <h1 className="text-3xl font-black mb-2 text-white">KİŞİSEL VERİLERİN KORUNMASI VE İŞLENMESİ HAKKINDA AYDINLATMA METNİ</h1>
+                    <p className="text-face-seek-cyan text-xs font-black uppercase tracking-widest mb-6">Son Güncelleme: 5 Şubat 2026</p>
+                    <p className="text-zinc-300 leading-relaxed">
+                        <strong>Veri Sorumlusu:</strong> FaceSeek (Bundan sonra "Şirket" olarak anılacaktır)<br/><br/>
+                        6698 sayılı Kişisel Verilerin Korunması Kanunu (“KVKK”) uyarınca, kişisel verileriniz; veri sorumlusu sıfatıyla Şirketimiz tarafından aşağıda açıklanan kapsamda işlenebilecektir.
                     </p>
                 </section>
 
                 <section className="space-y-4">
-                    <h2 className="text-xl font-black underline decoration-primary">1. VERİ İŞLEME AMAÇLARIMIZ</h2>
-                    <p>
-                        Kişisel verileriniz aşağıdaki amaçlarla sınırlı olarak işlenmektedir:
+                    <h2 className="text-xl font-bold text-white border-l-4 border-face-seek-cyan pl-4">1. Kişisel Verilerin İşlenme Amacı</h2>
+                    <p className="text-zinc-400">
+                        Toplanan kişisel verileriniz (Kimlik, İletişim, İşlem Güvenliği ve Biyometrik Veri - Yüz Vektörü);
                     </p>
-                    <ul className="list-disc pl-6 space-y-2 text-zinc-500">
-                        <li>Kullanıcı hesaplarının oluşturulması ve doğrulanması.</li>
-                        <li>Yüz arama motoru üzerinden açık kaynak istihbarat sorgularının gerçekleştirilmesi.</li>
-                        <li>FaceSeek Location Intelligence kapsamında, yüklenen görsellerden çevresel ipuçlarına dayalı tahmini konum analizi yapılması (yüz/kimlik tespiti yapılmaz).</li>
-                        <li>Sistem güvenliğinin sağlanması ve suistimallerin önlenmesi.</li>
-                        <li>Ücretli servisler için faturalandırma ve ödeme süreçlerinin yönetimi.</li>
+                    <ul className="list-disc pl-6 space-y-2 text-zinc-400">
+                        <li>Kullanıcı üyeliğinin oluşturulması ve doğrulanması,</li>
+                        <li>Yüz tanıma teknolojisi kullanılarak açık kaynak (OSINT) taramalarının yapılması,</li>
+                        <li>Sistem güvenliğinin sağlanması ve yetkisiz işlemlerin (dolandırıcılık/abuse) engellenmesi,</li>
+                        <li>Yasal yükümlülüklerin yerine getirilmesi,</li>
+                    </ul>
+                    <div className="bg-face-seek-dark-slate/50 p-4 rounded-lg border border-face-seek-cyan/20">
+                        <p className="text-sm text-zinc-300">
+                            <strong>Önemli Not:</strong> Yüklediğiniz fotoğraflar, yalnızca biyometrik vektörlerin çıkarılması ve arama işleminin gerçekleştirilmesi amacıyla <strong>anlık ve geçici (transient)</strong> olarak işlenir. Şirketimiz, kullanıcılar tarafından yüklenen yüz görsellerini kalıcı bir veri tabanında <strong>saklamamaktadır</strong>.
+                        </p>
+                    </div>
+                </section>
+
+                <section className="space-y-4">
+                    <h2 className="text-xl font-bold text-white border-l-4 border-face-seek-cyan pl-4">2. Kişisel Veri Toplamanın Yöntemi ve Hukuki Sebebi</h2>
+                    <p className="text-zinc-400">
+                        Kişisel verileriniz, web sitemiz üzerinden fotoğraf yüklemeniz ve form doldurmanız suretiyle tamamen otomatik yollarla elde edilmektedir. Bu işlemeler KVKK Madde 5 ve Madde 6 kapsamında aşağıdaki hukuki sebeplere dayanmaktadır:
+                    </p>
+                    <ul className="list-disc pl-6 space-y-2 text-zinc-400">
+                        <li><strong>Bir sözleşmenin kurulması veya ifası:</strong> Üyelik sözleşmesi ve hizmetin sunulması (arama işleminin yapılması).</li>
+                        <li><strong>Veri sorumlusunun meşru menfaati:</strong> Sistem güvenliği ve hizmet kalitesinin artırılması.</li>
+                        <li><strong>Açık Rıza:</strong> Biyometrik verilerinizin (yüz haritası/vektörü) işlenmesi için açık rızanız talep edilmektedir.</li>
                     </ul>
                 </section>
 
                 <section className="space-y-4">
-                    <h2 className="text-xl font-black">2. İŞLENEN VERİ KATEGORİLERİ</h2>
-                    <p>
-                        FaceSeek hizmetlerini sunarken işleyebileceğimiz veri kategorileri, hizmetin kullanım şekline göre değişmekle birlikte genel olarak şunlardır:
+                    <h2 className="text-xl font-bold text-white border-l-4 border-face-seek-cyan pl-4">3. İşlenen Verilerin Kimlere ve Hangi Amaçla Aktarılabileceği</h2>
+                    <p className="text-zinc-400">
+                        Kişisel verileriniz;
                     </p>
-                    <ul className="list-disc pl-6 space-y-2 text-zinc-500">
-                        <li>Kimlik ve iletişim verileri (e-posta, kullanıcı adı).</li>
-                        <li>Hesap ve abonelik bilgileri (plan/tier, kredi, ödeme ve fatura kayıtları).</li>
-                        <li>Hizmet kullanım metadatası (tarih/saat, istek türü, sonuç sayısı gibi anonimleştirilmiş teknik kayıtlar).</li>
-                        <li>Güvenlik verileri (IP adresi ve cihaz tanımlayıcıları; suistimal önleme ve güvenlik amaçlı).</li>
-                        <li>Yüklenen görsellerin kendisi: yalnızca talebinizi işlemek için geçici olarak işlenir; kullanıcı yüklemeleri bir görsel arşivi olarak saklanmaz.</li>
+                    <ul className="list-disc pl-6 space-y-2 text-zinc-400">
+                        <li>Yasal yükümlülüklerimizi yerine getirmek üzere yetkili kamu kurum ve kuruluşlarına,</li>
+                        <li>Hizmetin teknik altyapısını sağlayan (sunucu, bulut bilişim) tedarikçilerimize,</li>
                     </ul>
-                </section>
-
-                <section className="space-y-4">
-                    <h2 className="text-xl font-black">3. SAKLAMA SÜRESİ</h2>
-                    <p className="text-zinc-500">
-                        Yüklenen görseller, talebin işlenmesi amacıyla geçici olarak kullanılır ve kullanıcı yüklemeleri bir görsel arşivi olarak saklanmaz. Güvenlik ve suistimal önleme amaçlı teknik kayıtlar ise gerekli ve ölçülü sürelerle muhafaza edilebilir.
+                    <p className="text-zinc-400 mt-2 italic">
+                        Arama işlemi sırasında görselleriniz Google, Bing, Yandex gibi halka açık arama motorlarında taranır, ancak bu platformlara doğrudan kimlik bilgileriniz satılmaz veya devredilmez.
                     </p>
                 </section>
 
                 <section className="space-y-4">
-                    <h2 className="text-xl font-black">4. İLGİLİ KİŞİ HAKLARI</h2>
-                    <p>
-                        KVKK'nın 11. maddesi uyarınca herkes veri sorumlusuna başvurarak kendisiyle ilgili; kişisel veri işlenip işlenmediğini öğrenme, işlenmişse bilgi talep etme ve verilerin silinmesini isteme hakkına sahiptir.
+                    <h2 className="text-xl font-bold text-white border-l-4 border-face-seek-cyan pl-4">4. İlgili Kişinin Hakları (KVKK Madde 11)</h2>
+                    <p className="text-zinc-400">
+                        Kişisel veri sahipleri olarak; verilerinizin işlenip işlenmediğini öğrenme, işlenmişse buna ilişkin bilgi talep etme, verilerin silinmesini veya yok edilmesini isteme ve zararın giderilmesini talep etme haklarına sahipsiniz.
+                    </p>
+                    <p className="text-zinc-400">
+                        Bu haklarınızı kullanmak için taleplerinizi <a href="mailto:privacy@face-seek.com" className="text-face-seek-cyan hover:underline">privacy@face-seek.com</a> adresine iletebilirsiniz.
                     </p>
                 </section>
 
-                <section className="bg-zinc-900/50 p-6 rounded-2xl border border-white/5">
-                    <p className="text-[10px] uppercase font-bold text-zinc-400 leading-relaxed">
-                        FaceSeek, üçüncü taraf web sitelerinde bulunan halka açık verileri indeksleyen bir arama motoru teknolojisidir. Veritabanımızda Türkiye Cumhuriyeti vatandaşlarına ait özel, gizli veya hukuka aykırı bir biyometrik arşiv tutulmamaktadır.
-                    </p>
-                </section>
-
-                <section className="bg-primary/5 p-6 rounded-2xl border border-primary/10">
-                    <h2 className="text-primary font-black uppercase tracking-widest text-sm">İLETİŞİM</h2>
-                    <p className="text-xs mt-2">
-                        KVKK kapsamındaki talepleriniz için: <strong>privacy@face-seek.com</strong>
-                    </p>
+                <section className="bg-face-seek-dark-slate p-6 rounded-2xl border border-white/5 mt-8">
+                     <h3 className="text-lg font-bold text-white mb-2">Çerez Politikası Hakkında</h3>
+                     <p className="text-zinc-400 text-sm">
+                         Hizmetlerimizi sunmak ve kullanıcı deneyimini geliştirmek amacıyla çerezler kullanmaktayız. Detaylı bilgi için <a href={`/${locale}/legal/privacy`} className="text-face-seek-cyan hover:underline">Gizlilik Politikası</a> sayfamızı inceleyebilirsiniz.
+                     </p>
                 </section>
             </div>
         </LegalLayout>
