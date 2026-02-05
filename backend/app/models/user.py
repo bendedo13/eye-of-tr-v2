@@ -1,5 +1,6 @@
 """User model with credits, subscription, and referral system"""
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, Float
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import secrets
 
@@ -34,6 +35,12 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     last_search_at = Column(DateTime(timezone=True), nullable=True)
+
+    # Relationships
+    lens_logs = relationship("LensAnalysisLog", back_populates="user")
+    notification_reads = relationship("NotificationRead", back_populates="user")
+    support_tickets = relationship("SupportTicket", foreign_keys="[SupportTicket.user_id]", back_populates="user")
+    support_messages = relationship("SupportMessage", back_populates="user")
     
     @property
     def success_rate(self) -> float:

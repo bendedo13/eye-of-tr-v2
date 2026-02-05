@@ -192,3 +192,31 @@ export function adminListAudit(adminKey: string, params: { q?: string; action?: 
   const qs = usp.toString();
   return adminFetch<{ items: any[] }>(`/admin/audit${qs ? `?${qs}` : ""}`, { method: "GET", adminKey });
 }
+
+export function adminSendEmail(adminKey: string, payload: any) {
+  return adminFetch<{ status: string }>("/admin/emails/send", {
+    method: "POST",
+    body: JSON.stringify(payload),
+    adminKey,
+  });
+}
+
+export function adminListEmailLogs(adminKey: string, params: { offset?: number; limit?: number } = {}) {
+  const usp = new URLSearchParams();
+  if (params.offset != null) usp.set("offset", String(params.offset));
+  if (params.limit != null) usp.set("limit", String(params.limit));
+  const qs = usp.toString();
+  return adminFetch<{ items: any[] }>(`/admin/emails/logs${qs ? `?${qs}` : ""}`, { method: "GET", adminKey });
+}
+
+export function adminCreateEmailTemplate(adminKey: string, payload: any) {
+  return adminFetch<any>("/admin/emails/templates", {
+    method: "POST",
+    body: JSON.stringify(payload),
+    adminKey,
+  });
+}
+
+export function adminListEmailTemplates(adminKey: string) {
+  return adminFetch<any[]>("/admin/emails/templates", { method: "GET", adminKey });
+}

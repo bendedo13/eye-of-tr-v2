@@ -7,22 +7,22 @@ export default function TrustBadges() {
     const badges = [
         {
             icon: Lock,
-            text: 'Encrypted in Transit',
+            text: 'SSL Şifreli Bağlantı',
             color: '#fbbf24'
         },
         {
             icon: Shield,
-            text: 'Abuse Protection',
+            text: 'Kötüye Kullanım Koruması',
             color: '#00d9ff'
         },
         {
             icon: Eye,
-            text: 'Privacy-First',
+            text: 'Önce Gizlilik',
             color: '#8b5cf6'
         },
         {
             icon: Trash2,
-            text: 'No Image Storage',
+            text: 'Kayıt Tutulmaz',
             color: '#10b981'
         }
     ];

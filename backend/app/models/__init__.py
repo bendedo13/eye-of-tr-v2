@@ -2,6 +2,8 @@
 from app.models.user import User
 from app.models.subscription import Subscription, Payment
 from app.models.analytics import SiteVisit, SearchLog, ReferralLog
+from app.models.lens import LensAnalysisLog
+from app.models.notification import Notification, NotificationRead
 
 __all__ = [
     "User",
@@ -10,4 +12,7 @@ __all__ = [
     "SiteVisit",
     "SearchLog",
     "ReferralLog",
+    "LensAnalysisLog",
+    "Notification",
+    "NotificationRead",
 ]

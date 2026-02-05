@@ -86,6 +86,7 @@ export default function AdminLayout({
     { label: "Fiyatlandırma", icon: <CreditCard size={20} />, href: "/admin/pricing" },
     { label: "Sistem Ayarları", icon: <Settings size={20} />, href: "/admin/settings" },
     { label: "Audit Log", icon: <ClipboardList size={20} />, href: "/admin/audit" },
+    { label: "İletişim", icon: <Bell size={20} />, href: "/admin/communication" },
   ];
 
   const handleLogout = () => {

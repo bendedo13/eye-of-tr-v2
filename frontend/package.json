@@ -2,12 +2,17 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "node scripts/next-dev.mjs",
     "prebuild": "npm run check:layouts && npm run check:i18n",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "node --test __tests__/",
+    "test:auth": "node --test __tests__/auth.test.mjs",
+    "test:admin": "node --test __tests__/admin.test.mjs",
+    "test:config": "node --test __tests__/config.test.mjs",
     "check:i18n": "node scripts/check-locales.mjs",
     "check:layouts": "node scripts/check-layout-tags.mjs"
   },

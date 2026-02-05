@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { Button } from "./ui/Button";
 import FaceSeekLogo from "./brand/FaceSeekLogo";
+import NotificationBell from "./NotificationBell";
 
 export default function Navbar() {
   const { user, logout, mounted } = useAuth();
@@ -115,6 +116,9 @@ export default function Navbar() {
 
           {user ? (
             <>
+              {/* Notifications */}
+              <NotificationBell />
+
               {/* Credits Display */}
               <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full">
                 <Sparkles size={16} className="text-primary" />
@@ -214,11 +218,16 @@ export default function Navbar() {
 
             {user ? (
               <>
-                <div className="flex items-center gap-2 px-4 py-3 bg-primary/10 border border-primary/20 rounded-xl">
-                  <Sparkles size={16} className="text-primary" />
-                  <span className="text-sm font-black text-white">
-                    {userCredits} {t('credits')}
-                  </span>
+                <div className="flex items-center justify-between px-2">
+                   <div className="flex items-center gap-2 px-4 py-3 bg-primary/10 border border-primary/20 rounded-xl flex-1 mr-2">
+                    <Sparkles size={16} className="text-primary" />
+                    <span className="text-sm font-black text-white">
+                      {userCredits} {t('credits')}
+                    </span>
+                  </div>
+                  <div className="bg-white/5 p-3 rounded-xl">
+                    <NotificationBell />
+                  </div>
                 </div>
                 <Link
                   href={`/${locale}/dashboard`}

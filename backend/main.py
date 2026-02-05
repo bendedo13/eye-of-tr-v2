@@ -26,11 +26,16 @@ from app.api.data_platform import router as data_platform_router
 from app.api.external_search import router as external_search_router
 from app.api.reverse_search import router as reverse_search_router
 from app.api.lens_analysis import router as lens_analysis_router
+from app.api.admin_email_endpoints import router as admin_email_router
+from app.api.notifications import router as notifications_router
+from app.api.support import router as support_router
+from app.api.admin_support import router as admin_support_router
 from app.db.database import engine, Base, SessionLocal  # Use database.py directly
 from app.middleware.rate_limit import RateLimitMiddleware
 
 # Import all models for DB table creation
 from app.models.user import User
+from app.models.notification import Notification, NotificationRead, EmailTemplate, EmailLog
 from app.models.subscription import Subscription, Payment
 from app.models.analytics import SiteVisit, SearchLog, ReferralLog
 from app.models.verification import EmailVerification, DeviceRegistration, IpRegistration, PasswordReset
@@ -41,6 +46,10 @@ from app.models.data_platform import DataSource, CrawlJob, Document
 from app.models.search_results import SearchResult
 from app.models.admin_audit import AdminAuditLog
 from app.models.lens import LensAnalysisLog
+from app.models.support import SupportTicket, SupportMessage
+
+# Import WebSocket service
+from app.services.websocket_service import get_socket_server, socket_app
 
 # Logging ayarla
 logging.basicConfig(
@@ -137,6 +146,10 @@ app.include_router(data_platform_router)
 app.include_router(external_search_router)
 app.include_router(reverse_search_router)
 app.include_router(lens_analysis_router, prefix="/api/v1") # User requested /api/v1/lens-analysis
+app.include_router(admin_email_router)
+app.include_router(notifications_router)
+app.include_router(support_router)
+app.include_router(admin_support_router)
 logger.info("✅ Face search router: /api/upload-face, /api/search-face")
 logger.info(f"✅ Auth router: {auth_router.prefix}")
 logger.info(f"✅ Dashboard router: {dashboard_router.prefix}")
@@ -151,6 +164,8 @@ logger.info(f"✅ Data platform router: {data_platform_router.prefix}")
 logger.info(f"✅ External search router: {external_search_router.prefix}")
 logger.info(f"✅ Reverse search router: {reverse_search_router.prefix}")
 logger.info(f"✅ Lens analysis router: /api/v1/lens-analysis")
+logger.info(f"✅ Support router: /api/support")
+logger.info(f"✅ Admin support router: /admin/support")
 logger.info("=" * 50)
 
 # Security
@@ -192,6 +207,8 @@ async def root():
             "search": "/api/search",
             "providers": "/api/providers",
             "auth": "/api/auth",
+            "support": "/api/support",
+            "websocket": "/socket.io",
             "docs": "/docs"
         }
     }
@@ -349,6 +366,15 @@ async def get_providers():
         "status": "success",
         "providers": search_service.get_available_providers()
     }
+
+# WebSocket endpoint
+@app.get("/socket.io")
+async def socketio_endpoint():
+    """Socket.IO endpoint"""
+    return {"message": "Socket.IO server is running"}
+
+# Mount Socket.IO app
+app.mount("/socket.io", socket_app)
 
 @app.on_event("startup")
 def create_initial_data():
