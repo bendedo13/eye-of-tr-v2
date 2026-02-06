@@ -38,7 +38,7 @@ class Settings(BaseSettings):
     REDIS_URL: Optional[str] = None
     
     # CORS - String olarak, virgülle ayrılmış
-    CORS_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000"
+    CORS_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000,https://face-seek.com,https://www.face-seek.com"
     
     # API Keys
     BING_API_KEY: Optional[str] = None
