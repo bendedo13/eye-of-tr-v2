@@ -22,6 +22,12 @@ def _now() -> datetime:
     return datetime.now(timezone.utc)
 
 
+def _ensure_aware(dt: datetime) -> datetime:
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt
+
+
 def _generate_code() -> str:
     return f"{secrets.randbelow(1_000_000):06d}"
 
@@ -101,7 +107,7 @@ def resend_code(db: Session, user: User) -> str:
         return
     if ev.verified:
         raise VerificationError("Hesap zaten doğrulanmış.")
-    cooldown_until = ev.last_sent_at + timedelta(seconds=settings.EMAIL_VERIFICATION_RESEND_COOLDOWN_SECONDS)
+    cooldown_until = _ensure_aware(ev.last_sent_at) + timedelta(seconds=settings.EMAIL_VERIFICATION_RESEND_COOLDOWN_SECONDS)
     if _now() < cooldown_until:
         raise VerificationError("Kod çok sık isteniyor. Lütfen biraz sonra tekrar deneyin.")
     return create_or_replace_verification(db, user)
@@ -113,7 +119,7 @@ def verify_code(db: Session, user: User, code: str) -> None:
         raise VerificationError("Doğrulama kaydı bulunamadı.")
     if ev.verified:
         return
-    if _now() > ev.expires_at:
+    if _now() > _ensure_aware(ev.expires_at):
         raise VerificationError("Kodun süresi doldu. Lütfen yeni kod isteyin.")
     ev.attempts += 1
     if ev.attempts > 10:

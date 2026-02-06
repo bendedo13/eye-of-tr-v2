@@ -197,6 +197,13 @@ export async function subscribe(token: string, planId: string) {
   return api.post<any>("/pricing/subscribe", { plan_id: planId }, { token });
 }
 
+export async function requestBankTransfer(
+  token: string,
+  payload: { plan_id?: string | null; credits?: number | null; amount: number; currency?: string; note?: string }
+) {
+  return api.post<any>("/pricing/bank-transfer", payload, { token });
+}
+
 export async function confirmPayment(token: string, paymentId: number) {
   return api.post<any>(`/pricing/confirm-payment/${paymentId}`, undefined, { token });
 }
