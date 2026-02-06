@@ -30,7 +30,7 @@ from app.api.admin_email_endpoints import router as admin_email_router
 from app.api.notifications import router as notifications_router
 from app.api.support import router as support_router
 from app.api.admin_support import router as admin_support_router
-from app.db.database import engine, Base, SessionLocal  # Use database.py directly
+from app.db.database import get_engine, Base, SessionLocal  # Use database.py directly
 from app.middleware.rate_limit import RateLimitMiddleware
 
 # Import all models for DB table creation
@@ -127,7 +127,7 @@ app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 search_service = get_search_service()
 
 # Database tablolarını oluştur
-Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=get_engine())
 
 # Routers
 logger.info("=" * 50)

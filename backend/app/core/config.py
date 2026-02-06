@@ -145,4 +145,18 @@ class Settings(BaseSettings):
         extra = "ignore"
 
 
-settings = Settings()
+def get_settings() -> Settings:
+    # Create a fresh Settings instance so env overrides can take effect even if
+    # other modules imported settings earlier.
+    return Settings()
+
+
+class _SettingsProxy:
+    def __getattr__(self, name):
+        return getattr(get_settings(), name)
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}({get_settings()!r})"
+
+
+settings = _SettingsProxy()

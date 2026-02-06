@@ -71,8 +71,3 @@ class SupportMessage(Base):
     # Relationships
     ticket = relationship("SupportTicket", back_populates="messages")
     user = relationship("User", back_populates="support_messages")
-
-# Add relationships to User model
-from app.models.user import User
-User.support_tickets = relationship("SupportTicket", foreign_keys=[SupportTicket.user_id], back_populates="user")
-User.support_messages = relationship("SupportMessage", back_populates="user")

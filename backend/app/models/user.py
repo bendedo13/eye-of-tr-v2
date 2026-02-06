@@ -5,6 +5,7 @@ from sqlalchemy.sql import func
 import secrets
 
 from app.db.database import Base
+from app.models.support import SupportTicket, SupportMessage
 
 
 class User(Base):
@@ -39,7 +40,7 @@ class User(Base):
     # Relationships
     lens_logs = relationship("LensAnalysisLog", back_populates="user")
     notification_reads = relationship("NotificationRead", back_populates="user")
-    support_tickets = relationship("SupportTicket", foreign_keys="[SupportTicket.user_id]", back_populates="user")
+    support_tickets = relationship("SupportTicket", foreign_keys=[SupportTicket.user_id], back_populates="user")
     support_messages = relationship("SupportMessage", back_populates="user")
     
     @property
