@@ -15,9 +15,8 @@ export default function BlogDetailPage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
         setLoading(true);
-        fetch(`${apiBase}/api/public/blog-posts/${encodeURIComponent(slug)}?locale=${encodeURIComponent(locale)}`)
+        fetch(`/api/public/blog-posts/${encodeURIComponent(slug)}?locale=${encodeURIComponent(locale)}`)
             .then(async (r) => {
                 if (!r.ok) throw new Error();
                 return r.json();

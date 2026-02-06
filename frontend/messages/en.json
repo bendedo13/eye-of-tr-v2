@@ -1,84 +1,193 @@
 {
-    "common": {
-        "loading": "Loading...",
-        "error": "Error",
-        "success": "Success",
-        "initializingProtocol": "Initializing Protocol"
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "initializingProtocol": "Initializing Protocol"
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "blog": "Blog",
+    "pricing": "Pricing",
+    "enterpriseApi": "Enterprise API",
+    "login": "Login",
+    "register": "Register",
+    "dashboard": "Dashboard",
+    "credits": "Credits",
+    "search": "Search",
+    "visualLocation": "Location Intel",
+    "logout": "Logout",
+    "support": "Support"
+  },
+  "hero": {
+    "badge": "Next-Gen AI Recognition Engine v2.0",
+    "title": "ADVANCED FACIAL SEARCH TECHNOLOGY",
+    "subtitle": "Uncover identities securely with Face Seek's AI-powered facial recognition platform. Trusted by investigators, journalists, and security professionals worldwide for ethical OSINT research.",
+    "ctaPrimary": "START RECOGNITION FREE",
+    "ctaSecondary": "LOG IN",
+    "ctaSearch": "START ANALYSIS",
+    "ctaDashboard": "DASHBOARD",
+    "learnMore": "Learn More"
+  },
+  "whyFaceSeek": {
+    "title": "WHY",
+    "titleHighlight": "FACESEEK?"
+  },
+  "featureCards": {
+    "card1": {
+      "title": "LIGHTNING-FAST FACIAL SEARCH",
+      "desc": "Our reverse image face search technology scans millions of indexed images in milliseconds. Advanced AI face lookup algorithms deliver instant results across global data clusters."
     },
-    "nav": {
-        "home": "Home",
-        "about": "About",
-        "blog": "Blog",
-        "pricing": "Pricing",
-        "enterpriseApi": "Enterprise API",
-        "login": "Login",
-        "register": "Register",
-        "dashboard": "Dashboard",
-        "credits": "Credits",
-        "search": "Search",
-        "visualLocation": "Location Intel",
-        "logout": "Logout",
-        "support": "Support"
+    "card2": {
+      "title": "PRIVACY-FOCUSED FACIAL SEARCH",
+      "desc": "Industry-leading 256-bit encryption protects every facial recognition search. Your image data is never permanently stored, ensuring complete privacy in facial intelligence operations."
     },
-    "hero": {
-        "badge": "Next-Gen AI Recognition Engine v2.0",
-        "title": "ADVANCED FACIAL SEARCH TECHNOLOGY",
-        "subtitle": "Uncover identities securely with Face Seek's AI-powered facial recognition platform. Trusted by investigators, journalists, and security professionals worldwide for ethical OSINT research.",
-        "ctaPrimary": "START RECOGNITION FREE",
-        "ctaSecondary": "LOG IN",
-        "ctaSearch": "START ANALYSIS",
-        "ctaDashboard": "DASHBOARD",
-        "learnMore": "Learn More"
+    "card3": {
+      "title": "MULTI-ENGINE OSINT FACE SEARCH",
+      "desc": "Simultaneous queries across Google, Bing, Yandex, and specialized OSINT databases. Our facial search engine aggregates results from the world's largest public web indexes."
     },
-    "whyFaceSeek": {
-        "title": "WHY",
-        "titleHighlight": "FACESEEK?"
+    "card4": {
+      "title": "PRECISION BIOMETRIC MATCHING",
+      "desc": "State-of-the-art facial recognition algorithms achieve 98.7% accuracy. Our image intelligence platform uses 128-point facial mapping for unmatched precision in face recognition search."
     },
-    "featureCards": {
-        "card1": {
-            "title": "LIGHTNING-FAST FACIAL SEARCH",
-            "desc": "Our reverse image face search technology scans millions of indexed images in milliseconds. Advanced AI face lookup algorithms deliver instant results across global data clusters."
-        },
-        "card2": {
-            "title": "PRIVACY-FOCUSED FACIAL SEARCH",
-            "desc": "Industry-leading 256-bit encryption protects every facial recognition search. Your image data is never permanently stored, ensuring complete privacy in facial intelligence operations."
-        },
-        "card3": {
-            "title": "MULTI-ENGINE OSINT FACE SEARCH",
-            "desc": "Simultaneous queries across Google, Bing, Yandex, and specialized OSINT databases. Our facial search engine aggregates results from the world's largest public web indexes."
-        },
-        "card4": {
-            "title": "PRECISION BIOMETRIC MATCHING",
-            "desc": "State-of-the-art facial recognition algorithms achieve 98.7% accuracy. Our image intelligence platform uses 128-point facial mapping for unmatched precision in face recognition search."
-        },
-        "card5": {
-            "title": "ETHICAL AI FACIAL RECOGNITION",
-            "desc": "Full GDPR and KVKK compliance for responsible facial intelligence. Our platform adheres to international standards for ethical AI and open-source intelligence protocols."
-        },
-        "card6": {
-            "title": "COMPREHENSIVE OSINT DATA INTEGRATION",
-            "desc": "Facial search results from social media, news sites, and public records. Our OSINT facial recognition platform consolidates open-source intelligence."
-        }
+    "card5": {
+      "title": "ETHICAL AI FACIAL RECOGNITION",
+      "desc": "Full GDPR and KVKK compliance for responsible facial intelligence. Our platform adheres to international standards for ethical AI and open-source intelligence protocols."
     },
-    "footer": {
-        "description": "Advanced Facial Search Technology. Professional OSINT and facial recognition tools for digital investigations.",
-        "product": "Product",
-        "faceSearch": "Face Search",
-        "support": "Support",
-        "pricing": "Pricing",
-        "dashboard": "Dashboard",
-        "history": "History",
-        "company": "Company",
-        "about": "About Us",
-        "blog": "Blog",
-        "contact": "Contact",
-        "legal": "Legal",
-        "legalHub": "Legal Hub",
-        "privacy": "Privacy Policy",
-        "terms": "Terms of Service",
-        "kvkk": "KVKK",
-        "disclaimer": "Disclaimer",
-        "allRightsReserved": "All Rights Reserved",
-        "poweredBy": "Powered by"
+    "card6": {
+      "title": "COMPREHENSIVE OSINT DATA INTEGRATION",
+      "desc": "Facial search results from social media, news sites, and public records. Our OSINT facial recognition platform consolidates open-source intelligence."
     }
+  },
+  "footer": {
+    "description": "Advanced Facial Search Technology. Professional OSINT and facial recognition tools for digital investigations.",
+    "product": "Product",
+    "faceSearch": "Face Search",
+    "support": "Support",
+    "pricing": "Pricing",
+    "dashboard": "Dashboard",
+    "history": "History",
+    "company": "Company",
+    "about": "About Us",
+    "blog": "Blog",
+    "contact": "Contact",
+    "legal": "Legal",
+    "legalHub": "Legal Hub",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "kvkk": "KVKK",
+    "disclaimer": "Disclaimer",
+    "allRightsReserved": "All Rights Reserved",
+    "poweredBy": "Powered by",
+    "tagline": "Professional Facial Search Engine",
+    "systemStatusOnline": "System Status: Online",
+    "copyright": "? 2026 FaceSeek. All rights reserved.",
+    "links": {
+      "faceSearch": "Face Search",
+      "aboutUs": "About Us",
+      "contact": "Contact",
+      "legalHub": "Legal Hub"
+    },
+    "badges": {
+      "noStoreImages": "WE DO NOT STORE IMAGES",
+      "privacyFirst": "PRIVACY FIRST"
+    }
+  },
+  "home": {
+    "privacyBadge": "We do not store images",
+    "systemScanning": "System Scanning...",
+    "trust": {
+      "biometricSecure": "BIOMETRIC SECURE",
+      "gdprCompliant": "GDPR COMPLIANT",
+      "multiEngine": "MULTI-ENGINE"
+    }
+  },
+  "liveStats": {
+    "title": "Live",
+    "subtitle": "Stats",
+    "description": "Platform operations sync in real time",
+    "status": "SYSTEM ONLINE",
+    "dailyVisitors": "Daily Visitors",
+    "weeklySearches": "Weekly Scans",
+    "successRate": "Success Rate",
+    "totalUsers": "Total Users",
+    "weeklyVisitors": "Weekly Visitors",
+    "totalSearches": "Total Searches",
+    "activeAnalysts": "Active Analysts"
+  },
+  "features": {
+    "title": "PROFESSIONAL FACIAL INTELLIGENCE",
+    "subtitle": "Enterprise-grade face search capabilities",
+    "feature1": {
+      "title": "Reverse Image Face Search",
+      "description": "Upload any photo and find matching faces across Google, Bing, Yandex, and OSINT databases. Our AI engine processes billions of images."
+    },
+    "feature2": {
+      "title": "OSINT Face Search",
+      "description": "Professional open-source intelligence tools for investigative journalism, cybersecurity research, and lawful identification."
+    },
+    "feature3": {
+      "title": "Privacy-First Face Search",
+      "description": "GDPR compliant. No persistent biometric database. Images are deleted within 24 hours. Your searches stay private."
+    },
+    "feature4": {
+      "title": "Ethical AI Facial Recognition",
+      "description": "Responsible platform with strict acceptable-use policies. Public data only. No law enforcement affiliation."
+    },
+    "feature5": {
+      "title": "Multi-Engine Aggregation",
+      "description": "Search multiple sources simultaneously for comprehensive intelligence results."
+    },
+    "feature6": {
+      "title": "Face Recognition SaaS",
+      "description": "Cloud-based face search engine accessible anywhere. No setup required. Enterprise API available."
+    }
+  },
+  "howItWorks": {
+    "title": "HOW IT WORKS",
+    "subtitle": "Professional face search in 3 simple steps",
+    "step1": {
+      "title": "Upload Image",
+      "description": "Upload a face image. Our engine automatically detects and extracts face features using advanced AI mapping."
+    },
+    "step2": {
+      "title": "AI Processing",
+      "description": "Our algorithms build a biometric signature and search billions of indexed images across multiple sources."
+    },
+    "step3": {
+      "title": "Get Results",
+      "description": "Receive comprehensive intelligence reports with confidence scores, source URLs, and context."
+    }
+  },
+  "howItWorksSection": {
+    "title": "FACE SEARCH",
+    "titleGray": "HOW IT WORKS",
+    "step1": {
+      "number": "01",
+      "title": "UPLOAD IMAGE",
+      "desc": "Upload your target image to our secure engine. We accept all standard formats and optimize resolution for accuracy."
+    },
+    "step2": {
+      "number": "02",
+      "title": "AI FACE MAPPING",
+      "desc": "Advanced biometric algorithms extract 128 unique face landmarks to build a mathematical signature for search."
+    },
+    "step3": {
+      "number": "03",
+      "title": "MULTI-SOURCE INDEXING",
+      "desc": "Your query is processed across Google, Bing, Yandex and OSINT databases in real time."
+    },
+    "step4": {
+      "number": "04",
+      "title": "RESULTS & ANALYTICS",
+      "desc": "Get confidence scores, source URLs, and contextual metadata for professional validation."
+    }
+  },
+  "cta": {
+    "titlePart1": "START YOUR",
+    "titlePart2": "FACE SEARCH",
+    "description": "Join thousands of professionals using FaceSeek for ethical facial intelligence. Get 3 free searches to start.",
+    "button": "Create Free Account"
+  }
 }

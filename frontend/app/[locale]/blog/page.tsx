@@ -12,9 +12,8 @@ export default function BlogPage({ params }: { params: Promise<{ locale: string 
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
         setLoading(true);
-        fetch(`${apiBase}/api/public/blog-posts?locale=${encodeURIComponent(locale)}`)
+        fetch(`/api/public/blog-posts?locale=${encodeURIComponent(locale)}`)
             .then((r) => r.json())
             .then((d) => setPosts(d.items || []))
             .catch(() => setPosts([]))

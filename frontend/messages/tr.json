@@ -1,84 +1,193 @@
 {
-    "common": {
-        "loading": "Yükleniyor...",
-        "error": "Hata",
-        "success": "Başarılı",
-        "initializingProtocol": "Protokol Başlatılıyor"
+  "common": {
+    "loading": "Yükleniyor...",
+    "error": "Hata",
+    "success": "Başarılı",
+    "initializingProtocol": "Protokol Başlatılıyor"
+  },
+  "nav": {
+    "home": "Ana Sayfa",
+    "about": "Hakkımızda",
+    "blog": "Blog",
+    "pricing": "Fiyatlandırma",
+    "enterpriseApi": "Kurumsal API",
+    "login": "Giriş Yap",
+    "register": "Kayıt Ol",
+    "dashboard": "Panel",
+    "credits": "Kredi",
+    "search": "Arama",
+    "visualLocation": "Konum Tespit",
+    "logout": "Çıkış Yap",
+    "support": "Destek"
+  },
+  "hero": {
+    "badge": "Yeni Nesil Yapay Zeka Tanıma Motoru v2.0",
+    "title": "GELİŞMİŞ YÜZ ARAMA TEKNOLOJİSİ",
+    "subtitle": "Face Seek'in yapay zeka destekli yüz tanıma platformu ile kimlikleri güvenli bir şekilde ortaya çıkarın. Etik OSINT araştırmaları için dünya çapında araştırmacılar, gazeteciler ve güvenlik uzmanları tarafından güvenilir.",
+    "ctaPrimary": "ÜCRETSİZ TANIMA BAŞLAT",
+    "ctaSecondary": "GİRİŞ YAP",
+    "ctaSearch": "ANALİZE BAŞLA",
+    "ctaDashboard": "PANEL",
+    "learnMore": "Daha Fazla Bilgi"
+  },
+  "whyFaceSeek": {
+    "title": "NEDEN",
+    "titleHighlight": "FACESEEK?"
+  },
+  "featureCards": {
+    "card1": {
+      "title": "YILDIRIM HIZINDA YÜZ ARAMA",
+      "desc": "Ters görüntü yüz arama teknolojimiz milisaniyeler içinde milyonlarca indekslenmiş görüntüyü tarar. Gelişmiş yapay zeka yüz arama algoritmaları küresel veri kümelerinde anında sonuç verir."
     },
-    "nav": {
-        "home": "Ana Sayfa",
-        "about": "Hakkımızda",
-        "blog": "Blog",
-        "pricing": "Fiyatlandırma",
-        "enterpriseApi": "Kurumsal API",
-        "login": "Giriş Yap",
-        "register": "Kayıt Ol",
-        "dashboard": "Panel",
-        "credits": "Kredi",
-        "search": "Arama",
-        "visualLocation": "Konum Tespit",
-        "logout": "Çıkış Yap",
-        "support": "Destek"
+    "card2": {
+      "title": "GİZLİLİK ODAKLI YÜZ ARAMA",
+      "desc": "Sektör lideri 256-bit şifreleme her yüz tanıma aramasını korur. Görüntü verileriniz asla kalıcı olarak saklanmaz, yüz istihbarat operasyonlarında tam gizlilik sağlanır."
     },
-    "hero": {
-        "badge": "Yeni Nesil Yapay Zeka Tanıma Motoru v2.0",
-        "title": "GELİŞMİŞ YÜZ ARAMA TEKNOLOJİSİ",
-        "subtitle": "Face Seek'in yapay zeka destekli yüz tanıma platformu ile kimlikleri güvenli bir şekilde ortaya çıkarın. Etik OSINT araştırmaları için dünya çapında araştırmacılar, gazeteciler ve güvenlik uzmanları tarafından güvenilir.",
-        "ctaPrimary": "ÜCRETSİZ TANIMA BAŞLAT",
-        "ctaSecondary": "GİRİŞ YAP",
-        "ctaSearch": "ANALİZE BAŞLA",
-        "ctaDashboard": "PANEL",
-        "learnMore": "Daha Fazla Bilgi"
+    "card3": {
+      "title": "ÇOK MOTORLU OSINT YÜZ ARAMA",
+      "desc": "Google, Bing, Yandex ve özel OSINT veritabanlarında eşzamanlı sorgular. Yüz arama motorumuz dünyanın en büyük kamu web indekslerinden sonuçları toplar."
     },
-    "whyFaceSeek": {
-        "title": "NEDEN",
-        "titleHighlight": "FACESEEK?"
+    "card4": {
+      "title": "HASSAS BİYOMETRİK EŞLEŞTIRME",
+      "desc": "Son teknoloji yüz tanıma algoritmaları %98.7 doğruluk elde eder. Görüntü istihbarat platformumuz yüz tanıma aramasında eşsiz hassasiyet için 128 noktalı yüz haritalama kullanır."
     },
-    "featureCards": {
-        "card1": {
-            "title": "YILDIRIM HIZINDA YÜZ ARAMA",
-            "desc": "Ters görüntü yüz arama teknolojimiz milisaniyeler içinde milyonlarca indekslenmiş görüntüyü tarar. Gelişmiş yapay zeka yüz arama algoritmaları küresel veri kümelerinde anında sonuç verir."
-        },
-        "card2": {
-            "title": "GİZLİLİK ODAKLI YÜZ ARAMA",
-            "desc": "Sektör lideri 256-bit şifreleme her yüz tanıma aramasını korur. Görüntü verileriniz asla kalıcı olarak saklanmaz, yüz istihbarat operasyonlarında tam gizlilik sağlanır."
-        },
-        "card3": {
-            "title": "ÇOK MOTORLU OSINT YÜZ ARAMA",
-            "desc": "Google, Bing, Yandex ve özel OSINT veritabanlarında eşzamanlı sorgular. Yüz arama motorumuz dünyanın en büyük kamu web indekslerinden sonuçları toplar."
-        },
-        "card4": {
-            "title": "HASSAS BİYOMETRİK EŞLEŞTIRME",
-            "desc": "Son teknoloji yüz tanıma algoritmaları %98.7 doğruluk elde eder. Görüntü istihbarat platformumuz yüz tanıma aramasında eşsiz hassasiyet için 128 noktalı yüz haritalama kullanır."
-        },
-        "card5": {
-            "title": "ETİK YAPAY ZEKA YÜZ TANIMA",
-            "desc": "Sorumlu yüz istihbaratı için tam GDPR ve KVKK uyumluluğu. Platformumuz etik yapay zeka ve açık kaynak istihbarat protokolleri için uluslararası standartlara uyar."
-        },
-        "card6": {
-            "title": "KAPSAMLI OSINT VERİ ENTEGRASYONU",
-            "desc": "Sosyal medya, haber siteleri ve kamu kayıtlarından yüz arama sonuçları. OSINT yüz tanıma platformumuz açık kaynak istihbaratını birleştirir."
-        }
+    "card5": {
+      "title": "ETİK YAPAY ZEKA YÜZ TANIMA",
+      "desc": "Sorumlu yüz istihbaratı için tam GDPR ve KVKK uyumluluğu. Platformumuz etik yapay zeka ve açık kaynak istihbarat protokolleri için uluslararası standartlara uyar."
     },
-    "footer": {
-        "description": "Gelişmiş Yüz Arama Teknolojisi. Dijital soruşturmalar için profesyonel OSINT ve yüz tanıma araçları.",
-        "product": "Ürün",
-        "faceSearch": "Yüz Arama",
-        "support": "Destek",
-        "pricing": "Fiyatlandırma",
-        "dashboard": "Panel",
-        "history": "Geçmiş",
-        "company": "Şirket",
-        "about": "Hakkımızda",
-        "blog": "Blog",
-        "contact": "İletişim",
-        "legal": "Yasal",
-        "legalHub": "Yasal Merkez",
-        "privacy": "Gizlilik Politikası",
-        "terms": "Kullanım Şartları",
-        "kvkk": "KVKK",
-        "disclaimer": "Sorumluluk Reddi",
-        "allRightsReserved": "Tüm Hakları Saklıdır",
-        "poweredBy": "Geliştirici"
+    "card6": {
+      "title": "KAPSAMLI OSINT VERİ ENTEGRASYONU",
+      "desc": "Sosyal medya, haber siteleri ve kamu kayıtlarından yüz arama sonuçları. OSINT yüz tanıma platformumuz açık kaynak istihbaratını birleştirir."
     }
+  },
+  "footer": {
+    "description": "Gelişmiş Yüz Arama Teknolojisi. Dijital soruşturmalar için profesyonel OSINT ve yüz tanıma araçları.",
+    "product": "Ürün",
+    "faceSearch": "Yüz Arama",
+    "support": "Destek",
+    "pricing": "Fiyatlandırma",
+    "dashboard": "Panel",
+    "history": "Geçmiş",
+    "company": "Şirket",
+    "about": "Hakkımızda",
+    "blog": "Blog",
+    "contact": "İletişim",
+    "legal": "Yasal",
+    "legalHub": "Yasal Merkez",
+    "privacy": "Gizlilik Politikası",
+    "terms": "Kullanım Şartları",
+    "kvkk": "KVKK",
+    "disclaimer": "Sorumluluk Reddi",
+    "allRightsReserved": "Tüm Hakları Saklıdır",
+    "poweredBy": "Geliştirici",
+    "tagline": "Profesyonel Y?z Arama Motoru",
+    "systemStatusOnline": "Sistem Durumu: ?evrimi?i",
+    "copyright": "? 2026 FaceSeek. T?m haklar? sakl?d?r.",
+    "links": {
+      "faceSearch": "Y?z Arama",
+      "aboutUs": "Hakk?m?zda",
+      "contact": "?leti?im",
+      "legalHub": "Yasal Merkez"
+    },
+    "badges": {
+      "noStoreImages": "G?RSEL SAKLAMIYORUZ",
+      "privacyFirst": "G?ZL?L?K ?NCEL?KL?"
+    }
+  },
+  "home": {
+    "privacyBadge": "G?rselleri saklam?yoruz",
+    "systemScanning": "Sistem Taran?yor...",
+    "trust": {
+      "biometricSecure": "B?YOMETR?K G?VENL?",
+      "gdprCompliant": "GDPR UYUMLU",
+      "multiEngine": "?OK MOTORLU"
+    }
+  },
+  "liveStats": {
+    "title": "Canl?",
+    "subtitle": "?statistikler",
+    "description": "Platform operasyon verileri ger?ek zamanl? senkronize ediliyor",
+    "status": "OPERASYONEL CANLI",
+    "dailyVisitors": "G?nl?k Ziyaret?i",
+    "weeklySearches": "Haftal?k Tarama",
+    "successRate": "Ba?ar? Oran?",
+    "totalUsers": "Toplam Kullan?c?",
+    "weeklyVisitors": "Haftal?k Ziyaret",
+    "totalSearches": "Toplam Tarama",
+    "activeAnalysts": "Aktif Analist"
+  },
+  "features": {
+    "title": "PROFESYONEL Y?Z ?ST?HBARATI",
+    "subtitle": "Kurumsal d?zeyde y?z arama yetenekleri",
+    "feature1": {
+      "title": "Ters G?r?nt? Y?z Arama",
+      "description": "Herhangi bir foto?raf y?kleyin ve Google, Bing, Yandex ve ?zel OSINT veritabanlar?nda e?le?en y?zleri bulun. Yapay zeka y?z tan?ma motorumuz milyarlarca g?r?nt?y? i?ler."
+    },
+    "feature2": {
+      "title": "OSINT Y?z Arama",
+      "description": "Ara?t?rmac? gazetecilik, siber g?venlik ara?t?rmas? ve yasal kimlik tespiti ama?lar? i?in profesyonel d?zeyde a??k kaynak istihbarat ara?lar?."
+    },
+    "feature3": {
+      "title": "Gizlilik Odakl? Y?z Arama",
+      "description": "GDPR ve KVKK uyumlu. Kal?c? biyometrik veritaban? yok. G?r?nt?ler 24 saat i?inde siliniyor. Y?z arama sorgular?n?z gizli kal?r."
+    },
+    "feature4": {
+      "title": "Etik Yapay Zeka Y?z Tan?ma",
+      "description": "S?k? kabul edilebilir kullan?m politikalar?na sahip sorumlu y?z istihbarat platformu. Yaln?zca kamu verileri. Kolluk kuvvetleri ba?lant?s? yok."
+    },
+    "feature5": {
+      "title": "?oklu Motor Toplama",
+      "description": "Kapsaml? y?z istihbarat sonu?lar? i?in ayn? anda birden fazla kaynakta arama yap?n."
+    },
+    "feature6": {
+      "title": "Y?z Tan?ma SaaS",
+      "description": "Her yerden eri?ilebilen bulut tabanl? y?z arama motoru. Kurulum gerektirmez. Kurumsal API mevcut."
+    }
+  },
+  "howItWorks": {
+    "title": "NASIL ?ALI?IR",
+    "subtitle": "3 basit ad?mda profesyonel y?z arama",
+    "step1": {
+      "title": "G?r?nt? Y?kle",
+      "description": "Y?z i?eren bir foto?raf y?kleyin. Y?z arama motorumuz, geli?mi? yapay zeka y?z haritalama teknolojisini kullanarak y?z ?zelliklerini otomatik olarak alg?lar ve ??kar?r."
+    },
+    "step2": {
+      "title": "Yapay Zeka ??leme",
+      "description": "Y?z tan?ma algoritmalar?m?z benzersiz bir biyometrik imza olu?turur ve ?oklu kaynak indeksleme yoluyla Google, Bing, Yandex ve OSINT veritabanlar?ndan milyarlarca indekslenmi? g?r?nt?de arama yapar."
+    },
+    "step3": {
+      "title": "Sonu?lar? Al",
+      "description": "Profesyonel do?rulama i?in e?le?me g?ven puanlar?, kaynak URL'leri ve ba?lamsal bilgilerle kapsaml? y?z istihbarat raporlar? al?n."
+    }
+  },
+  "howItWorksSection": {
+    "title": "Y?Z ARAMASI",
+    "titleGray": "NASIL ?ALI?IR",
+    "step1": {
+      "number": "01",
+      "title": "G?R?NT? Y?KLEME",
+      "desc": "Hedef g?r?nt?n?z? g?venli y?z arama motorumuza y?kleyin. Platformumuz t?m standart formatlar? kabul eder ve maksimum y?z tan?ma do?rulu?u i?in ??z?n?rl??? otomatik olarak optimize eder."
+    },
+    "step2": {
+      "number": "02",
+      "title": "YAPAY ZEKA Y?Z HAR?TALAMA",
+      "desc": "Geli?mi? biyometrik algoritmalar 128 benzersiz y?z i?aretini ??kar?r. G?r?nt? istihbarat sistemimiz milyarlarca indekslenmi? g?r?nt?de hassas y?z tan?ma aramas? i?in matematiksel bir imza olu?turur."
+    },
+    "step3": {
+      "number": "03",
+      "title": "?OK KAYNAKLI ?NDEKSLEME",
+      "desc": "Y?z arama sorgunuz Google, Bing, Yandex ve ?zel OSINT veritabanlar?nda e?zamanl? olarak i?lenir. Ters g?r?nt? y?z arama teknolojimiz ger?ek zamanl? olarak k?resel web indekslerinden sonu?lar? toplar."
+    },
+    "step4": {
+      "number": "04",
+      "title": "SONU?LAR VE ANAL?T?K",
+      "desc": "G?ven skorlar?, kaynak URL'leri ve ba?lamsal metadata ile kapsaml? y?z istihbarat raporlar? al?n. Her y?z tan?ma aramas? profesyonel do?rulama i?in detayl? analitik i?erir."
+    }
+  },
+  "cta": {
+    "titlePart1": "Y?Z ARAMANIZA",
+    "titlePart2": "BA?LAYIN",
+    "description": "Etik y?z istihbarat? i?in FaceSeek kullanan binlerce profesyonele kat?l?n. Yapay zeka y?z arama platformumuzu deneyimlemek i?in 3 ?cretsiz arama hakk? al?n.",
+    "button": "?cretsiz Hesap Olu?tur"
+  }
 }

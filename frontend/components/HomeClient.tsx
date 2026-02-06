@@ -49,8 +49,7 @@ export default function HomeClient({
   const [siteConfig, setSiteConfig] = useState<Record<string, any> | null>(null);
 
   useEffect(() => {
-    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-    fetch(`${apiBase}/api/public/site-config?locale=${encodeURIComponent(locale)}`)
+    fetch(`/api/public/site-config?locale=${encodeURIComponent(locale)}`)
       .then((r) => r.json())
       .then((d) => setSiteConfig(d.config || {}))
       .catch(() => setSiteConfig(null));
