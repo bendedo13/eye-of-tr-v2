@@ -19,7 +19,7 @@ async function testAdmin() {
         // 2. Get Users
         console.log("\n--- Testing /admin/users ---");
         const usersRes = await fetch(`${ADMIN_API_URL}/admin/users`, {
-            headers: { "Authorization": `Bearer ${token}` } // Assuming middleware checks this or just API doesn't verify yet?
+            headers: { "Authorization": `Bearer ${token}` } // Assuming middleware checks this or just API doesn't verify yet
             // Note: The current /api/admin/users route doesn't seem to check headers explicitly in the code I viewed, 
             // but let's see if it works.
         });

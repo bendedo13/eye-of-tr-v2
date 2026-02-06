@@ -58,7 +58,7 @@ export default function DisclaimerPage({
                 </ul>
                 <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-5">
                     <p className="text-[10px] font-bold uppercase tracking-widest leading-relaxed text-amber-200">
-                        <strong>MANDATORY NOTICE:</strong> Bu sonuÃ§lar yapay zekÃ¢ tarafÄ±ndan Ã¼retilmiÅŸ tahminlerdir. Kesinlik iÃ§ermez. TÃ¼m hukuki ve fiili sorumluluk kullanÄ±cÄ±ya aittir.
+                        <strong>MANDATORY NOTICE:</strong> Bu sonuçlar yapay zekâ tarafından üretilmiş tahminlerdir. Kesinlik içermez. Tüm hukuki ve fiili sorumluluk kullanıcıya aittir.
                     </p>
                 </div>
             </section>
@@ -66,13 +66,13 @@ export default function DisclaimerPage({
             <section className="space-y-4">
                 <h2 className="text-xl font-black">4. VISUAL SIMILARITY & LOCATION (WEB MATCHING) LIMITATIONS</h2>
                 <p>
-                    FaceSeek Visual Similarity & Location combines mathematical similarity signals, optional EXIF GPS extraction, and thirdâ€‘party web match providers to produce a location estimate. Key limitations:
+                    FaceSeek Visual Similarity & Location combines mathematical similarity signals, optional EXIF GPS extraction, and third-party web match providers to produce a location estimate. Key limitations:
                 </p>
                 <ul className="list-disc pl-6 space-y-2 text-zinc-500">
-                    <li><strong>No â€œglobal coverageâ€ guarantee:</strong> It is not possible to guarantee matching against â€œall indexed images on the internet.â€ Results depend on thirdâ€‘party provider coverage, availability, and rate limits.</li>
+                    <li><strong>No “global coverage” guarantee:</strong> It is not possible to guarantee matching against “all indexed images on the internet.” Results depend on third-party provider coverage, availability, and rate limits.</li>
                     <li><strong>Provider variability:</strong> Reverse-image availability and quality may differ across providers and may change without notice. Fallback mechanisms reduce failures but do not eliminate them.</li>
                     <li><strong>Location extraction uncertainty:</strong> If EXIF GPS is missing, web pages may not include reliable geo metadata. Even when present, metadata can be outdated or incorrect.</li>
-                    <li><strong>Transparency:</strong> The report may include which sources contributed to the final location (e.g., EXIF, meta-tags, JSONâ€‘LD, geocoding). Absence of sources reduces confidence.</li>
+                    <li><strong>Transparency:</strong> The report may include which sources contributed to the final location (e.g., EXIF, meta-tags, JSON-LD, geocoding). Absence of sources reduces confidence.</li>
                 </ul>
                 <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
                     <p className="text-[10px] font-bold uppercase tracking-widest leading-relaxed text-zinc-300">
@@ -115,8 +115,8 @@ export default function DisclaimerPage({
         </div>
     );
 
-    const fallbackTitle = locale === "tr" ? "SORUMLULUK REDDÄ°" : "DISCLAIMER";
-    const fallbackSubtitle = locale === "tr" ? "Son GÃ¼ncelleme: 3 Åubat 2026" : "Last Updated: February 3, 2026";
+    const fallbackTitle = locale === "tr" ? "SORUMLULUK REDDİ" : "DISCLAIMER";
+    const fallbackSubtitle = locale === "tr" ? "Son Güncelleme: 3 Şubat 2026" : "Last Updated: February 3, 2026";
 
     return (
         <LegalLayout>

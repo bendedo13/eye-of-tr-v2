@@ -6,10 +6,10 @@ import { adminGetSiteSettings, adminSetSiteSetting, adminUploadMedia } from "@/l
 import { toast } from "@/lib/toast";
 
 const PAGES = [
-  { slug: "about", labelTr: "HakkÄ±mÄ±zda", labelEn: "About" },
+  { slug: "about", labelTr: "Hakkımızda", labelEn: "About" },
   { slug: "privacy", labelTr: "Gizlilik", labelEn: "Privacy" },
   { slug: "kvkk", labelTr: "KVKK", labelEn: "KVKK" },
-  { slug: "terms", labelTr: "Åartlar", labelEn: "Terms" },
+  { slug: "terms", labelTr: "Şartlar", labelEn: "Terms" },
   { slug: "disclaimer", labelTr: "Sorumluluk", labelEn: "Disclaimer" },
 ];
 
@@ -77,15 +77,15 @@ export default function AdminLegalPage() {
 
   const handleSave = async () => {
     if (!adminKey) {
-      toast.error("Admin anahtarÄ± bulunamadÄ±.");
+      toast.error("Admin anahtarı bulunamadı.");
       return;
     }
     if (!form.title?.trim()) {
-      toast.error("BaÅŸlÄ±k zorunlu");
+      toast.error("Başlık zorunlu");
       return;
     }
     if (!form.content_html?.trim()) {
-      toast.error("Ä°Ã§erik zorunlu");
+      toast.error("İçerik zorunlu");
       return;
     }
     setSaving(true);
@@ -107,16 +107,16 @@ export default function AdminLegalPage() {
   const handleUpload = async (file?: File | null) => {
     if (!file) return;
     if (!adminKey) {
-      toast.error("Admin anahtarÄ± bulunamadÄ±.");
+      toast.error("Admin anahtarı bulunamadı.");
       return;
     }
     setUploading(true);
     try {
       const res = await adminUploadMedia(adminKey, file, "legal");
       setUploadedUrl(res.url || "");
-      toast.success("GÃ¶rsel yÃ¼klendi");
+      toast.success("Görsel yüklendi");
     } catch (err: any) {
-      toast.error(err?.message || "GÃ¶rsel yÃ¼kleme baÅŸarÄ±sÄ±z");
+      toast.error(err?.message || "Görsel yükleme başarısız");
     } finally {
       setUploading(false);
     }
@@ -129,7 +129,7 @@ export default function AdminLegalPage() {
       <div className="flex items-end justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-3xl font-bold text-white">Yasal Sayfalar</h1>
-          <p className="text-slate-400 text-sm">TR/EN yasal iÃ§erikleri dÃ¼zenle ve yayÄ±nla</p>
+          <p className="text-slate-400 text-sm">TR/EN yasal içerikleri düzenle ve yayınla</p>
         </div>
         <div className="flex gap-3 items-center">
           <select
@@ -178,30 +178,30 @@ export default function AdminLegalPage() {
           </div>
 
           {loading ? (
-            <div className="text-slate-400">YÃ¼kleniyor...</div>
+            <div className="text-slate-400">Yükleniyor...</div>
           ) : (
             <>
               <div className="grid grid-cols-1 gap-4">
                 <div>
-                  <label className="block text-slate-400 text-sm mb-1">BaÅŸlÄ±k</label>
+                  <label className="block text-slate-400 text-sm mb-1">Başlık</label>
                   <input
                     value={form.title || ""}
                     onChange={(e) => setForm({ ...form, title: e.target.value })}
                     className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white"
-                    placeholder="Sayfa baÅŸlÄ±ÄŸÄ±"
+                    placeholder="Sayfa başlığı"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-400 text-sm mb-1">Alt BaÅŸlÄ±k</label>
+                  <label className="block text-slate-400 text-sm mb-1">Alt Başlık</label>
                   <input
                     value={form.subtitle || ""}
                     onChange={(e) => setForm({ ...form, subtitle: e.target.value })}
                     className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white"
-                    placeholder="KÄ±sa aÃ§Ä±klama"
+                    placeholder="Kısa açıklama"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-400 text-sm mb-1">Ä°Ã§erik (HTML)</label>
+                  <label className="block text-slate-400 text-sm mb-1">İçerik (HTML)</label>
                   <textarea
                     value={form.content_html || ""}
                     onChange={(e) => setForm({ ...form, content_html: e.target.value })}
@@ -213,7 +213,7 @@ export default function AdminLegalPage() {
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-slate-400 text-sm mb-2">GÃ¶rsel YÃ¼kle (isteÄŸe baÄŸlÄ±)</label>
+                  <label className="block text-slate-400 text-sm mb-2">Görsel Yükle (isteğe bağlı)</label>
                   <div className="flex items-center gap-3">
                     <label
                       className="flex items-center justify-center px-4 py-2 bg-slate-800 border border-dashed border-slate-600 rounded-xl text-slate-300 cursor-pointer hover:border-indigo-500"
@@ -223,7 +223,7 @@ export default function AdminLegalPage() {
                         handleUpload(e.dataTransfer.files?.[0]);
                       }}
                     >
-                      {uploading ? "YÃ¼kleniyor..." : "YÃ¼kle / SÃ¼rÃ¼kle"}
+                      {uploading ? "Yükleniyor..." : "Yükle / Sürükle"}
                       <input type="file" accept="image/*" className="hidden" onChange={(e) => handleUpload(e.target.files?.[0])} />
                     </label>
                     {uploadedUrl ? (
@@ -240,7 +240,7 @@ export default function AdminLegalPage() {
                   ) : null}
                 </div>
                 <div>
-                  <label className="block text-slate-400 text-sm mb-2">Ã–nizleme</label>
+                  <label className="block text-slate-400 text-sm mb-2">Önizleme</label>
                   <div className="w-full min-h-[220px] bg-black/30 border border-white/5 rounded-xl p-5 overflow-auto">
                     <article className="prose prose-invert max-w-none">
                       {form.title ? <h1>{form.title}</h1> : null}

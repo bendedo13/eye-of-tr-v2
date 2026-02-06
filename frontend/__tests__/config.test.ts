@@ -10,15 +10,15 @@ import nextConfig from '../next.config.mjs';
 describe('Critical Configuration Check', () => {
   it('should have API proxy rewrite configured', async () => {
     // @ts-ignore - rewrites might not be in the type definition if not awaited, but we know it returns a promise or array
-    const rewrites = await nextConfig.rewrites?.();
+    const rewrites = await nextConfig.rewrites.();
     
     assert.ok(rewrites, 'Rewrites configuration is missing in next.config.mjs');
     
     const apiRewrite = Array.isArray(rewrites) 
-      ? rewrites.find((r: any) => r.source === '/api/:path*')
-      : rewrites.beforeFiles?.find((r: any) => r.source === '/api/:path*') || 
-        rewrites.afterFiles?.find((r: any) => r.source === '/api/:path*') ||
-        rewrites.fallback?.find((r: any) => r.source === '/api/:path*');
+       rewrites.find((r: any) => r.source === '/api/:path*')
+      : rewrites.beforeFiles.find((r: any) => r.source === '/api/:path*') || 
+        rewrites.afterFiles.find((r: any) => r.source === '/api/:path*') ||
+        rewrites.fallback.find((r: any) => r.source === '/api/:path*');
 
     assert.ok(apiRewrite, 'Missing critical rewrite rule for /api/:path*');
     
