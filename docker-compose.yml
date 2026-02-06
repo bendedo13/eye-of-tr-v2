@@ -4,16 +4,27 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-faceseek}
       POSTGRES_USER: ${POSTGRES_USER:-faceseek}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      # REQUIRED: Set POSTGRES_PASSWORD in .env file
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required - set it in .env file}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-faceseek}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7-alpine
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
     build:
@@ -21,18 +32,28 @@ services:
     environment:
       DEBUG: "false"
       LOG_LEVEL: "INFO"
-      SECRET_KEY: ${SECRET_KEY:-}
-      ADMIN_API_KEY: ${ADMIN_API_KEY:-}
+      # REQUIRED: Set SECRET_KEY in .env file (backend will not start without it)
+      SECRET_KEY: ${SECRET_KEY:?SECRET_KEY is required - set it in .env file}
+      ADMIN_API_KEY: ${ADMIN_API_KEY:-admin123}
       DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg2://faceseek:faceseek@postgres:5432/faceseek}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
       PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-https://www.face-seek.com}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,https://face-seek.com,https://www.face-seek.com}
       SERPAPI_API_KEY: ${SERPAPI_API_KEY:-}
       RAPIDAPI_KEY: ${RAPIDAPI_KEY:-}
     ports:
       - "8000:8000"
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   frontend:
     build:

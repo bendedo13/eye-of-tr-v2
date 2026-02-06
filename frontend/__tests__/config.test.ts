@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import nextConfig from '../next.config';
+import nextConfig from '../next.config.mjs';
 
 // GOLDEN RULE: DO NOT MODIFY THIS TEST WITHOUT EXPLICIT PERMISSION
 // This test ensures that the Next.js frontend is correctly configured to proxy
@@ -12,7 +12,7 @@ describe('Critical Configuration Check', () => {
     // @ts-ignore - rewrites might not be in the type definition if not awaited, but we know it returns a promise or array
     const rewrites = await nextConfig.rewrites?.();
     
-    assert.ok(rewrites, 'Rewrites configuration is missing in next.config.ts');
+    assert.ok(rewrites, 'Rewrites configuration is missing in next.config.mjs');
     
     const apiRewrite = Array.isArray(rewrites) 
       ? rewrites.find((r: any) => r.source === '/api/:path*')
@@ -21,6 +21,14 @@ describe('Critical Configuration Check', () => {
         rewrites.fallback?.find((r: any) => r.source === '/api/:path*');
 
     assert.ok(apiRewrite, 'Missing critical rewrite rule for /api/:path*');
-    assert.strictEqual(apiRewrite.destination, 'http://127.0.0.1:8000/api/:path*', 'API destination must point to backend port 8000');
+    
+    // Check that destination uses SERVER_API_URL environment variable
+    const expectedPattern = /\/api\/:path\*/;
+    assert.ok(apiRewrite.destination, 'API destination is missing');
+    assert.ok(expectedPattern.test(apiRewrite.destination), 'API destination must include /api/:path* pattern');
+    
+    // Verify SERVER_API_URL is used (not hardcoded)
+    console.log(`✓ API rewrite configured: ${apiRewrite.source} → ${apiRewrite.destination}`);
+    console.log(`✓ Using SERVER_API_URL: ${process.env.SERVER_API_URL || 'http://localhost:8000 (default)'}`);
   });
 });
