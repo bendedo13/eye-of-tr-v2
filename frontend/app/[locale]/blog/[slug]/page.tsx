@@ -16,9 +16,26 @@ export default function BlogDetailPage() {
     const mediaBase = typeof window !== "undefined" ? (process.env.NEXT_PUBLIC_API_URL || window.location.origin) : "";
     const resolveMediaUrl = (url?: string) => {
         if (!url) return "";
-        if (url.startsWith("http://") || url.startsWith("https://")) return url;
+        if (url.startsWith("http://") || url.startsWith("https://")) {
+            try {
+                const parsed = new URL(url);
+                if (parsed.pathname.startsWith("/uploads/")) {
+                    return `${mediaBase}/api${parsed.pathname}`;
+                }
+            } catch {
+                return url;
+            }
+            return url;
+        }
+        if (url.startsWith("/uploads/")) return `${mediaBase}/api${url}`;
         return `${mediaBase}${url}`;
     };
+    const resolveHtmlMedia = (html: string) =>
+        html
+            .replace(/src=(["'])https?:\/\/[^"']+\/uploads\//g, "src=$1/api/uploads/")
+            .replace(/href=(["'])https?:\/\/[^"']+\/uploads\//g, "href=$1/api/uploads/")
+            .replace(/src=(["'])\/uploads\//g, "src=$1/api/uploads/")
+            .replace(/href=(["'])\/uploads\//g, "href=$1/api/uploads/");
 
     useEffect(() => {
         setLoading(true);
@@ -90,7 +107,7 @@ export default function BlogDetailPage() {
 
                         <GlassCard className="p-8 md:p-12 border-white/10" hasScanline>
                             <div className="prose prose-invert prose-p:text-zinc-400 prose-headings:text-white prose-strong:text-white prose-a:text-primary max-w-none">
-                                <div dangerouslySetInnerHTML={{ __html: post.content_html }} />
+                                <div dangerouslySetInnerHTML={{ __html: resolveHtmlMedia(post.content_html || "") }} />
                             </div>
                         </GlassCard>
                     </article>

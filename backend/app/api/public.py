@@ -83,3 +83,26 @@ def public_site_config(locale: str, db: Session = Depends(get_db)):
             out[r.key] = r.value_json
     return {"config": out}
 
+
+@router.get("/legal-pages/{slug}")
+def public_legal_page(slug: str, locale: str, db: Session = Depends(get_db)):
+    key = f"legal.{locale}.{slug}"
+    row = db.query(SiteSetting).filter(SiteSetting.key == key).first()
+    if not row:
+        raise HTTPException(status_code=404, detail="Not found")
+    try:
+        data = json.loads(row.value_json)
+        if not isinstance(data, dict):
+            data = {"content_html": row.value_json}
+    except Exception:
+        data = {"content_html": row.value_json}
+    return {
+        "page": {
+            "slug": slug,
+            "locale": locale,
+            "title": data.get("title"),
+            "subtitle": data.get("subtitle"),
+            "content_html": data.get("content_html") or data.get("html") or "",
+            "updated_at": data.get("updated_at"),
+        }
+    }

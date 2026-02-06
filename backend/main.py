@@ -122,6 +122,7 @@ UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 # Static upload serving
 app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
+app.mount("/api/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="api-uploads")
 
 # Search service
 search_service = get_search_service()

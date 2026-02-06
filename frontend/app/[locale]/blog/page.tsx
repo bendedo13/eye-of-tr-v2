@@ -11,6 +11,24 @@ export default function BlogPage({ params }: { params: Promise<{ locale: string 
     const [posts, setPosts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
+    const mediaBase = typeof window !== "undefined" ? (process.env.NEXT_PUBLIC_API_URL || window.location.origin) : "";
+    const resolveMediaUrl = (url?: string) => {
+        if (!url) return "";
+        if (url.startsWith("http://") || url.startsWith("https://")) {
+            try {
+                const parsed = new URL(url);
+                if (parsed.pathname.startsWith("/uploads/")) {
+                    return `${mediaBase}/api${parsed.pathname}`;
+                }
+            } catch {
+                return url;
+            }
+            return url;
+        }
+        if (url.startsWith("/uploads/")) return `${mediaBase}/api${url}`;
+        return `${mediaBase}${url}`;
+    };
+
     useEffect(() => {
         setLoading(true);
         fetch(`/api/public/blog-posts?locale=${encodeURIComponent(locale)}`)
@@ -43,24 +61,36 @@ export default function BlogPage({ params }: { params: Promise<{ locale: string 
                         <div className="text-zinc-500">Loading...</div>
                     ) : posts.length ? (
                         posts.map((post) => (
-                        <Link key={post.slug} href={`/${locale}/blog/${post.slug}`} className="group">
-                            <GlassCard className="h-full p-8 flex flex-col hover:border-primary/30 transition-all duration-500">
-                                <div className="flex items-center gap-4 text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-6">
-                                    <span className="text-primary">{post.author_name || "FaceSeek"}</span>
-                                    <span className="text-zinc-800">•</span>
-                                    <span>{post.published_at ? new Date(post.published_at).toLocaleDateString(locale === "tr" ? "tr-TR" : "en-US") : ""}</span>
-                                </div>
-                                <h3 className="text-2xl font-black text-white mb-4 uppercase tracking-tight group-hover:text-primary transition-colors">
-                                    {post.title}
-                                </h3>
-                                <p className="text-zinc-500 font-medium mb-12 flex-1">
-                                    {post.excerpt || ""}
-                                </p>
-                                <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest group-hover:gap-4 transition-all">
-                                    {locale === "tr" ? "Devamını Oku" : "Read More"} <ArrowRight size={16} />
-                                </div>
-                            </GlassCard>
-                        </Link>
+                            <Link key={post.slug} href={`/${locale}/blog/${post.slug}`} className="group">
+                                <GlassCard className="h-full p-0 flex flex-col hover:border-primary/30 transition-all duration-500 overflow-hidden">
+                                    {post.cover_image_url ? (
+                                        <div className="relative h-48 overflow-hidden">
+                                            <img
+                                                src={resolveMediaUrl(post.cover_image_url)}
+                                                alt={post.title}
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent"></div>
+                                        </div>
+                                    ) : null}
+                                    <div className="p-8 flex flex-col flex-1">
+                                        <div className="flex items-center gap-4 text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-6">
+                                            <span className="text-primary">{post.author_name || "FaceSeek"}</span>
+                                            <span className="text-zinc-800">•</span>
+                                            <span>{post.published_at ? new Date(post.published_at).toLocaleDateString(locale === "tr" ? "tr-TR" : "en-US") : ""}</span>
+                                        </div>
+                                        <h3 className="text-2xl font-black text-white mb-4 uppercase tracking-tight group-hover:text-primary transition-colors">
+                                            {post.title}
+                                        </h3>
+                                        <p className="text-zinc-500 font-medium mb-12 flex-1">
+                                            {post.excerpt || ""}
+                                        </p>
+                                        <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest group-hover:gap-4 transition-all">
+                                            {locale === "tr" ? "Devamını Oku" : "Read More"} <ArrowRight size={16} />
+                                        </div>
+                                    </div>
+                                </GlassCard>
+                            </Link>
                         ))
                     ) : (
                         <div className="text-zinc-500">{locale === "tr" ? "Henüz blog yazısı yok." : "No blog posts yet."}</div>

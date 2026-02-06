@@ -36,7 +36,18 @@ export default function AdminBlogPage() {
 
   const resolveMediaUrl = (url: string) => {
     if (!url) return "";
-    if (url.startsWith("http://") || url.startsWith("https://")) return url;
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      try {
+        const parsed = new URL(url);
+        if (parsed.pathname.startsWith("/uploads/")) {
+          return `${apiBase}/api${parsed.pathname}`;
+        }
+      } catch {
+        return url;
+      }
+      return url;
+    }
+    if (url.startsWith("/uploads/")) return `${apiBase}/api${url}`;
     return `${apiBase}${url}`;
   };
 

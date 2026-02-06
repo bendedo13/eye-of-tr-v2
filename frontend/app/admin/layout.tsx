@@ -82,6 +82,7 @@ export default function AdminLayout({
     { label: "Ödemeler", icon: <CreditCard size={20} />, href: "/admin/payments" },
     { label: "Referanslar", icon: <Gift size={20} />, href: "/admin/referrals" },
     { label: "Blog", icon: <FileText size={20} />, href: "/admin/blog" },
+    { label: "Yasal", icon: <FileText size={20} />, href: "/admin/legal" },
     { label: "Medya", icon: <ImageIcon size={20} />, href: "/admin/media" },
     { label: "Fiyatlandırma", icon: <CreditCard size={20} />, href: "/admin/pricing" },
     { label: "Sistem Ayarları", icon: <Settings size={20} />, href: "/admin/settings" },

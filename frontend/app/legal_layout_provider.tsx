@@ -1,7 +1,6 @@
 "use client";
 
 import Navbar from "@/components/Navbar";
-import { GlassCard } from "@/components/ui/GlassCard";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -40,9 +39,7 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
                     </aside>
 
                     <div className="flex-1 max-w-3xl">
-                        <GlassCard className="p-8 md:p-12 prose prose-invert prose-p:text-zinc-500 prose-headings:text-white prose-strong:text-zinc-300">
-                            {children}
-                        </GlassCard>
+                        {children}
                     </div>
                 </div>
             </main>
