@@ -39,8 +39,15 @@ async function adminFetch<T>(path: string, options: RequestInit & { adminKey: st
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
 
+  const base = (API_BASE || "").replace(/\/+$/, "");
+  let normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  if (base.endsWith("/api") && normalizedPath.startsWith("/api/")) {
+    normalizedPath = normalizedPath.slice(4);
+  }
+  const url = `${base}${normalizedPath}`;
+
   try {
-    const res = await fetch(`${API_BASE}${path}`, { 
+    const res = await fetch(url, { 
       ...init, 
       headers,
       signal: controller.signal 

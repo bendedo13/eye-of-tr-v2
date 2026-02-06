@@ -27,8 +27,13 @@ async function apiFetch<T>(
     (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
   }
 
-  // Build URL with query params
-  let url = `${API_BASE}${path}`;
+  // Build URL with query params (avoid double /api)
+  const base = (API_BASE || "").replace(/\/+$/, "");
+  let normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  if (base.endsWith("/api") && normalizedPath.startsWith("/api/")) {
+    normalizedPath = normalizedPath.slice(4);
+  }
+  let url = `${base}${normalizedPath}`;
   if (params) {
     const searchParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
