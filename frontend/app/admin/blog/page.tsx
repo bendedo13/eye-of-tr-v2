@@ -8,7 +8,9 @@ import {
   adminGetBlogPost,
   adminListBlogPosts,
   adminUpdateBlogPost,
+  adminUploadMedia,
 } from "@/lib/adminApi";
+import { toast } from "@/lib/toast";
 
 export default function AdminBlogPage() {
   const [locale, setLocale] = useState<"tr" | "en">("tr");
@@ -26,8 +28,17 @@ export default function AdminBlogPage() {
     is_published: false,
   });
   const [busy, setBusy] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
 
   const adminKey = typeof window !== "undefined" ? localStorage.getItem("adminKey") || "" : "";
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || origin;
+
+  const resolveMediaUrl = (url: string) => {
+    if (!url) return "";
+    if (url.startsWith("http://") || url.startsWith("https://")) return url;
+    return `${apiBase}${url}`;
+  };
 
   const fetchList = async () => {
     setLoading(true);
@@ -74,7 +85,41 @@ export default function AdminBlogPage() {
     }
   };
 
-  const previewHtml = useMemo(() => form.content_html || "", [form.content_html]);
+  const previewHtml = useMemo(() => {
+    const raw = (form.content_html || "").trim();
+    if (!raw) return "";
+    if (raw.includes("<")) return raw;
+    return raw
+      .split(/\n{2,}/)
+      .map((block: string) => `<p>${block.replace(/\n/g, "<br/>")}</p>`)
+      .join("");
+  }, [form.content_html]);
+
+  const slugify = (value: string) =>
+    value
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-");
+
+  const handleCoverFile = async (file?: File | null) => {
+    if (!file) return;
+    if (!adminKey) {
+      toast.error("Admin anahtarı bulunamadı.");
+      return;
+    }
+    setUploadingCover(true);
+    try {
+      const res = await adminUploadMedia(adminKey, file, "blog");
+      setForm((prev: any) => ({ ...prev, cover_image_url: res.url }));
+      toast.success("Kapak görseli yüklendi");
+    } catch (err: any) {
+      toast.error(err?.message || "Görsel yükleme başarısız");
+    } finally {
+      setUploadingCover(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -165,9 +210,25 @@ export default function AdminBlogPage() {
               )}
               <button
                 onClick={async () => {
+                  if (!form.title?.trim()) {
+                    toast.error("Başlık gerekli");
+                    return;
+                  }
+                  let nextSlug = (form.slug || "").trim();
+                  if (!nextSlug) {
+                    nextSlug = slugify(form.title || "");
+                  }
+                  if (!nextSlug) {
+                    toast.error("Slug gerekli");
+                    return;
+                  }
+                  if (!form.content_html?.trim()) {
+                    toast.error("İçerik (HTML) gerekli");
+                    return;
+                  }
                   setBusy(true);
                   try {
-                    const payload = { ...form, locale };
+                    const payload = { ...form, slug: nextSlug, locale };
                     if (editingId) {
                       await adminUpdateBlogPost(adminKey, editingId, payload);
                     } else {
@@ -175,6 +236,10 @@ export default function AdminBlogPage() {
                       setEditingId(created.id);
                     }
                     await fetchList();
+                    setForm((prev: any) => ({ ...prev, slug: nextSlug }));
+                    toast.success("Kaydedildi");
+                  } catch (err: any) {
+                    toast.error(err?.message || "Kaydedilemedi");
                   } finally {
                     setBusy(false);
                   }
@@ -225,13 +290,44 @@ export default function AdminBlogPage() {
               />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-slate-400 text-sm mb-1">Kapak Görsel URL</label>
-              <input
-                value={form.cover_image_url || ""}
-                onChange={(e) => setForm({ ...form, cover_image_url: e.target.value })}
-                className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white"
-                placeholder="https://..."
-              />
+              <label className="block text-slate-400 text-sm mb-1">Kapak Görseli</label>
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+                <div className="md:col-span-3">
+                  <input
+                    value={form.cover_image_url || ""}
+                    onChange={(e) => setForm({ ...form, cover_image_url: e.target.value })}
+                    className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white"
+                    placeholder="https://... veya yükleme yapın"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label
+                    className="flex items-center justify-center w-full px-4 py-2 bg-slate-800 border border-dashed border-slate-600 rounded-xl text-slate-300 cursor-pointer hover:border-indigo-500"
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      handleCoverFile(e.dataTransfer.files?.[0]);
+                    }}
+                  >
+                    {uploadingCover ? "Yükleniyor..." : "Yükle / Sürükle"}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => handleCoverFile(e.target.files?.[0])}
+                    />
+                  </label>
+                </div>
+              </div>
+              {form.cover_image_url ? (
+                <div className="mt-3">
+                  <img
+                    src={resolveMediaUrl(form.cover_image_url)}
+                    alt="Kapak önizleme"
+                    className="w-full max-h-56 object-cover rounded-xl border border-white/5"
+                  />
+                </div>
+              ) : null}
             </div>
           </div>
 
@@ -247,8 +343,15 @@ export default function AdminBlogPage() {
             </div>
             <div>
               <label className="block text-slate-400 text-sm mb-1">Önizleme</label>
-              <div className="w-full min-h-[320px] bg-black/30 border border-white/5 rounded-xl p-4 overflow-auto prose prose-invert max-w-none">
-                <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
+              <div className="w-full min-h-[320px] bg-black/30 border border-white/5 rounded-xl p-5 overflow-auto">
+                <article className="prose prose-invert max-w-none">
+                  {form.title ? <h1>{form.title}</h1> : null}
+                  {form.cover_image_url ? (
+                    <img src={resolveMediaUrl(form.cover_image_url)} alt="Kapak" />
+                  ) : null}
+                  {form.excerpt ? <p className="lead">{form.excerpt}</p> : null}
+                  <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
+                </article>
               </div>
             </div>
           </div>
