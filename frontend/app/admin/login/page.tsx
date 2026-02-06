@@ -25,7 +25,13 @@ export default function AdminLoginPage() {
       localStorage.setItem("adminKey", password);
       router.push("/admin");
     } catch (err: any) {
-      setError(err.message);
+      if (err.statusCode === 401) {
+        setError("Geçersiz erişim anahtarı.");
+      } else if (err.statusCode === 408 || err.message?.includes("Timeout")) {
+        setError("Sunucuya bağlanılamıyor (Zaman aşımı).");
+      } else {
+        setError(err.message || "Bir hata oluştu. Lütfen bağlantınızı kontrol edin.");
+      }
     } finally {
       setLoading(false);
     }

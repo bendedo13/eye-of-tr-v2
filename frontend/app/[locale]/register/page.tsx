@@ -71,7 +71,24 @@ export default function RegisterPage({
         router.push(`/${locale}/dashboard?welcome=true`);
       }
     } catch (err: any) {
-      setError(err.message || "Kayıt başarısız. Lütfen bilgilerinizi kontrol edin.");
+      // Provide more specific error messages
+      if (err.statusCode === 400) {
+        if (err.message?.toLowerCase().includes("email")) {
+          setError("Bu e-posta adresi zaten kayıtlı.");
+        } else if (err.message?.toLowerCase().includes("username")) {
+          setError("Bu kullanıcı adı zaten alınmış.");
+        } else {
+          setError(err.message || "Kayıt bilgileri geçersiz.");
+        }
+      } else if (err.statusCode === 429) {
+        setError("Çok fazla kayıt denemesi yapıldı. Lütfen daha sonra tekrar deneyin.");
+      } else if (err.statusCode === 408 || err.message?.includes("Timeout")) {
+        setError("Sunucuya bağlanılamıyor. İnternet bağlantınızı kontrol edin.");
+      } else if (err.statusCode >= 500) {
+        setError("Sunucu hatası. Lütfen daha sonra tekrar deneyin.");
+      } else {
+        setError(err.message || "Kayıt başarısız. Lütfen bilgilerinizi kontrol edin.");
+      }
     } finally {
       setIsLoading(false);
     }

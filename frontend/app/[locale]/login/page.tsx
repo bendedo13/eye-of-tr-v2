@@ -48,7 +48,18 @@ export default function LoginPage({
       await login(formData.email, formData.password);
       router.push(`/${locale}/dashboard`);
     } catch (err: any) {
-      setError(err.message || "Giriş başarısız. Kimlik bilgilerinizi kontrol edin.");
+      // Provide more specific error messages
+      if (err.statusCode === 401) {
+        setError("E-posta veya şifre hatalı. Lütfen kontrol edip tekrar deneyin.");
+      } else if (err.statusCode === 400) {
+        setError(err.message || "Geçersiz giriş bilgileri.");
+      } else if (err.statusCode === 408 || err.message?.includes("Timeout")) {
+        setError("Sunucuya bağlanılamıyor. İnternet bağlantınızı kontrol edin.");
+      } else if (err.statusCode >= 500) {
+        setError("Sunucu hatası. Lütfen daha sonra tekrar deneyin.");
+      } else {
+        setError(err.message || "Giriş başarısız. Kimlik bilgilerinizi kontrol edin.");
+      }
     } finally {
       setIsLoading(false);
     }

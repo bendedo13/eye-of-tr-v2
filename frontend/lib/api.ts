@@ -32,8 +32,8 @@ export async function api<T>(
   const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
 
   try {
-    const res = await fetch(`${API_BASE}${path}`, { 
-      ...init, 
+    const res = await fetch(`${API_BASE}${path}`, {
+      ...init,
       headers,
       signal: controller.signal
     });
@@ -44,10 +44,10 @@ export async function api<T>(
         toast.warning("Planlı bakım çalışması, lütfen sonra tekrar deneyin.");
       }
       const err = await res.json().catch(() => ({ detail: res.statusText }));
-      
+
       // Handle network errors or server downtime gracefully
       if (res.status === 502 || res.status === 503 || res.status === 504) {
-         throw new APIError("Sunucu şu anda yoğun veya bakımda. Lütfen birazdan tekrar deneyin.", res.status);
+        throw new APIError("Sunucu şu anda yoğun veya bakımda. Lütfen birazdan tekrar deneyin.", res.status);
       }
 
       throw new APIError(
@@ -81,17 +81,25 @@ function getOrCreateDeviceId() {
 }
 
 export async function register(email: string, username: string, password: string, referralCode?: string) {
+  const deviceId = getOrCreateDeviceId();
+  if (!deviceId || deviceId === "server") {
+    throw new APIError("Cihaz kimliği oluşturulamadı. Lütfen tarayıcınızın localStorage'ı desteklediğinden emin olun.", 400);
+  }
   const result = await api<{ access_token?: string; verification_required?: boolean; debug_code?: string }>("/auth/register", {
     method: "POST",
-    body: JSON.stringify({ email, username, password, referral_code: referralCode, device_id: getOrCreateDeviceId() }),
+    body: JSON.stringify({ email, username, password, referral_code: referralCode, device_id: deviceId }),
   });
   return { access_token: result.access_token, verification_required: !!result.verification_required, debug_code: result.debug_code };
 }
 
 export async function login(email: string, password: string) {
+  const deviceId = getOrCreateDeviceId();
+  if (!deviceId || deviceId === "server") {
+    throw new APIError("Cihaz kimliği oluşturulamadı. Lütfen tarayıcınızın localStorage'ı desteklediğinden emin olun.", 400);
+  }
   const result = await api<{ access_token: string }>("/auth/login", {
     method: "POST",
-    body: JSON.stringify({ email, password, device_id: getOrCreateDeviceId() }),
+    body: JSON.stringify({ email, password, device_id: deviceId }),
   });
   return { access_token: result.access_token };
 }
