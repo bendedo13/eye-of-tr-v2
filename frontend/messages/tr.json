@@ -1,4 +1,10 @@
 {
+    "common": {
+        "loading": "Yükleniyor...",
+        "error": "Hata",
+        "success": "Başarılı",
+        "initializingProtocol": "Protokol Başlatılıyor"
+    },
     "nav": {
         "home": "Ana Sayfa",
         "about": "Hakkımızda",

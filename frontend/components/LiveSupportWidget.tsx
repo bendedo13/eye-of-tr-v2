@@ -112,7 +112,7 @@ export default function LiveSupportWidget() {
   }, [user, isOpen]);
 
   const sendMessage = async () => {
-    if (!inputMessage.trim() || !ws || !isConnected) return;
+    if (!inputMessage.trim() || !ws || !isConnected || !user) return;
 
     const message = {
       type: 'message',
@@ -127,7 +127,7 @@ export default function LiveSupportWidget() {
   };
 
   const handleTyping = () => {
-    if (!ws || !isConnected) return;
+    if (!ws || !isConnected || !user) return;
     
     ws.send(JSON.stringify({
       type: 'typing',
@@ -146,7 +146,7 @@ export default function LiveSupportWidget() {
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file || !ws) return;
+    if (!file || !ws || !user) return;
 
     setUploading(true);
     

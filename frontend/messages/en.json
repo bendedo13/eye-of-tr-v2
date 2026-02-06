@@ -1,4 +1,10 @@
 {
+    "common": {
+        "loading": "Loading...",
+        "error": "Error",
+        "success": "Success",
+        "initializingProtocol": "Initializing Protocol"
+    },
     "nav": {
         "home": "Home",
         "about": "About",

@@ -76,7 +76,7 @@ export default function AdminSupportPage() {
       if (priorityFilter) params.priority = priorityFilter;
       
       const res = await adminListTickets(adminKey, params);
-      setTickets(res || []);
+      setTickets(res.items || []);
     } catch (err) {
       console.error(err);
       toast.error("Destek talepleri yüklenemedi");

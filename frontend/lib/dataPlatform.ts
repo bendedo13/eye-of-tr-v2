@@ -67,23 +67,19 @@ export async function createSource(params: {
   classify_config?: Record<string, unknown>;
   retention_config?: Record<string, unknown>;
 }): Promise<DataSource> {
-  return api<DataSource>("/api/data-platform/sources", {
-    method: "POST",
-    token: params.token,
-    body: JSON.stringify({
-      name: params.name,
-      kind: params.kind,
-      base_url: params.base_url,
-      crawl_config: params.crawl_config || {},
-      transform_config: params.transform_config || {},
-      classify_config: params.classify_config || {},
-      retention_config: params.retention_config || {},
-    }),
-  });
+  return api.post<DataSource>("/api/data-platform/sources", {
+    name: params.name,
+    kind: params.kind,
+    base_url: params.base_url,
+    crawl_config: params.crawl_config || {},
+    transform_config: params.transform_config || {},
+    classify_config: params.classify_config || {},
+    retention_config: params.retention_config || {},
+  }, { token: params.token });
 }
 
 export async function listSources(token: string): Promise<DataSource[]> {
-  return api<DataSource[]>("/api/data-platform/sources", { method: "GET", token });
+  return api.get<DataSource[]>("/api/data-platform/sources", { token });
 }
 
 export async function startJob(params: {
@@ -93,20 +89,16 @@ export async function startJob(params: {
   policy_context?: Record<string, unknown>;
   strategy_override?: Record<string, unknown>;
 }): Promise<CrawlJob> {
-  return api<CrawlJob>(`/api/data-platform/sources/${params.source_id}/jobs`, {
-    method: "POST",
-    token: params.token,
-    body: JSON.stringify({
-      consent: params.consent,
-      policy_context: params.policy_context || {},
-      strategy_override: params.strategy_override || {},
-    }),
-  });
+  return api.post<CrawlJob>(`/api/data-platform/sources/${params.source_id}/jobs`, {
+    consent: params.consent,
+    policy_context: params.policy_context || {},
+    strategy_override: params.strategy_override || {},
+  }, { token: params.token });
 }
 
 export async function listJobs(token: string, source_id?: number): Promise<CrawlJob[]> {
-  const qs = source_id ? `?source_id=${encodeURIComponent(String(source_id))}` : "";
-  return api<CrawlJob[]>(`/api/data-platform/jobs${qs}`, { method: "GET", token });
+  const params = source_id ? { source_id } : undefined;
+  return api.get<CrawlJob[]>("/api/data-platform/jobs", { token, params });
 }
 
 export async function searchDocuments(params: {
@@ -119,22 +111,24 @@ export async function searchDocuments(params: {
   limit?: number;
   offset?: number;
 }): Promise<{ total: number; items: DocumentItem[] }> {
-  const query = new URLSearchParams();
-  if (params.q) query.set("q", params.q);
-  if (typeof params.source_id === "number") query.set("source_id", String(params.source_id));
-  if (params.category) query.set("category", params.category);
-  if (params.tags && params.tags.length) params.tags.forEach((t) => query.append("tags", t));
-  if (typeof params.quality_min === "number") query.set("quality_min", String(params.quality_min));
-  query.set("limit", String(params.limit ?? 25));
-  query.set("offset", String(params.offset ?? 0));
-  return api<{ total: number; items: DocumentItem[] }>(`/api/data-platform/documents?${query.toString()}`, {
-    method: "GET",
+  const queryParams: Record<string, any> = {
+    limit: params.limit ?? 25,
+    offset: params.offset ?? 0,
+  };
+  if (params.q) queryParams.q = params.q;
+  if (typeof params.source_id === "number") queryParams.source_id = params.source_id;
+  if (params.category) queryParams.category = params.category;
+  if (params.tags && params.tags.length) queryParams.tags = params.tags.join(',');
+  if (typeof params.quality_min === "number") queryParams.quality_min = params.quality_min;
+  
+  return api.get<{ total: number; items: DocumentItem[] }>("/api/data-platform/documents", {
     token: params.token,
+    params: queryParams
   });
 }
 
 export async function qualitySummary(token: string, source_id?: number): Promise<any> {
-  const qs = source_id ? `?source_id=${encodeURIComponent(String(source_id))}` : "";
-  return api<any>(`/api/data-platform/quality/summary${qs}`, { method: "GET", token });
+  const params = source_id ? { source_id } : undefined;
+  return api.get<any>("/api/data-platform/quality/summary", { token, params });
 }
 
