@@ -70,21 +70,26 @@ export default function AdminLoginPage() {
                   className="input-field w-full h-14 bg-black/40 border-zinc-800"
                   placeholder="admin@faceseek.io"
                   required
+                  autoComplete="email"
                 />
               </div>
 
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest flex items-center gap-2 px-1">
-                  <Key size={12} /> ERİŞİM ANAHTARI
+                  <Key size={12} /> API ANAHTARI (Admin Key)
                 </label>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="input-field w-full h-14 bg-black/40 border-zinc-800"
-                  placeholder="••••••••"
+                  placeholder="faceseek-admin-2026"
                   required
+                  autoComplete="current-password"
                 />
+                <p className="text-[9px] text-zinc-600 px-1">
+                  Admin API anahtarını girin (şifre değil)
+                </p>
               </div>
             </div>
 
