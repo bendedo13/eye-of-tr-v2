@@ -48,10 +48,14 @@ export default function SearchPage({
   const [acceptedDisclaimer, setAcceptedDisclaimer] = useState(false);
   const [showAdvancedModal, setShowAdvancedModal] = useState(false);
   const [isAdvancedSearch, setIsAdvancedSearch] = useState(false);
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  const apiBase = (process.env.NEXT_PUBLIC_API_BASE_URL || "/api").replace(/\/+$/, "");
   const resolveUrl = (url?: string | null) => {
     if (!url) return undefined;
-    return url.startsWith("/") ? `${apiBase}${url}` : url;
+    if (!url.startsWith("/")) return url;
+    if (apiBase.endsWith("/api") && url.startsWith("/api/")) {
+      return `${apiBase}${url.slice(4)}`;
+    }
+    return `${apiBase}${url}`;
   };
 
   useEffect(() => {

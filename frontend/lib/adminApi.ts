@@ -100,6 +100,31 @@ export function adminListPayments(adminKey: string, params: { status?: string; o
   return adminFetch<{ items: any[] }>(`/admin/payments${qs ? `?${qs}` : ""}`, { method: "GET", adminKey });
 }
 
+export function adminListBankTransfers(adminKey: string, params: { status?: string; offset?: number; limit?: number } = {}) {
+  const usp = new URLSearchParams();
+  if (params.status) usp.set("status_filter", params.status);
+  if (params.offset != null) usp.set("offset", String(params.offset));
+  if (params.limit != null) usp.set("limit", String(params.limit));
+  const qs = usp.toString();
+  return adminFetch<{ items: any[] }>(`/admin/bank-transfers${qs ? `?${qs}` : ""}`, { method: "GET", adminKey });
+}
+
+export function adminApproveBankTransfer(adminKey: string, requestId: number, payload: { message?: string; admin_note?: string } = {}) {
+  return adminFetch<{ status: string }>(`/admin/bank-transfers/${requestId}/approve`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+    adminKey,
+  });
+}
+
+export function adminRejectBankTransfer(adminKey: string, requestId: number, payload: { message?: string; admin_note?: string }) {
+  return adminFetch<{ status: string }>(`/admin/bank-transfers/${requestId}/reject`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+    adminKey,
+  });
+}
+
 export function adminListReferrals(adminKey: string, params: { offset?: number; limit?: number } = {}) {
   const usp = new URLSearchParams();
   if (params.offset != null) usp.set("offset", String(params.offset));

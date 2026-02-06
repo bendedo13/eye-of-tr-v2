@@ -28,7 +28,7 @@ export default function AnalyticsHeartbeat() {
   const { token } = useAuth();
 
   useEffect(() => {
-    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    const apiBase = (process.env.NEXT_PUBLIC_API_BASE_URL || "/api").replace(/\/+$/, "");
     const deviceId = getOrCreateDeviceId();
     const locale = inferLocaleFromPath(pathname);
 
@@ -39,7 +39,7 @@ export default function AnalyticsHeartbeat() {
       if (stopped) return;
       if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
       try {
-        await fetch(`${apiBase}/api/analytics/heartbeat`, {
+        await fetch(`${apiBase}/analytics/heartbeat`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

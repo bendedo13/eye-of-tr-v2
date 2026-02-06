@@ -77,13 +77,13 @@ export async function analyzeVisualLocation(params: {
   file: File;
   consent: boolean;
 }): Promise<VisualSimilarityLocationReport> {
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  const apiBase = (process.env.NEXT_PUBLIC_API_BASE_URL || "/api").replace(/\/+$/, "");
   const formData = new FormData();
   formData.append("file", params.file);
   formData.append("consent", params.consent ? "true" : "false");
   formData.append("device_id", getOrCreateDeviceId());
 
-  const res = await fetch(`${apiBase}/api/visual-location/analyze`, {
+  const res = await fetch(`${apiBase}/visual-location/analyze`, {
     method: "POST",
     headers: { Authorization: `Bearer ${params.token}` },
     body: formData,

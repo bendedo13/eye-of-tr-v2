@@ -47,6 +47,7 @@ from app.models.search_results import SearchResult
 from app.models.admin_audit import AdminAuditLog
 from app.models.lens import LensAnalysisLog
 from app.models.support import SupportTicket, SupportMessage
+from app.models.bank_transfer import BankTransferRequest
 
 # Import WebSocket service
 from app.services.websocket_service import get_socket_server, socket_app

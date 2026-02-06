@@ -24,7 +24,7 @@ type JobEvent =
   | { type: "error"; payload: { message: string } };
 
 function apiBase() {
-  return process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  return (process.env.NEXT_PUBLIC_API_BASE_URL || "/api").replace(/\/+$/, "");
 }
 
 async function streamSSE(params: {
@@ -172,7 +172,7 @@ export default function DataPlatformPage({
     setActiveJobId(job.id);
     setJobs([job, ...jobs]);
 
-    const url = `${apiBase()}/api/data-platform/jobs/${job.id}/events`;
+    const url = `${apiBase()}/data-platform/jobs/${job.id}/events`;
     streamSSE({
       url,
       token,

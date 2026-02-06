@@ -19,7 +19,7 @@ export default function GlobalNotifications() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [activeNotif, setActiveNotif] = useState<Notification | null>(null);
   const [canClose, setCanClose] = useState(false);
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  const apiBase = (process.env.NEXT_PUBLIC_API_BASE_URL || "/api").replace(/\/+$/, "");
 
   // Polling for notifications (Basit yöntem)
   useEffect(() => {
@@ -27,7 +27,7 @@ export default function GlobalNotifications() {
 
     const fetchNotifications = async () => {
       try {
-        const res = await fetch(`${apiBase}/api/notifications/my`, {
+        const res = await fetch(`${apiBase}/notifications/my`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
@@ -74,7 +74,7 @@ export default function GlobalNotifications() {
 
     // Backend'e okundu bilgisi gönder
     try {
-      await fetch(`${apiBase}/api/notifications/${activeNotif.id}/read`, {
+      await fetch(`${apiBase}/notifications/${activeNotif.id}/read`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       });

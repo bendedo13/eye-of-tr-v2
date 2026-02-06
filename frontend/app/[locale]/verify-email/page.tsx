@@ -22,11 +22,18 @@ export default function VerifyEmailPage({
   const router = useRouter();
   const { user, mounted, loading, verifyEmail, resendCode } = useAuth();
 
-  const email = searchParams.email || "";
+  const [email, setEmail] = useState(searchParams.email || "");
   const [code, setCode] = useState((searchParams.debug_code || "").replace(/\D/g, "").slice(0, 6));
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [resending, setResending] = useState(false);
+
+  useEffect(() => {
+    if (!email && typeof window !== "undefined") {
+      const pending = window.localStorage.getItem("pending-verify-email") || "";
+      if (pending) setEmail(pending);
+    }
+  }, [email]);
 
   useEffect(() => {
     if (mounted && !loading && user) {
@@ -48,6 +55,9 @@ export default function VerifyEmailPage({
     setBusy(true);
     try {
       await verifyEmail(email, code);
+      if (typeof window !== "undefined") {
+        window.localStorage.removeItem("pending-verify-email");
+      }
       router.push(`/${locale}/dashboard`);
     } catch (err: any) {
       setError(err.message || "Doğrulama başarısız.");
@@ -106,6 +116,21 @@ export default function VerifyEmailPage({
 
           <GlassCard className="p-10 border-t-4 border-t-primary/30" hasScanline>
             <form onSubmit={submit} className="space-y-8">
+              {!email && (
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest flex items-center gap-2 px-1">
+                    <Mail size={12} /> E-POSTA
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="input-field w-full h-14 bg-black/40 border-zinc-900 focus:border-primary/50"
+                    placeholder="ornek@faceseek.com"
+                    disabled={busy || resending}
+                  />
+                </div>
+              )}
               {error && (
                 <div className="bg-rose-500/10 border border-rose-500/20 text-rose-500 px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest text-center animate-in shake duration-500">
                   {error}

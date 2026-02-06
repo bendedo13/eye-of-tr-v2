@@ -14,10 +14,13 @@ from app.models.activity import ActivityDaily
 from app.models.analytics import SearchLog, ReferralLog
 from app.models.admin_audit import AdminAuditLog
 from app.models.cms import BlogPost, MediaAsset, SiteSetting
-from app.models.notification import Notification
+from app.models.notification import Notification, NotificationType
 from app.models.subscription import Payment
 from app.models.user import User
+from app.models.bank_transfer import BankTransferRequest
 from app.services.scraper_service import scraper_service
+from app.services.credit_service import CreditService
+from app.api.pricing import PRICING_PLANS
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
@@ -377,6 +380,184 @@ def admin_payments(request: Request, status_filter: str | None = None, limit: in
     return {"items": items}
 
 
+@router.get("/bank-transfers")
+def admin_bank_transfers(
+    request: Request,
+    status_filter: str | None = None,
+    limit: int = 100,
+    offset: int = 0,
+    db: Session = Depends(get_db),
+):
+    _require_admin_key(request)
+    q = db.query(BankTransferRequest, User).join(User, User.id == BankTransferRequest.user_id)
+    if status_filter:
+        q = q.filter(BankTransferRequest.status == status_filter)
+    rows = q.order_by(desc(BankTransferRequest.created_at)).offset(offset).limit(min(limit, 500)).all()
+    items = []
+    for r, u in rows:
+        items.append(
+            {
+                "id": r.id,
+                "user_id": r.user_id,
+                "email": u.email,
+                "username": u.username,
+                "plan_id": r.plan_id,
+                "plan_name": r.plan_name,
+                "credits_requested": r.credits_requested,
+                "amount": r.amount,
+                "currency": r.currency,
+                "status": r.status,
+                "user_note": r.user_note,
+                "admin_note": r.admin_note,
+                "created_at": r.created_at,
+                "reviewed_at": r.reviewed_at,
+            }
+        )
+    return {"items": items}
+
+
+@router.post("/bank-transfers/{request_id}/approve")
+def admin_approve_bank_transfer(
+    request_id: int,
+    request: Request,
+    payload: dict[str, Any],
+    db: Session = Depends(get_db),
+):
+    _require_admin_key(request)
+    req = db.query(BankTransferRequest).filter(BankTransferRequest.id == request_id).first()
+    if not req:
+        raise HTTPException(status_code=404, detail="Not found")
+    if req.status != "pending":
+        raise HTTPException(status_code=400, detail="Request already processed")
+
+    user = db.query(User).filter(User.id == req.user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    credits_awarded = 0
+    plan_label = req.plan_name or req.plan_id or "Credit Topup"
+
+    if req.plan_id:
+        plan = next((p for p in PRICING_PLANS if p.get("id") == req.plan_id), None)
+        if plan:
+            if plan.get("id") == "unlimited":
+                user.tier = "unlimited"
+                user.credits = 999999
+            else:
+                user.tier = "premium"
+                credits_to_add = int(plan.get("credits") or 0)
+                if credits_to_add > 0:
+                    CreditService.add_credits(user, db, credits_to_add, "bank_transfer_plan")
+                    credits_awarded = credits_to_add
+        elif req.credits_requested:
+            CreditService.add_credits(user, db, req.credits_requested, "bank_transfer")
+            credits_awarded = req.credits_requested
+    elif req.credits_requested:
+        CreditService.add_credits(user, db, req.credits_requested, "bank_transfer")
+        credits_awarded = req.credits_requested
+
+    req.status = "approved"
+    req.reviewed_at = datetime.now(timezone.utc)
+    req.admin_note = payload.get("admin_note") if payload else None
+
+    payment = Payment(
+        user_id=user.id,
+        amount=req.amount,
+        currency=req.currency,
+        plan_name=str(plan_label),
+        status="completed",
+        payment_method="bank_transfer",
+        completed_at=datetime.now(timezone.utc),
+    )
+    db.add(payment)
+
+    message = (payload or {}).get("message") or (
+        f"Havale ödemeniz onaylandı. {credits_awarded} kredi hesabınıza tanımlandı."
+        if credits_awarded
+        else f"Havale ödemeniz onaylandı. {plan_label} planı aktif edildi."
+    )
+    db.add(
+        Notification(
+            title="Ödeme Onaylandı",
+            message=message,
+            type=NotificationType.SUCCESS.value,
+            target_audience="specific",
+            target_user_id=user.id,
+        )
+    )
+
+    _audit(
+        db=db,
+        request=request,
+        action="bank_transfer.approve",
+        resource_type="bank_transfer",
+        resource_id=str(req.id),
+        meta={"user_id": user.id, "plan_id": req.plan_id, "credits_awarded": credits_awarded},
+    )
+
+    db.commit()
+    return {"status": "ok"}
+
+
+@router.post("/bank-transfers/{request_id}/reject")
+def admin_reject_bank_transfer(
+    request_id: int,
+    request: Request,
+    payload: dict[str, Any],
+    db: Session = Depends(get_db),
+):
+    _require_admin_key(request)
+    req = db.query(BankTransferRequest).filter(BankTransferRequest.id == request_id).first()
+    if not req:
+        raise HTTPException(status_code=404, detail="Not found")
+    if req.status != "pending":
+        raise HTTPException(status_code=400, detail="Request already processed")
+
+    user = db.query(User).filter(User.id == req.user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    note = (payload or {}).get("admin_note") or (payload or {}).get("message")
+    if not note:
+        raise HTTPException(status_code=400, detail="Rejection reason required")
+
+    req.status = "rejected"
+    req.reviewed_at = datetime.now(timezone.utc)
+    req.admin_note = note
+
+    payment = Payment(
+        user_id=user.id,
+        amount=req.amount,
+        currency=req.currency,
+        plan_name=str(req.plan_name or req.plan_id or "Credit Topup"),
+        status="failed",
+        payment_method="bank_transfer",
+    )
+    db.add(payment)
+
+    db.add(
+        Notification(
+            title="Ödeme Reddedildi",
+            message=str(note),
+            type=NotificationType.ERROR.value,
+            target_audience="specific",
+            target_user_id=user.id,
+        )
+    )
+
+    _audit(
+        db=db,
+        request=request,
+        action="bank_transfer.reject",
+        resource_type="bank_transfer",
+        resource_id=str(req.id),
+        meta={"user_id": user.id, "reason": note},
+    )
+
+    db.commit()
+    return {"status": "ok"}
+
+
 @router.get("/referrals")
 def admin_referrals(request: Request, limit: int = 100, offset: int = 0, db: Session = Depends(get_db)):
     _require_admin_key(request)
@@ -705,4 +886,3 @@ def admin_create_notification(request: Request, payload: dict[str, Any], db: Ses
     db.commit()
     db.refresh(n)
     return {"id": n.id, "status": "sent"}
-

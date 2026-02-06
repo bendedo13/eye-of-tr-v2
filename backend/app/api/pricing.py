@@ -10,6 +10,7 @@ from app.db.database import get_db
 from app.models.user import User
 from app.models.subscription import Subscription, Payment
 from app.models.cms import SiteSetting
+from app.models.bank_transfer import BankTransferRequest
 
 router = APIRouter(prefix="/api/pricing", tags=["pricing"])
 logger = logging.getLogger(__name__)
@@ -93,6 +94,25 @@ PRICING_PLANS = [
 
 class SubscribeRequest(BaseModel):
     plan_id: str
+
+
+class BankTransferRequestIn(BaseModel):
+    plan_id: str | None = None
+    credits: int | None = None
+    amount: float
+    currency: str = "TRY"
+    note: str | None = None
+
+
+def _load_plans(db: Session):
+    plans = PRICING_PLANS
+    row = db.query(SiteSetting).filter(SiteSetting.key == "pricing.plans").first()
+    if row:
+        try:
+            plans = __import__("json").loads(row.value_json)
+        except Exception:
+            plans = PRICING_PLANS
+    return plans
 
 
 @router.get("/plans")
@@ -239,6 +259,59 @@ async def subscribe_to_plan(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Payment service error"
         )
+
+
+@router.post("/bank-transfer")
+def create_bank_transfer_request(
+    data: BankTransferRequestIn,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Havale/EFT/FAST ödeme talebi oluşturur (manuel onay).
+    """
+    if not data.plan_id and not data.credits:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Plan veya kredi seçimi gerekli")
+    if data.plan_id and data.credits:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Plan ve kredi aynı anda seçilemez")
+    if data.amount <= 0:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Geçersiz tutar")
+
+    plan_id = (data.plan_id or "").strip() or None
+    plan_name = None
+    credits_requested = None
+
+    if plan_id:
+        plans = _load_plans(db)
+        plan = next((p for p in plans if p.get("id") == plan_id), None)
+        if not plan:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Plan not found")
+        plan_name = plan.get("name") or plan_id
+        credits_requested = int(plan.get("credits") or 0) or None
+    else:
+        credits = int(data.credits or 0)
+        if credits <= 0:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Geçersiz kredi miktarı")
+        credits_requested = credits
+        plan_name = "Credit Topup"
+
+    req = BankTransferRequest(
+        user_id=user.id,
+        plan_id=plan_id,
+        plan_name=str(plan_name) if plan_name else None,
+        credits_requested=credits_requested,
+        amount=float(data.amount),
+        currency=(data.currency or "TRY"),
+        status="pending",
+        user_note=(data.note or None),
+    )
+    db.add(req)
+    db.commit()
+    db.refresh(req)
+
+    logger.info(f"Bank transfer requested: user={user.email}, plan_id={plan_id}, credits={credits_requested}, amount={data.amount}")
+
+    return {"status": "ok", "request_id": req.id}
 
 
 @router.post("/confirm-payment/{payment_id}")

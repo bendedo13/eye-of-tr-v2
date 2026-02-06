@@ -9,6 +9,9 @@ export default function AdminMediaPage() {
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState("");
+  const mediaBase =
+    process.env.NEXT_PUBLIC_API_URL ||
+    (typeof window !== "undefined" ? window.location.origin : "");
 
   const fetchData = async () => {
     setLoading(true);
@@ -77,7 +80,7 @@ export default function AdminMediaPage() {
           items.map((m) => (
             <GlassCard key={m.id} className="p-3">
               <div className="aspect-square rounded-xl overflow-hidden bg-black/40 border border-white/5">
-                <img src={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}${m.url}`} alt={m.filename} className="w-full h-full object-cover" />
+                <img src={`${mediaBase}${m.url}`} alt={m.filename} className="w-full h-full object-cover" />
               </div>
               <div className="mt-3">
                 <div className="text-white text-xs font-semibold truncate">{m.filename}</div>
@@ -86,7 +89,7 @@ export default function AdminMediaPage() {
               <button
                 className="mt-3 w-full px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white rounded-xl text-xs"
                 onClick={async () => {
-                  const full = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}${m.url}`;
+                  const full = `${mediaBase}${m.url}`;
                   await navigator.clipboard.writeText(full);
                   setCopied(full);
                   setTimeout(() => setCopied(""), 2000);

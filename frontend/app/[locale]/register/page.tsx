@@ -64,6 +64,9 @@ export default function RegisterPage({
     try {
       const res = await register(formData.email, formData.username, formData.password, formData.referralCode);
       if (res.needsVerification) {
+        if (typeof window !== "undefined") {
+          window.localStorage.setItem("pending-verify-email", formData.email);
+        }
         const qp = new URLSearchParams({ email: res.email });
         if (res.debugCode) qp.set("debug_code", res.debugCode);
         router.push(`/${locale}/verify-email?${qp.toString()}`);
