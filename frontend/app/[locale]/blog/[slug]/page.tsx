@@ -13,6 +13,12 @@ export default function BlogDetailPage() {
     const locale = String(params.locale || "en");
     const [post, setPost] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const mediaBase = typeof window !== "undefined" ? (process.env.NEXT_PUBLIC_API_URL || window.location.origin) : "";
+    const resolveMediaUrl = (url?: string) => {
+        if (!url) return "";
+        if (url.startsWith("http://") || url.startsWith("https://")) return url;
+        return `${mediaBase}${url}`;
+    };
 
     useEffect(() => {
         setLoading(true);
@@ -27,11 +33,12 @@ export default function BlogDetailPage() {
     }, [slug, locale]);
 
     return (
-        <div className="min-h-screen bg-background text-slate-200">
+        <div className="min-h-screen bg-background text-slate-200 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-[#0a0e27] via-[#0b1230] to-[#070b1d] pointer-events-none"></div>
             <Navbar />
 
-            <main className="max-w-4xl mx-auto px-6 py-24 md:py-32">
-                <Link href={`/${locale}/blog`} className="inline-flex items-center gap-2 text-[10px] font-black text-zinc-600 hover:text-white uppercase tracking-widest mb-16 transition-colors">
+            <main className="max-w-5xl mx-auto px-6 py-24 md:py-28 relative z-10">
+                <Link href={`/${locale}/blog`} className="inline-flex items-center gap-2 text-[10px] font-black text-zinc-500 hover:text-white uppercase tracking-widest mb-12 transition-colors">
                     <ChevronLeft size={16} /> {locale === "tr" ? "LİSTEYE DÖN" : "BACK TO LIST"}
                 </Link>
 
@@ -40,21 +47,49 @@ export default function BlogDetailPage() {
                 ) : !post ? (
                     <div className="text-zinc-500">{locale === "tr" ? "Yazı bulunamadı." : "Post not found."}</div>
                 ) : (
-                    <article>
-                        <div className="flex items-center gap-4 text-[10px] font-black text-primary uppercase tracking-widest mb-6">
-                            <span>{post.author_name || "FaceSeek"}</span>
-                            <span className="text-zinc-800">•</span>
-                            <span className="text-zinc-500">
-                                {post.published_at ? new Date(post.published_at).toLocaleDateString(locale === "tr" ? "tr-TR" : "en-US") : ""}
-                            </span>
-                        </div>
+                    <article className="space-y-10">
+                        <GlassCard className="p-8 md:p-12 border-white/10 relative overflow-hidden" hasScanline>
+                            <div className="absolute inset-0 bg-primary/5 opacity-60"></div>
+                            <div className="relative z-10 space-y-8">
+                                <div className="flex flex-wrap items-center gap-4 text-[10px] font-black text-primary uppercase tracking-widest">
+                                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
+                                        <ShieldCheck size={12} /> FaceSeek
+                                    </span>
+                                    <span className="text-zinc-700">•</span>
+                                    <span className="inline-flex items-center gap-2 text-zinc-400">
+                                        <User size={12} /> {post.author_name || "FaceSeek"}
+                                    </span>
+                                    <span className="text-zinc-700">•</span>
+                                    <span className="inline-flex items-center gap-2 text-zinc-400">
+                                        <Calendar size={12} /> {post.published_at ? new Date(post.published_at).toLocaleDateString(locale === "tr" ? "tr-TR" : "en-US") : ""}
+                                    </span>
+                                </div>
 
-                        <h1 className="text-5xl md:text-7xl font-black text-white mb-12 uppercase tracking-tighter leading-none">
-                            {post.title}
-                        </h1>
+                                <h1 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tight leading-tight">
+                                    {post.title}
+                                </h1>
 
-                        <GlassCard className="p-8 md:p-12 mb-16" hasScanline>
-                            <div className="prose prose-invert prose-p:text-zinc-400 prose-headings:text-white max-w-none space-y-8">
+                                {post.excerpt ? (
+                                    <p className="text-zinc-400 text-base md:text-lg font-medium leading-relaxed max-w-3xl">
+                                        {post.excerpt}
+                                    </p>
+                                ) : null}
+                            </div>
+                        </GlassCard>
+
+                        {post.cover_image_url ? (
+                            <div className="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+                                <img
+                                    src={resolveMediaUrl(post.cover_image_url)}
+                                    alt={post.title}
+                                    className="w-full max-h-[420px] object-cover"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
+                            </div>
+                        ) : null}
+
+                        <GlassCard className="p-8 md:p-12 border-white/10" hasScanline>
+                            <div className="prose prose-invert prose-p:text-zinc-400 prose-headings:text-white prose-strong:text-white prose-a:text-primary max-w-none">
                                 <div dangerouslySetInnerHTML={{ __html: post.content_html }} />
                             </div>
                         </GlassCard>
