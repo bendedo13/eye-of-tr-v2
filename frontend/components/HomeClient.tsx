@@ -70,6 +70,9 @@ export default function HomeClient({
       ctaDescription: cfg[`home.${locale}.cta_description`],
       ctaButton: cfg[`home.${locale}.cta_button`],
       heroImageUrl: cfg["home.hero_image_url"],
+      heroImageTitle: cfg["home.hero_image_title"],
+      analysisVideoUrl: cfg["home.analysis_video_url"],
+      analysisVideoTitle: cfg["home.analysis_video_title"],
     };
   }, [siteConfig, locale]);
 
@@ -107,6 +110,12 @@ export default function HomeClient({
         <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden py-24 px-6 circuit-pattern">
           {/* Animated Background */}
           <div className="absolute inset-0 bg-gradient-to-b from-[#0a0e27] via-[#1a1f3a]/50 to-[#0a0e27] pointer-events-none"></div>
+          {homeOverrides.heroImageUrl && (
+            <div
+              className="absolute inset-0 pointer-events-none bg-center bg-cover opacity-25"
+              style={{ backgroundImage: `url(${homeOverrides.heroImageUrl})` }}
+            />
+          )}
           <div className="absolute inset-0 data-stream opacity-30"></div>
 
           {/* Biometric Grid Pattern */}
@@ -276,7 +285,7 @@ export default function HomeClient({
                     <div className="relative w-full h-full">
                       <video
                         className="w-full h-full object-cover"
-                        src="/media/face-seek-intro.mp4"
+                        src={homeOverrides.analysisVideoUrl || "/media/face-seek-intro.mp4"}
                         autoPlay
                         muted
                         loop
@@ -284,7 +293,7 @@ export default function HomeClient({
                       />
                       <div className="absolute inset-x-0 h-0.5 bg-primary/50 shadow-[0_0_15px_var(--color-primary)] animate-[scanline_3s_linear_infinite]"></div>
                       <div className="absolute bottom-4 left-0 right-0 text-center text-[9px] font-black text-primary/70 uppercase tracking-[0.4em]">
-                        {tHome("systemScanning")}
+                        {homeOverrides.analysisVideoTitle || tHome("systemScanning")}
                       </div>
                     </div>
                   </div>

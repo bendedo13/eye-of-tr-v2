@@ -105,6 +105,9 @@ def public_site_config(locale: str, db: Session = Depends(get_db)):
         f"home.{locale}.cta_description",
         f"home.{locale}.cta_button",
         "home.hero_image_url",
+        "home.hero_image_title",
+        "home.analysis_video_url",
+        "home.analysis_video_title",
         "site.maintenance_mode",
     ]
     rows = db.query(SiteSetting).filter(SiteSetting.key.in_(keys)).all()
