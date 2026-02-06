@@ -12,7 +12,7 @@ export class AdminAPIError extends Error {
   }
 }
 
-async function adminFetch<T>(path: string, options: RequestInit & { adminKey: string } ): Promise<T> {
+async function adminFetch<T>(path: string, options: RequestInit & { adminKey: string }): Promise<T> {
   const { adminKey, ...init } = options;
   const adminEmail =
     typeof window !== "undefined"
@@ -219,4 +219,35 @@ export function adminCreateEmailTemplate(adminKey: string, payload: any) {
 
 export function adminListEmailTemplates(adminKey: string) {
   return adminFetch<any[]>("/admin/emails/templates", { method: "GET", adminKey });
+}
+
+// Support System API Functions
+export function adminListTickets(adminKey: string, params: { status?: string; priority?: string; offset?: number; limit?: number } = {}) {
+  const usp = new URLSearchParams();
+  if (params.status) usp.set("status", params.status);
+  if (params.priority) usp.set("priority", params.priority);
+  if (params.offset != null) usp.set("offset", String(params.offset));
+  if (params.limit != null) usp.set("limit", String(params.limit));
+  const qs = usp.toString();
+  return adminFetch<{ items: any[] }>(`/admin/support/tickets${qs ? `?${qs}` : ""}`, { method: "GET", adminKey });
+}
+
+export function adminGetTicketDetails(adminKey: string, ticketId: number) {
+  return adminFetch<{ ticket: any; messages: any[] }>(`/admin/support/tickets/${ticketId}`, { method: "GET", adminKey });
+}
+
+export function adminReplyToTicket(adminKey: string, ticketId: number, payload: { content: string; status?: string }) {
+  return adminFetch<{ status: string; message_id: number }>(`/admin/support/tickets/${ticketId}/reply`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+    adminKey,
+  });
+}
+
+export function adminUpdateTicketStatus(adminKey: string, ticketId: number, status: string) {
+  return adminFetch<{ status: string }>(`/admin/support/tickets/${ticketId}/status`, {
+    method: "PUT",
+    body: JSON.stringify({ status }),
+    adminKey,
+  });
 }
