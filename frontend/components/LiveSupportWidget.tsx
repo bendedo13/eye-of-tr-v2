@@ -9,11 +9,12 @@ import {
   User, 
   Shield,
   Clock,
-  CheckCircle
+  CheckCircle,
+  FileText,
+  Image as ImageIcon
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
-import io from "socket.io-client";
 
 interface ChatMessage {
   id: string;
@@ -33,78 +34,149 @@ export default function LiveSupportWidget() {
   const [isConnected, setIsConnected] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [typingUser, setTypingUser] = useState<string | null>(null);
-  const [socket, setSocket] = useState<any>(null);
+  const [ws, setWs] = useState<WebSocket | null>(null);
   const [room, setRoom] = useState<string>("");
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (!user || !isOpen) return;
 
-    // Initialize Socket.IO connection
+    // Simple WebSocket connection for demo
     const token = localStorage.getItem("token");
-    const newSocket = io(process.env.NEXT_PUBLIC_API_BASE_URL || "", {
-      query: {
-        token: token,
-        type: "user"
-      },
-      transports: ["websocket", "polling"]
-    });
+    const wsUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL?.replace('http', 'ws')}/ws/support`;
+    
+    try {
+      const websocket = new WebSocket(wsUrl);
+      setWs(websocket);
 
-    setSocket(newSocket);
+      websocket.onopen = () => {
+        setIsConnected(true);
+        const userRoom = `user_${user.id}`;
+        setRoom(userRoom);
+        
+        // Send join message
+        websocket.send(JSON.stringify({
+          type: 'join',
+          room: userRoom,
+          user_id: user.id,
+          token: token
+        }));
+      };
 
-    newSocket.on("connect", () => {
-      setIsConnected(true);
-      const userRoom = `user_${user.id}`;
-      setRoom(userRoom);
-      newSocket.emit("join_room", { room: userRoom, user_id: user.id });
-    });
+      websocket.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          
+          if (data.type === 'message') {
+            setMessages(prev => [...prev, data.message]);
+          } else if (data.type === 'typing') {
+            setIsTyping(data.typing);
+            setTypingUser(data.username);
+          } else if (data.type === 'history') {
+            setMessages(data.messages);
+          }
+        } catch (error) {
+          console.error('WebSocket message error:', error);
+        }
+      };
 
-    newSocket.on("disconnect", () => {
-      setIsConnected(false);
-    });
+      websocket.onclose = () => {
+        setIsConnected(false);
+      };
 
-    newSocket.on("new_message", (message: ChatMessage) => {
-      setMessages(prev => [...prev, message]);
-    });
+      websocket.onerror = (error) => {
+        console.error('WebSocket error:', error);
+        setIsConnected(false);
+      };
 
-    newSocket.on("typing", (data: { username: string; typing: boolean }) => {
-      setIsTyping(data.typing);
-      setTypingUser(data.typing ? data.username : null);
-    });
-
-    newSocket.on("chat_history", (data: { messages: ChatMessage[] }) => {
-      setMessages(data.messages);
-    });
+    } catch (error) {
+      console.error('WebSocket connection error:', error);
+      // Fallback to mock messages for demo
+      setMessages([
+        {
+          id: '1',
+          content: 'Merhaba! Size nasıl yardımcı olabilirim?',
+          user_id: 0,
+          username: 'Destek Ekibi',
+          is_admin: true,
+          timestamp: new Date().toISOString()
+        }
+      ]);
+    }
 
     return () => {
-      newSocket.disconnect();
+      if (ws) {
+        ws.close();
+      }
     };
   }, [user, isOpen]);
 
   const sendMessage = async () => {
-    if (!inputMessage.trim() || !socket || !isConnected) return;
+    if (!inputMessage.trim() || !ws || !isConnected) return;
 
-    socket.emit("send_message", {
+    const message = {
+      type: 'message',
       room: room,
       content: inputMessage.trim(),
-      type: "text"
-    });
+      user_id: user.id,
+      username: user.username || user.email
+    };
 
+    ws.send(JSON.stringify(message));
     setInputMessage("");
   };
 
   const handleTyping = () => {
-    if (!socket || !isConnected) return;
+    if (!ws || !isConnected) return;
     
-    socket.emit("typing_indicator", {
+    ws.send(JSON.stringify({
+      type: 'typing',
       room: room,
-      typing: inputMessage.length > 0
-    });
+      typing: inputMessage.length > 0,
+      username: user.username || user.email
+    }));
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !ws) return;
+
+    setUploading(true);
+    
+    try {
+      // Upload file to server
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const uploadRes = await api.post('/api/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      // Send message with file attachment
+      const message = {
+        type: 'message',
+        room: room,
+        content: `📎 ${file.name} yüklendi`,
+        user_id: user.id,
+        username: user.username || user.email,
+        attachments: [uploadRes.data.path]
+      };
+
+      ws.send(JSON.stringify(message));
+      
+    } catch (error) {
+      console.error('File upload error:', error);
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -129,9 +201,9 @@ export default function LiveSupportWidget() {
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-white/10 bg-white/5 rounded-t-xl">
             <div className="flex items-center gap-3">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
               <div>
-                <h3 className="text-white font-semibold text-sm">Canlı Destek</h3>
+                <h3 className="text-white font-semibold text-sm">{isConnected ? 'Canlı Destek' : 'Destek (Çevrimdışı)'}</h3>
                 <p className="text-xs text-zinc-400">
                   {isConnected ? "Çevrimiçi" : "Bağlanıyor..."}
                 </p>
@@ -170,6 +242,12 @@ export default function LiveSupportWidget() {
                   }`}
                 >
                   <p>{message.content}</p>
+                  {message.attachments && message.attachments.length > 0 && (
+                    <div className="mt-2 flex items-center gap-1 text-xs opacity-70">
+                      <FileText size={12} />
+                      <span>Dosya eklendi</span>
+                    </div>
+                  )}
                   <div className="flex items-center gap-1 mt-1 text-xs opacity-70">
                     <Clock size={10} />
                     <span>
@@ -202,9 +280,20 @@ export default function LiveSupportWidget() {
           {/* Input */}
           <div className="p-4 border-t border-white/10">
             <div className="flex items-center gap-2">
-              <button className="text-zinc-400 hover:text-white">
+              <input
+                type="file"
+                accept=".jpg,.jpeg,.png,.pdf,.txt"
+                onChange={handleFileUpload}
+                className="hidden"
+                id="file-upload"
+                disabled={uploading}
+              />
+              <label
+                htmlFor="file-upload"
+                className={`text-zinc-400 hover:text-white cursor-pointer ${uploading ? 'opacity-50' : ''}`}
+              >
                 <Paperclip size={18} />
-              </button>
+              </label>
               <input
                 type="text"
                 value={inputMessage}

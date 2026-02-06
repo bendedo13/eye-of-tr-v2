@@ -11,7 +11,8 @@
         "credits": "Credits",
         "search": "Search",
         "visualLocation": "Location Intel",
-        "logout": "Logout"
+        "logout": "Logout",
+        "support": "Support"
     },
     "hero": {
         "badge": "Next-Gen AI Recognition Engine v2.0",
@@ -49,198 +50,29 @@
             "desc": "Full GDPR and KVKK compliance for responsible facial intelligence. Our platform adheres to international standards for ethical AI and open-source intelligence protocols."
         },
         "card6": {
-            "title": "COMPREHENSIVE FACIAL ANALYTICS",
-            "desc": "Detailed metadata reports for every facial search result. Track confidence scores, source URLs, and image context with our advanced facial recognition SaaS platform."
+            "title": "COMPREHENSIVE OSINT DATA INTEGRATION",
+            "desc": "Facial search results from social media, news sites, and public records. Our OSINT facial recognition platform consolidates open-source intelligence."
         }
-    },
-    "howItWorksSection": {
-        "title": "HOW OUR",
-        "titleGray": "FACIAL SEARCH WORKS",
-        "step1": {
-            "number": "01",
-            "title": "IMAGE UPLOAD",
-            "desc": "Upload your target image to our secure facial search engine. Our platform accepts all standard formats and automatically optimizes resolution for maximum face recognition accuracy."
-        },
-        "step2": {
-            "number": "02",
-            "title": "AI FACIAL MAPPING",
-            "desc": "Advanced biometric algorithms extract 128 unique facial landmarks. Our image intelligence system creates a mathematical signature for precise facial recognition search across billions of indexed images."
-        },
-        "step3": {
-            "number": "03",
-            "title": "MULTI-SOURCE INDEXING",
-            "desc": "Your facial search query is simultaneously processed across Google, Bing, Yandex, and specialized OSINT databases. Our reverse image face search technology aggregates results from global web indexes in real-time."
-        },
-        "step4": {
-            "number": "04",
-            "title": "RESULTS & ANALYTICS",
-            "desc": "Receive comprehensive facial intelligence reports with confidence scores, source URLs, and contextual metadata. Every face recognition search includes detailed analytics for professional verification."
-        }
-    },
-    "features": {
-        "title": "PROFESSIONAL FACIAL INTELLIGENCE",
-        "subtitle": "Enterprise-grade facial search capabilities",
-        "feature1": {
-            "title": "Reverse Image Face Search",
-            "description": "Upload any photo and find matching faces across Google, Bing, Yandex, and specialized OSINT databases. Our AI facial recognition engine processes billions of images."
-        },
-        "feature2": {
-            "title": "OSINT Face Search",
-            "description": "Professional-grade open-source intelligence tools for investigative journalism, cybersecurity research, and lawful identification purposes."
-        },
-        "feature3": {
-            "title": "Privacy-Focused Facial Search",
-            "description": "GDPR and KVKK compliant. No permanent biometric databases. Images deleted within 24 hours. Your facial search queries remain private."
-        },
-        "feature4": {
-            "title": "Ethical AI Facial Recognition",
-            "description": "Responsible facial intelligence platform with strict acceptable use policies. Public data only. No law enforcement affiliations."
-        },
-        "feature5": {
-            "title": "Multi-Engine Aggregation",
-            "description": "Search across multiple sources simultaneously for comprehensive facial intelligence results."
-        },
-        "feature6": {
-            "title": "Facial Recognition SaaS",
-            "description": "Cloud-based facial search engine accessible from anywhere. No installation required. Enterprise API available."
-        }
-    },
-    "howItWorks": {
-        "title": "HOW IT WORKS",
-        "subtitle": "Professional facial search in 3 simple steps",
-        "step1": {
-            "title": "Upload Image",
-            "description": "Upload a photo containing a face. Our facial search engine automatically detects and extracts facial features using advanced AI facial mapping technology."
-        },
-        "step2": {
-            "title": "AI Processing",
-            "description": "Our facial recognition algorithms create a unique biometric signature and search across billions of indexed images from Google, Bing, Yandex, and OSINT databases through multi-source indexing."
-        },
-        "step3": {
-            "title": "Get Results",
-            "description": "Receive comprehensive facial intelligence reports with match confidence scores, source URLs, and contextual information for professional verification."
-        }
-    },
-    "cta": {
-        "title": "START YOUR FACIAL SEARCH",
-        "titlePart1": "START YOUR",
-        "titlePart2": "FACIAL SEARCH",
-        "description": "Join thousands of professionals using FaceSeek for ethical facial intelligence. Get 3 free searches to experience our AI face lookup platform.",
-        "button": "Create Free Account"
     },
     "footer": {
-        "tagline": "Professional Facial Search Engine",
-        "description": "FaceSeek is the world's leading ethical facial recognition search platform for OSINT research, investigative journalism, and security professionals.",
+        "description": "Advanced Facial Search Technology. Professional OSINT and facial recognition tools for digital investigations.",
         "product": "Product",
+        "faceSearch": "Face Search",
+        "support": "Support",
+        "pricing": "Pricing",
+        "dashboard": "Dashboard",
+        "history": "History",
         "company": "Company",
+        "about": "About Us",
+        "blog": "Blog",
+        "contact": "Contact",
         "legal": "Legal",
-        "systemStatusOnline": "System Status: Online",
-        "copyright": "© 2026 FaceSeek. All rights reserved.",
-        "links": {
-            "faceSearch": "Face Search",
-            "aboutUs": "About Us",
-            "contact": "Contact",
-            "legalHub": "Legal Hub"
-        },
-        "badges": {
-            "noStoreImages": "WE DON'T STORE IMAGES",
-            "privacyFirst": "PRIVACY-FIRST"
-        },
+        "legalHub": "Legal Hub",
         "privacy": "Privacy Policy",
         "terms": "Terms of Service",
-        "disclaimer": "Disclaimer",
         "kvkk": "KVKK",
-        "allRightsReserved": "All rights reserved."
-    },
-    "about": {
-        "title": "ETHICAL FACIAL INTELLIGENCE & RESPONSIBLE AI",
-        "intro": "FaceSeek is the world's leading privacy-focused facial search engine, built on principles of ethical AI, transparency, and responsible facial recognition technology.",
-        "mission": {
-            "title": "OUR MISSION",
-            "description": "To provide professionals with powerful facial intelligence tools while maintaining the highest standards of privacy, ethics, and legal compliance. We believe facial recognition technology should empower legitimate investigation without compromising individual rights."
-        },
-        "vision": {
-            "title": "OUR VISION",
-            "description": "A future where facial search technology serves society through responsible AI-powered image intelligence, strict privacy safeguards, and unwavering commitment to ethical facial recognition practices."
-        }
-    },
-    "blog": {
-        "title": "FACESEEK BLOG",
-        "subtitle": "Expert insights on facial recognition search, OSINT facial intelligence, and ethical AI.",
-        "readMore": "Read More",
-        "allArticles": "All Articles"
-    },
-    "auth": {
-        "login": "Login",
-        "register": "Register",
-        "email": "Email",
-        "password": "Password",
-        "confirmPassword": "Confirm Password",
-        "forgotPassword": "Forgot Password?",
-        "noAccount": "Don't have an account?",
-        "hasAccount": "Already have an account?",
-        "signIn": "Sign In",
-        "signUp": "Sign Up"
-    },
-    "common": {
-        "loading": "Loading...",
-        "initializingProtocol": "Initializing Protocol...",
-        "error": "Error",
-        "success": "Success",
-        "cancel": "Cancel",
-        "save": "Save",
-        "delete": "Delete",
-        "edit": "Edit",
-        "search": "Search",
-        "filter": "Filter",
-        "sort": "Sort",
-        "back": "Back"
-    },
-    "home": {
-        "privacyBadge": "We don’t store images",
-        "systemScanning": "System Scanning...",
-        "trust": {
-            "biometricSecure": "BIOMETRIC SECURE",
-            "gdprCompliant": "GDPR COMPLIANT",
-            "multiEngine": "MULTI-ENGINE"
-        }
-    },
-    "liveStats": {
-        "title": "Live",
-        "subtitle": "Stats",
-        "description": "Platform operation data is synchronized in real-time",
-        "status": "OPERATIONAL LIVE",
-        "dailyVisitors": "Daily Visitors",
-        "weeklySearches": "Weekly Scans",
-        "successRate": "Success Rate",
-        "totalUsers": "Total Users",
-        "weeklyVisitors": "Weekly Visitors",
-        "totalSearches": "Total Scans",
-        "activeAnalysts": "Active Analysts"
-    },
-    "dashboard": {
-        "title": "DASHBOARD",
-        "subtitle": "COMMAND",
-        "analyst": "Analyst",
-        "viewArchive": "VIEW ARCHIVE",
-        "startNewSearch": "START NEW SCAN",
-        "operationalCredit": "OPERATIONAL CREDIT",
-        "totalSearches": "TOTAL SCANS",
-        "successScore": "SUCCESS SCORE",
-        "referrals": "MY REFERRALS",
-        "referralProtocol": "REFERRAL PROTOCOL",
-        "referralDescription": "Invite new analysts and earn +1 credit for every 3 successful registrations.",
-        "referralCode": "YOUR UNIQUE REFERRAL CODE",
-        "totalInvites": "TOTAL INVITES",
-        "creditEarnings": "CREDIT EARNINGS",
-        "remainingTarget": "REMAINING TARGET",
-        "quickActions": "QUICK ACTIONS",
-        "newSearch": "NEW SCAN",
-        "upgradePlan": "UPGRADE PLAN",
-        "premiumAdvantage": "PREMIUM ADVANTAGE",
-        "premiumDescription": "Get 25% faster scan speeds with the Pro plan.",
-        "operationalHistory": "OPERATIONAL HISTORY",
-        "matches": "MATCHES",
-        "analysis": "ANALYSIS"
+        "disclaimer": "Disclaimer",
+        "allRightsReserved": "All Rights Reserved",
+        "poweredBy": "Powered by"
     }
 }
