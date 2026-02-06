@@ -7,13 +7,16 @@ const intlMiddleware = createMiddleware({
   localePrefix: "always",
 });
 
-export default function proxy(request: NextRequest) {
+export default function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
   if (pathname === "/@vite/client" || pathname === "/@react-refresh") {
     return new NextResponse(null, { status: 204 });
   }
-  if (pathname.match(/^\/(en|tr)\/@vite(\/.*)?$/) || pathname.match(/^\/(en|tr)\/@react-refresh(\/.*)?$/)) {
+  if (
+    pathname.match(/^\/(en|tr)\/@vite(\/.*)?$/) ||
+    pathname.match(/^\/(en|tr)\/@react-refresh(\/.*)?$/)
+  ) {
     return new NextResponse(null, { status: 204 });
   }
 
@@ -24,12 +27,13 @@ export default function proxy(request: NextRequest) {
     return NextResponse.redirect(nextUrl);
   }
 
+  if (pathname.startsWith("/admin")) {
+    return NextResponse.next();
+  }
+
   return intlMiddleware(request);
 }
 
 export const config = {
-  matcher: [
-    "/((?!api|_next|_vercel|admin|.*\\..*).*)",
-  ],
+  matcher: ["/((?!api|_next|_vercel|.*\\..*).*)"],
 };
-
