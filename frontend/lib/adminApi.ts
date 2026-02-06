@@ -109,6 +109,14 @@ export function adminListBankTransfers(adminKey: string, params: { status?: stri
   return adminFetch<{ items: any[] }>(`/admin/bank-transfers${qs ? `?${qs}` : ""}`, { method: "GET", adminKey });
 }
 
+export function adminListGuestBankInquiries(adminKey: string, params: { offset?: number; limit?: number } = {}) {
+  const usp = new URLSearchParams();
+  if (params.offset != null) usp.set("offset", String(params.offset));
+  if (params.limit != null) usp.set("limit", String(params.limit));
+  const qs = usp.toString();
+  return adminFetch<{ items: any[] }>(`/admin/guest-bank-inquiries${qs ? `?${qs}` : ""}`, { method: "GET", adminKey });
+}
+
 export function adminApproveBankTransfer(adminKey: string, requestId: number, payload: { message?: string; admin_note?: string } = {}) {
   return adminFetch<{ status: string }>(`/admin/bank-transfers/${requestId}/approve`, {
     method: "POST",

@@ -4,12 +4,45 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
+from pydantic import BaseModel
 
 from app.db.database import get_db
 from app.models.cms import BlogPost, SiteSetting
+from app.models.guest_bank_inquiry import GuestBankInquiry
 
 
 router = APIRouter(prefix="/api/public", tags=["public"])
+
+
+class GuestBankInquiryIn(BaseModel):
+    name: str
+    email: str
+    phone: str | None = None
+    desired_plan: str | None = None
+    desired_credits: int | None = None
+    message: str | None = None
+
+
+@router.post("/bank-transfer-inquiry")
+def create_guest_bank_inquiry(payload: GuestBankInquiryIn, db: Session = Depends(get_db)):
+    name = payload.name.strip()
+    email = payload.email.strip()
+    if not name or not email or "@" not in email:
+        raise HTTPException(status_code=400, detail="Name and valid email are required")
+
+    row = GuestBankInquiry(
+        name=name[:120],
+        email=email[:255],
+        phone=(payload.phone or "").strip()[:50] or None,
+        desired_plan=(payload.desired_plan or "").strip()[:120] or None,
+        desired_credits=int(payload.desired_credits) if payload.desired_credits else None,
+        message=(payload.message or "").strip() or None,
+        status="new",
+    )
+    db.add(row)
+    db.commit()
+    db.refresh(row)
+    return {"status": "ok", "request_id": row.id}
 
 
 @router.get("/blog-posts")

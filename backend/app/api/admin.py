@@ -18,6 +18,7 @@ from app.models.notification import Notification, NotificationType
 from app.models.subscription import Payment
 from app.models.user import User
 from app.models.bank_transfer import BankTransferRequest
+from app.models.guest_bank_inquiry import GuestBankInquiry
 from app.services.scraper_service import scraper_service
 from app.services.credit_service import CreditService
 from app.api.pricing import PRICING_PLANS
@@ -413,6 +414,38 @@ def admin_bank_transfers(
                 "reviewed_at": r.reviewed_at,
             }
         )
+    return {"items": items}
+
+
+@router.get("/guest-bank-inquiries")
+def admin_guest_bank_inquiries(
+    request: Request,
+    limit: int = 200,
+    offset: int = 0,
+    db: Session = Depends(get_db),
+):
+    _require_admin_key(request)
+    rows = (
+        db.query(GuestBankInquiry)
+        .order_by(desc(GuestBankInquiry.created_at))
+        .offset(offset)
+        .limit(min(limit, 500))
+        .all()
+    )
+    items = [
+        {
+            "id": r.id,
+            "name": r.name,
+            "email": r.email,
+            "phone": r.phone,
+            "desired_plan": r.desired_plan,
+            "desired_credits": r.desired_credits,
+            "message": r.message,
+            "status": r.status,
+            "created_at": r.created_at,
+        }
+        for r in rows
+    ]
     return {"items": items}
 
 

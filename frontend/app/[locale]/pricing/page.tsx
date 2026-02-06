@@ -3,7 +3,7 @@
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getPricingPlans, requestBankTransfer, subscribe } from "@/lib/api";
+import { createGuestBankInquiry, getPricingPlans, requestBankTransfer, subscribe } from "@/lib/api";
 import Navbar from "@/components/Navbar";
 import ClientOnly from "@/components/ClientOnly";
 
@@ -41,6 +41,18 @@ export default function PricingPage({
   const [bankSubmitting, setBankSubmitting] = useState(false);
   const [bankSuccess, setBankSuccess] = useState<string | null>(null);
   const [bankError, setBankError] = useState<string | null>(null);
+  const [ibanCopied, setIbanCopied] = useState(false);
+  const [guestOpen, setGuestOpen] = useState(false);
+  const [guestSubmitting, setGuestSubmitting] = useState(false);
+  const [guestSuccess, setGuestSuccess] = useState<string | null>(null);
+  const [guestError, setGuestError] = useState<string | null>(null);
+  const [guestForm, setGuestForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    desired: "",
+    message: "",
+  });
 
   useEffect(() => {
     fetchPlans();
@@ -148,6 +160,43 @@ export default function PricingPage({
     }
   };
 
+  const copyIban = async () => {
+    try {
+      await navigator.clipboard.writeText("TR550001009010879130805001");
+      setIbanCopied(true);
+      setTimeout(() => setIbanCopied(false), 1500);
+    } catch {
+      setIbanCopied(false);
+    }
+  };
+
+  const handleGuestSubmit = async () => {
+    setGuestError(null);
+    setGuestSuccess(null);
+    if (!guestForm.name.trim() || !guestForm.email.trim()) {
+      setGuestError("Ad soyad ve e-posta gerekli.");
+      return;
+    }
+    setGuestSubmitting(true);
+    try {
+      await createGuestBankInquiry({
+        name: guestForm.name.trim(),
+        email: guestForm.email.trim(),
+        phone: guestForm.phone.trim() || undefined,
+        desired_plan: guestForm.desired.trim() || undefined,
+        desired_credits: undefined,
+        message: guestForm.message.trim() || undefined,
+      });
+      setGuestSuccess("Talebiniz alindi. En kisa surede iletisime gecilecektir.");
+      setGuestOpen(false);
+      setGuestForm({ name: "", email: "", phone: "", desired: "", message: "" });
+    } catch (err: any) {
+      setGuestError(err?.message || "Talep gonderilemedi.");
+    } finally {
+      setGuestSubmitting(false);
+    }
+  };
+
   const getPlanName = (name: any): string => {
     if (typeof name === "string") return name;
     if (name?.tr) return name.tr;
@@ -220,61 +269,69 @@ export default function PricingPage({
 
           {paymentMethod === "bank" && (
             <div className="max-w-4xl mx-auto mb-12 bg-slate-800/60 border border-slate-700 rounded-2xl p-6 md:p-8">
-              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+              {user ? (
                 <div>
-                  <h2 className="text-xl font-black text-white mb-2">Banka Bilgileri</h2>
-                  <p className="text-slate-400 text-sm mb-4">
-                    Odemeyi yaptiktan sonra asagidaki formdan talep gonderin. Onaylandiginda kredi veya plan aktif edilir.
-                  </p>
-                  <div className="bg-slate-900/60 border border-slate-700 rounded-xl p-4 text-sm text-slate-200 space-y-2">
-                    <div><strong>Banka:</strong> Ziraat Bankasi</div>
-                    <div><strong>IBAN:</strong> TR550001009010879130805001</div>
-                  </div>
-                </div>
-                <div className="min-w-[200px]">
-                  <button
-                    onClick={() => setShowBankForm((v) => !v)}
-                    className="w-full py-3 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-700 text-white"
-                  >
-                    {showBankForm ? "Formu Gizle" : "Gonderdim"}
-                  </button>
-                </div>
-              </div>
-
-              {bankSuccess && (
-                <div className="mt-6 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 rounded-xl p-4 text-sm">
-                  {bankSuccess}
-                </div>
-              )}
-              {bankError && (
-                <div className="mt-6 bg-rose-500/10 border border-rose-500/30 text-rose-300 rounded-xl p-4 text-sm">
-                  {bankError}
-                </div>
-              )}
-
-              {showBankForm && (
-                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-3">
-                    <label className="text-sm text-slate-400 font-semibold">Satin Alma Turu</label>
-                    <div className="flex gap-3">
+                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+                    <div>
+                      <h2 className="text-xl font-black text-white mb-2">Banka Bilgileri</h2>
+                      <p className="text-slate-400 text-sm mb-4">
+                        Odemeyi yaptiktan sonra asagidaki formdan talep gonderin. Onaylandiginda kredi veya plan aktif edilir.
+                      </p>
+                      <div className="bg-slate-900/60 border border-slate-700 rounded-xl p-4 text-sm text-slate-200 space-y-2">
+                        <div><strong>Ad Soyad:</strong> Alper İnal</div>
+                        <div><strong>Banka:</strong> Ziraat Bankasi</div>
+                        <div className="flex items-center gap-3">
+                          <div><strong>IBAN:</strong> TR550001009010879130805001</div>
+                          <button onClick={copyIban} className="px-3 py-1.5 text-xs rounded-lg bg-slate-700 hover:bg-slate-600 text-white">
+                            {ibanCopied ? "Kopyalandi" : "IBAN Kopyala"}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="min-w-[200px]">
                       <button
-                        onClick={() => setBankPurchaseType("plan")}
-                        className={`flex-1 py-2 rounded-lg font-bold ${
-                          bankPurchaseType === "plan" ? "bg-indigo-600 text-white" : "bg-slate-700 text-slate-200"
-                        }`}
+                        onClick={() => setShowBankForm((v) => !v)}
+                        className="w-full py-3 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-700 text-white"
                       >
-                        Plan
-                      </button>
-                      <button
-                        onClick={() => setBankPurchaseType("credits")}
-                        className={`flex-1 py-2 rounded-lg font-bold ${
-                          bankPurchaseType === "credits" ? "bg-indigo-600 text-white" : "bg-slate-700 text-slate-200"
-                        }`}
-                      >
-                        Kredi
+                        {showBankForm ? "Formu Gizle" : "Gonderdim"}
                       </button>
                     </div>
                   </div>
+
+                  {bankSuccess && (
+                    <div className="mt-6 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 rounded-xl p-4 text-sm">
+                      {bankSuccess}
+                    </div>
+                  )}
+                  {bankError && (
+                    <div className="mt-6 bg-rose-500/10 border border-rose-500/30 text-rose-300 rounded-xl p-4 text-sm">
+                      {bankError}
+                    </div>
+                  )}
+
+                  {showBankForm && (
+                    <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-3">
+                        <label className="text-sm text-slate-400 font-semibold">Satin Alma Turu</label>
+                        <div className="flex gap-3">
+                          <button
+                            onClick={() => setBankPurchaseType("plan")}
+                            className={`flex-1 py-2 rounded-lg font-bold ${
+                              bankPurchaseType === "plan" ? "bg-indigo-600 text-white" : "bg-slate-700 text-slate-200"
+                            }`}
+                          >
+                            Plan
+                          </button>
+                          <button
+                            onClick={() => setBankPurchaseType("credits")}
+                            className={`flex-1 py-2 rounded-lg font-bold ${
+                              bankPurchaseType === "credits" ? "bg-indigo-600 text-white" : "bg-slate-700 text-slate-200"
+                            }`}
+                          >
+                            Kredi
+                          </button>
+                        </div>
+                      </div>
 
                   {bankPurchaseType === "plan" ? (
                     <div className="space-y-2">
@@ -328,15 +385,95 @@ export default function PricingPage({
                     />
                   </div>
 
-                  <div className="md:col-span-2">
-                    <button
-                      onClick={handleBankRequest}
-                      disabled={bankSubmitting}
-                      className="w-full py-3 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-700 text-white disabled:opacity-60"
-                    >
-                      {bankSubmitting ? "Gonderiliyor..." : "GONDER"}
-                    </button>
-                  </div>
+                      <div className="md:col-span-2">
+                        <button
+                          onClick={handleBankRequest}
+                          disabled={bankSubmitting}
+                          className="w-full py-3 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-700 text-white disabled:opacity-60"
+                        >
+                          {bankSubmitting ? "Gonderiliyor..." : "GONDER"}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center space-y-4">
+                  <h2 className="text-xl font-black text-white">Havale / EFT Bilgileri</h2>
+                  <p className="text-slate-400 text-sm">
+                    Havale/EFT bilgilerini gormek icin kayit olmaniz gerekir. Kayit olmadan iletisime gecin.
+                  </p>
+                  <button
+                    onClick={() => setGuestOpen((v) => !v)}
+                    className="px-6 py-3 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-700 text-white"
+                  >
+                    Iletisim
+                  </button>
+
+                  {guestSuccess && (
+                    <div className="mt-6 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 rounded-xl p-4 text-sm">
+                      {guestSuccess}
+                    </div>
+                  )}
+                  {guestError && (
+                    <div className="mt-6 bg-rose-500/10 border border-rose-500/30 text-rose-300 rounded-xl p-4 text-sm">
+                      {guestError}
+                    </div>
+                  )}
+
+                  {guestOpen && (
+                    <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                      <div className="space-y-2">
+                        <label className="text-sm text-slate-400 font-semibold">Ad Soyad</label>
+                        <input
+                          value={guestForm.name}
+                          onChange={(e) => setGuestForm({ ...guestForm, name: e.target.value })}
+                          className="w-full bg-slate-900/60 border border-slate-700 rounded-xl px-4 py-3 text-slate-200"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm text-slate-400 font-semibold">E-posta</label>
+                        <input
+                          value={guestForm.email}
+                          onChange={(e) => setGuestForm({ ...guestForm, email: e.target.value })}
+                          className="w-full bg-slate-900/60 border border-slate-700 rounded-xl px-4 py-3 text-slate-200"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm text-slate-400 font-semibold">Telefon</label>
+                        <input
+                          value={guestForm.phone}
+                          onChange={(e) => setGuestForm({ ...guestForm, phone: e.target.value })}
+                          className="w-full bg-slate-900/60 border border-slate-700 rounded-xl px-4 py-3 text-slate-200"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm text-slate-400 font-semibold">Istenen Paket/Kredi</label>
+                        <input
+                          value={guestForm.desired}
+                          onChange={(e) => setGuestForm({ ...guestForm, desired: e.target.value })}
+                          className="w-full bg-slate-900/60 border border-slate-700 rounded-xl px-4 py-3 text-slate-200"
+                        />
+                      </div>
+                      <div className="space-y-2 md:col-span-2">
+                        <label className="text-sm text-slate-400 font-semibold">Mesaj</label>
+                        <textarea
+                          value={guestForm.message}
+                          onChange={(e) => setGuestForm({ ...guestForm, message: e.target.value })}
+                          className="w-full bg-slate-900/60 border border-slate-700 rounded-xl px-4 py-3 text-slate-200 min-h-[110px]"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <button
+                          onClick={handleGuestSubmit}
+                          disabled={guestSubmitting}
+                          className="w-full py-3 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-700 text-white disabled:opacity-60"
+                        >
+                          {guestSubmitting ? "Gonderiliyor..." : "GONDER"}
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

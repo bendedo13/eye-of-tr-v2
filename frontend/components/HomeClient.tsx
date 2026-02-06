@@ -24,7 +24,9 @@ import {
   ArrowRight,
   Fingerprint,
   Layers,
-  Sparkles
+  Sparkles,
+  BadgeCheck,
+  Shield
 } from "lucide-react";
 
 export default function HomeClient({
@@ -194,6 +196,23 @@ export default function HomeClient({
           </div>
         </section>
 
+        {/* Trust Badges */}
+        <section className="py-16 px-6">
+          <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[
+              { icon: <Shield size={22} />, label: "SSL Secure" },
+              { icon: <BadgeCheck size={22} />, label: "KVKK Uyumlu" },
+              { icon: <ShieldCheck size={22} />, label: "GDPR Ready" },
+              { icon: <Lock size={22} />, label: "Privacy First" }
+            ].map((b, i) => (
+              <div key={i} className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm font-semibold text-zinc-300">
+                <span className="text-primary">{b.icon}</span>
+                <span>{b.label}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
         <div className="px-6 -mt-10">
           <ReferralPromo locale={locale} />
         </div>
@@ -254,9 +273,17 @@ export default function HomeClient({
                 <div className="absolute inset-0 bg-primary/20 blur-[120px] rounded-full"></div>
                 <GlassCard className="p-4 border-white/10 shadow-2xl relative z-10" hasScanline>
                   <div className="bg-zinc-950 rounded-2xl overflow-hidden aspect-square flex items-center justify-center border border-white/5">
-                    <div className="relative group cursor-crosshair w-full h-full flex items-center justify-center">
+                    <div className="relative w-full h-full">
+                      <video
+                        className="w-full h-full object-cover"
+                        src="/media/face-seek-intro.mp4"
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                      />
                       <div className="absolute inset-x-0 h-0.5 bg-primary/50 shadow-[0_0_15px_var(--color-primary)] animate-[scanline_3s_linear_infinite]"></div>
-                      <div className="text-[10px] font-black text-primary/50 uppercase tracking-[0.5em]">
+                      <div className="absolute bottom-4 left-0 right-0 text-center text-[9px] font-black text-primary/70 uppercase tracking-[0.4em]">
                         {tHome("systemScanning")}
                       </div>
                     </div>

@@ -81,6 +81,7 @@ export default function AdminLayout({
     { label: "Kullanıcılar", icon: <Users size={20} />, href: "/admin/users" },
     { label: "Ödemeler", icon: <CreditCard size={20} />, href: "/admin/payments" },
     { label: "Banka Transferleri", icon: <CreditCard size={20} />, href: "/admin/bank-transfers" },
+    { label: "Misafir Talepleri", icon: <FileText size={20} />, href: "/admin/guest-bank-inquiries" },
     { label: "Referanslar", icon: <Gift size={20} />, href: "/admin/referrals" },
     { label: "Blog", icon: <FileText size={20} />, href: "/admin/blog" },
     { label: "Yasal", icon: <FileText size={20} />, href: "/admin/legal" },
