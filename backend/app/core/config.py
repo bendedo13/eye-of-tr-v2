@@ -70,6 +70,7 @@ class Settings(BaseSettings):
     RAPIDAPI_LENS_BASE_URL: str = "https://real-time-lens-data.p.rapidapi.com"
 
     PUBLIC_BASE_URL: str = "https://www.face-seek.com"
+    DEFAULT_LOCALE: str = "en"
 
     # Face Embedding
     FACE_EMBEDDER_BACKEND: str = "insightface"  # insightface | mock
@@ -115,6 +116,7 @@ class Settings(BaseSettings):
     MAX_ACCOUNTS_PER_IP_PER_DAY: int = 3
     EMAIL_VERIFICATION_CODE_TTL_MINUTES: int = 15
     EMAIL_VERIFICATION_RESEND_COOLDOWN_SECONDS: int = 60
+    ALLOW_VERIFY_LINK: bool = True
 
     # Email (SMTP)
     SMTP_HOST: Optional[str] = None
@@ -122,6 +124,11 @@ class Settings(BaseSettings):
     SMTP_USER: Optional[str] = None
     SMTP_PASS: Optional[str] = None
     SMTP_FROM: Optional[str] = None
+    SMTP_FROM_VERIFY: Optional[str] = None
+    SMTP_FROM_WELCOME: Optional[str] = None
+    SMTP_USE_SSL: bool = False
+    SMTP_STARTTLS: bool = True
+    SMTP_TIMEOUT: int = 20
 
     # LemonSqueezy
     LEMONSQUEEZY_API_KEY: Optional[str] = None

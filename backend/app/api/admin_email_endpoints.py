@@ -52,6 +52,7 @@ def admin_send_email(
     subject = payload.get("subject")
     content_html = payload.get("content_html")
     template_name = payload.get("template_name")
+    from_email = payload.get("from_email")
     
     if not to_email or not subject:
         raise HTTPException(status_code=400, detail="Missing email or subject")
@@ -67,13 +68,18 @@ def admin_send_email(
         if tmpl:
             final_content = tmpl.body_html_template
     
+    allowed_from = {settings.SMTP_FROM, settings.SMTP_FROM_VERIFY, settings.SMTP_FROM_WELCOME}
+    if from_email and from_email not in allowed_from:
+        raise HTTPException(status_code=400, detail="Invalid from_email")
+
     email_service.send_email(
         to_email=to_email,
         subject=subject,
         template_str=final_content or "",
         context=payload.get("context", {}),
         db=db,
-        background_tasks=background_tasks
+        background_tasks=background_tasks,
+        from_email=from_email,
     )
     
     _audit(

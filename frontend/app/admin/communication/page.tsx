@@ -46,7 +46,8 @@ export default function CommunicationPage() {
     to_email: "",
     subject: "",
     content_html: "",
-    template_name: ""
+    template_name: "",
+    from_email: ""
   });
   const [templates, setTemplates] = useState<any[]>([]);
 
@@ -115,11 +116,15 @@ export default function CommunicationPage() {
 
   const handleSendEmail = async () => {
     try {
-      await adminSendEmail(adminKey, emailForm);
+      const payload = { ...emailForm };
+      if (!payload.from_email) {
+        delete (payload as any).from_email;
+      }
+      await adminSendEmail(adminKey, payload);
       toast.success("E-posta kuyruğa eklendi");
       setIsEmailModalOpen(false);
       loadData();
-      setEmailForm({ to_email: "", subject: "", content_html: "", template_name: "" });
+      setEmailForm({ to_email: "", subject: "", content_html: "", template_name: "", from_email: "" });
     } catch (err) {
       toast.error("E-posta gönderilemedi");
     }
@@ -367,6 +372,17 @@ export default function CommunicationPage() {
                   value={emailForm.subject}
                   onChange={e => setEmailForm({...emailForm, subject: e.target.value})}
                   className="w-full bg-black/40 border border-white/10 rounded-lg p-2 text-sm text-white focus:border-primary/50 outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-zinc-500 uppercase font-bold block mb-1">Gönderen (Opsiyonel)</label>
+                <input
+                  type="email"
+                  value={emailForm.from_email}
+                  onChange={e => setEmailForm({...emailForm, from_email: e.target.value})}
+                  className="w-full bg-black/40 border border-white/10 rounded-lg p-2 text-sm text-white focus:border-primary/50 outline-none"
+                  placeholder="faceseek@face-seek.com"
                 />
               </div>
               

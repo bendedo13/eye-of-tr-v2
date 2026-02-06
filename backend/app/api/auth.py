@@ -1,5 +1,6 @@
 """Register / Login endpoint'leri"""
 from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 import logging
 import secrets
@@ -34,7 +35,7 @@ from app.services.verification_service import (
     verify_code,
     create_or_replace_verification,
 )
-from app.services.mailer import MailerError
+from app.services.mailer import MailerError, send_welcome_email
 from app.services.password_reset_service import PasswordResetError, create_reset, mark_used, send_reset_email, verify_token
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
@@ -93,7 +94,7 @@ def register(data: UserRegister, request: Request, db: Session = Depends(get_db)
         referral_code=referral_code,
         credits=1,  # 1 ücretsiz arama kredisi
         tier="free",
-        is_active=True, # Otomatik aktif et (email doğrulama pasif)
+        is_active=False,
     )
     db.add(user)
     db.commit()
@@ -106,7 +107,7 @@ def register(data: UserRegister, request: Request, db: Session = Depends(get_db)
     if data.referral_code:
         ReferralService.process_referral(user, data.referral_code, db)
     
-    verification_required = False # Doğrulama gerekmiyor
+    verification_required = True
     debug_code = None
     
     # Doğrulama kodu oluşturma (opsiyonel, belki ileride lazım olur diye DB'de dursun)
@@ -116,7 +117,7 @@ def register(data: UserRegister, request: Request, db: Session = Depends(get_db)
     except Exception:
         pass
     
-    logger.info(f"New user registered: {user.email} (Active: True)")
+    logger.info(f"New user registered: {user.email} (Active: {user.is_active})")
     return RegisterResponse(verification_required=verification_required, debug_code=debug_code if settings.DEBUG else None)
 
 
@@ -131,9 +132,7 @@ def login(data: UserLogin, db: Session = Depends(get_db)):
         )
     # Email doğrulaması kontrolünü pasif yaptık
     if not user.is_active:
-         user.is_active = True
-         db.commit()
-         # raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Email doğrulaması gerekli")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Email doğrulaması gerekli.")
     
     token = create_access_token(subject=user.id)
     return Token(access_token=token)
@@ -154,12 +153,45 @@ def verify_email(data: VerifyEmailRequest, request: Request, db: Session = Depen
     except VerificationError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
-    if not user.is_active:
+    first_activation = not user.is_active
+    if first_activation:
         user.is_active = True
         db.commit()
+        try:
+            send_welcome_email(user.email)
+        except MailerError:
+            if not settings.DEBUG:
+                pass
 
     token = create_access_token(subject=user.id)
     return Token(access_token=token)
+
+
+@router.get("/verify-link")
+def verify_link(email: str, code: str, db: Session = Depends(get_db)):
+    if not settings.ALLOW_VERIFY_LINK:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    try:
+        verify_code(db, user, code)
+    except VerificationError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+    first_activation = not user.is_active
+    if first_activation:
+        user.is_active = True
+        db.commit()
+        try:
+            send_welcome_email(user.email)
+        except MailerError:
+            if not settings.DEBUG:
+                pass
+
+    base = (settings.PUBLIC_BASE_URL or "").rstrip("/")
+    locale = (settings.DEFAULT_LOCALE or "en").strip("/") or "en"
+    return RedirectResponse(url=f"{base}/{locale}/login?verified=1")
 
 
 @router.post("/resend-code")
