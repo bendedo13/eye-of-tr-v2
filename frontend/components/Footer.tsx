@@ -72,7 +72,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <a href="mailto:contact@face-seek.com" className="text-slate-400 hover:text-[#00d9ff] transition-colors text-sm">
+                <a href="mailto:benalanx@face-seek.com" className="text-slate-400 hover:text-[#00d9ff] transition-colors text-sm">
                   {t('contact')}
                 </a>
               </li>
@@ -116,7 +116,7 @@ export default function Footer() {
         <div className="border-t border-[#00d9ff]/10 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-slate-500 text-xs">
-              © 2017-2026 Face Seek. {t('allRightsReserved')}.{" "}
+              (c) 2017-2026 Face Seek. {t('allRightsReserved')}.{" "}
               <span className="text-slate-600">|</span>{" "}
               <span className="text-slate-400">
                 {t('poweredBy')} <span className="text-[#00d9ff] font-semibold">Alan</span>

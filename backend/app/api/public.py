@@ -109,6 +109,7 @@ def public_site_config(locale: str, db: Session = Depends(get_db)):
         "home.analysis_video_url",
         "home.analysis_video_title",
         "site.maintenance_mode",
+        "site.contact_email",
     ]
     rows = db.query(SiteSetting).filter(SiteSetting.key.in_(keys)).all()
     out: dict[str, Any] = {}

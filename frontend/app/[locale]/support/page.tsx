@@ -1,17 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { 
-  MessageSquare, 
-  Plus, 
-  Search, 
-  Filter, 
-  Clock, 
-  CheckCircle,
+import {
+  MessageSquare,
+  Plus,
+  Clock,
   XCircle,
   AlertTriangle,
   Send,
-  Paperclip,
   User,
   Shield,
   ChevronRight
@@ -20,6 +16,8 @@ import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
 import Link from "next/link";
 import { useLocale } from "next-intl";
+
+const CONTACT_EMAIL = "benalanx@face-seek.com";
 
 interface SupportTicket {
   id: number;
@@ -77,7 +75,7 @@ export default function SupportPage() {
     try {
       const params: any = {};
       if (statusFilter) params.status = statusFilter;
-      
+
       const res = await api.get("/api/support/tickets", { params });
       setTickets(res.data || []);
     } catch (err) {
@@ -115,7 +113,7 @@ export default function SupportPage() {
 
   const loadMessages = async () => {
     if (!selectedTicket) return;
-    
+
     try {
       const res = await api.get(`/api/support/tickets/${selectedTicket.id}/messages`);
       setMessages(res.data || []);
@@ -263,6 +261,9 @@ export default function SupportPage() {
           >
             Giriş Yap
           </Link>
+          <div className="mt-4 text-sm text-zinc-500">
+            Alternatif: <a className="text-cyan-300 hover:text-cyan-200" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+          </div>
         </div>
       </div>
     );
@@ -272,7 +273,7 @@ export default function SupportPage() {
     <div className="max-w-6xl mx-auto p-6">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold text-white tracking-tight">Destek</h1>
-        
+
         <div className="flex items-center gap-4">
           <select
             value={statusFilter}
@@ -285,7 +286,7 @@ export default function SupportPage() {
             <option value="resolved">Çözüldü</option>
             <option value="closed">Kapalı</option>
           </select>
-          
+
           <button
             onClick={() => setShowNewTicket(true)}
             className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg font-medium transition-colors"
@@ -294,6 +295,18 @@ export default function SupportPage() {
             Yeni Talep
           </button>
         </div>
+      </div>
+
+      <div className="bg-white/5 rounded-xl border border-white/10 px-6 py-4 mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <p className="text-sm text-zinc-400">
+          Destek ekibiyle hızlı iletişim için e-posta adresimiz:
+        </p>
+        <a
+          href={`mailto:${CONTACT_EMAIL}`}
+          className="text-cyan-300 hover:text-cyan-200 font-medium"
+        >
+          {CONTACT_EMAIL}
+        </a>
       </div>
 
       {/* New Ticket Modal */}
@@ -309,7 +322,7 @@ export default function SupportPage() {
                 <XCircle size={20} />
               </button>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-zinc-300 mb-2">Kategori</label>
@@ -326,7 +339,7 @@ export default function SupportPage() {
                   <option value="feature_request">Özellik Talebi</option>
                 </select>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-zinc-300 mb-2">Öncelik</label>
                 <select
@@ -341,7 +354,7 @@ export default function SupportPage() {
                 </select>
               </div>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-zinc-300 mb-2">Başlık</label>
               <input
@@ -352,7 +365,7 @@ export default function SupportPage() {
                 className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-white placeholder-zinc-500 focus:border-primary/50 outline-none"
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-zinc-300 mb-2">Açıklama</label>
               <textarea
@@ -363,7 +376,7 @@ export default function SupportPage() {
                 className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-white placeholder-zinc-500 focus:border-primary/50 outline-none resize-none"
               />
             </div>
-            
+
             <div className="flex justify-end gap-3 pt-4">
               <button
                 onClick={() => setShowNewTicket(false)}
@@ -394,7 +407,7 @@ export default function SupportPage() {
                 <span className="text-xs text-zinc-400">({tickets.length})</span>
               </div>
             </div>
-            
+
             <div className="max-h-96 overflow-y-auto">
               {loading ? (
                 <div className="p-4 text-center text-zinc-500 text-sm">Yükleniyor...</div>
@@ -408,7 +421,7 @@ export default function SupportPage() {
                     key={ticket.id}
                     onClick={() => setSelectedTicket(ticket)}
                     className={`p-4 border-b border-white/5 cursor-pointer hover:bg-white/5 transition-colors ${
-                      selectedTicket?.id === ticket.id ? 'bg-primary/10 border-primary/20' : ''
+                      selectedTicket?.id === ticket.id ? "bg-primary/10 border-primary/20" : ""
                     }`}
                   >
                     <div className="flex items-start justify-between mb-2">
@@ -422,19 +435,19 @@ export default function SupportPage() {
                         {ticket.priority}
                       </span>
                     </div>
-                    
+
                     <div className="flex items-center justify-between text-xs text-zinc-400">
                       <span>{getCategoryLabel(ticket.category)}</span>
                       <span>
-                        {new Date(ticket.created_at).toLocaleDateString('tr-TR')}
+                        {new Date(ticket.created_at).toLocaleDateString("tr-TR")}
                       </span>
                     </div>
-                    
+
                     <div className="flex items-center justify-between mt-2">
                       <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${getStatusColor(ticket.status)}`}>
-                        {ticket.status === 'open' ? 'Açık' : 
-                         ticket.status === 'in_progress' ? 'İşlemde' :
-                         ticket.status === 'resolved' ? 'Çözüldü' : 'Kapalı'}
+                        {ticket.status === "open" ? "Açık" :
+                         ticket.status === "in_progress" ? "İşlemde" :
+                         ticket.status === "resolved" ? "Çözüldü" : "Kapalı"}
                       </span>
                       <ChevronRight size={14} className="text-zinc-500" />
                     </div>
@@ -461,13 +474,13 @@ export default function SupportPage() {
                       {selectedTicket.priority}
                     </span>
                     <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${getStatusColor(selectedTicket.status)}`}>
-                      {selectedTicket.status === 'open' ? 'Açık' : 
-                       selectedTicket.status === 'in_progress' ? 'İşlemde' :
-                       selectedTicket.status === 'resolved' ? 'Çözüldü' : 'Kapalı'}
+                      {selectedTicket.status === "open" ? "Açık" :
+                       selectedTicket.status === "in_progress" ? "İşlemde" :
+                       selectedTicket.status === "resolved" ? "Çözüldü" : "Kapalı"}
                     </span>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-4 text-sm text-zinc-400">
                   <div className="flex items-center gap-1">
                     <User size={14} />
@@ -475,7 +488,7 @@ export default function SupportPage() {
                   </div>
                   <div className="flex items-center gap-1">
                     <Clock size={14} />
-                    <span>{new Date(selectedTicket.created_at).toLocaleString('tr-TR')}</span>
+                    <span>{new Date(selectedTicket.created_at).toLocaleString("tr-TR")}</span>
                   </div>
                 </div>
               </div>
@@ -485,23 +498,23 @@ export default function SupportPage() {
                 {messages.map((message) => (
                   <div
                     key={message.id}
-                    className={`flex ${message.is_admin ? 'justify-start' : 'justify-end'}`}
+                    className={`flex ${message.is_admin ? "justify-start" : "justify-end"}`}
                   >
                     <div
                       className={`max-w-xs px-4 py-2 rounded-lg ${
                         message.is_admin
-                          ? 'bg-white/10 text-white border border-white/20'
-                          : 'bg-primary text-white'
+                          ? "bg-white/10 text-white border border-white/20"
+                          : "bg-primary text-white"
                       }`}
                     >
                       <p className="text-sm mb-1">{message.content}</p>
                       <div className="flex items-center gap-2 text-xs opacity-70">
-                        <span>{message.is_admin ? 'Destek Ekibi' : 'Siz'}</span>
+                        <span>{message.is_admin ? "Destek Ekibi" : "Siz"}</span>
                         <span>•</span>
                         <span>
-                          {new Date(message.created_at).toLocaleString('tr-TR', {
-                            hour: '2-digit',
-                            minute: '2-digit'
+                          {new Date(message.created_at).toLocaleString("tr-TR", {
+                            hour: "2-digit",
+                            minute: "2-digit"
                           })}
                         </span>
                       </div>

@@ -357,7 +357,7 @@ export default function HomeClient({
                 <div className="flex flex-col gap-4">
                   <Link href={`/${locale}/legal/about`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tFooter("links.aboutUs")}</Link>
                   <Link href={`/${locale}/blog`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tNav("blog")}</Link>
-                  <a href="mailto:contact@face-seek.com" className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tFooter("links.contact")}</a>
+                  <a href="mailto:benalanx@face-seek.com" className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tFooter("links.contact")}</a>
                 </div>
               </div>
               <div className="space-y-6">
