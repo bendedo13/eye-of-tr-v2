@@ -5,7 +5,7 @@ import { Bell, Check, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/api";
 import Link from "next/link";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 interface Notification {
   id: number;
@@ -18,22 +18,23 @@ interface Notification {
 }
 
 export default function NotificationBell() {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const locale = useLocale();
+  const t = useTranslations("notifications");
 
   // Poll for unread count
   useEffect(() => {
-    if (!user) return;
+    if (!user || !token) return;
 
     const fetchCount = async () => {
       try {
-        const res = await api.get("/api/notifications/unread-count");
-        setUnreadCount(res.data.count);
+        const res = await api.get("/api/notifications/unread-count", { token });
+        setUnreadCount(res.count ?? 0);
       } catch (err) {
         console.error("Failed to fetch notification count", err);
       }
@@ -43,7 +44,7 @@ export default function NotificationBell() {
     const interval = setInterval(fetchCount, 60000); // Poll every minute
 
     return () => clearInterval(interval);
-  }, [user]);
+  }, [user, token]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -59,8 +60,8 @@ export default function NotificationBell() {
   const fetchNotifications = async () => {
     setLoading(true);
     try {
-      const res = await api.get("/api/notifications/?limit=5");
-      setNotifications(res.data);
+      const res = await api.get("/api/notifications/?limit=5", { token: token || undefined });
+      setNotifications(res || []);
     } catch (err) {
       console.error("Failed to fetch notifications", err);
     } finally {
@@ -77,7 +78,7 @@ export default function NotificationBell() {
 
   const markAsRead = async (id: number) => {
     try {
-      await api.put(`/api/notifications/${id}/read`);
+      await api.put(`/api/notifications/${id}/read`, undefined, { token: token || undefined });
       setNotifications(prev => 
         prev.map(n => n.id === id ? { ...n, is_read: true } : n)
       );
@@ -89,7 +90,7 @@ export default function NotificationBell() {
 
   const markAllAsRead = async () => {
     try {
-      await api.put("/api/notifications/read-all");
+      await api.put("/api/notifications/read-all", undefined, { token: token || undefined });
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
       setUnreadCount(0);
     } catch (err) {
@@ -117,22 +118,22 @@ export default function NotificationBell() {
       {isOpen && (
         <div className="absolute right-0 mt-2 w-80 bg-[#0f172a] border border-[#1e293b] rounded-xl shadow-2xl z-50 overflow-hidden">
           <div className="flex items-center justify-between p-3 border-b border-[#1e293b] bg-[#1e293b]/50">
-            <h3 className="text-sm font-bold text-white">Bildirimler</h3>
+            <h3 className="text-sm font-bold text-white">{t("title")}</h3>
             {unreadCount > 0 && (
               <button 
                 onClick={markAllAsRead}
                 className="text-[10px] text-[#00d9ff] hover:underline"
               >
-                Tümünü Okundu İşaretle
+                {t("markAllRead")}
               </button>
             )}
           </div>
 
           <div className="max-h-96 overflow-y-auto">
             {loading ? (
-              <div className="p-4 text-center text-zinc-500 text-xs">Yükleniyor...</div>
+              <div className="p-4 text-center text-zinc-500 text-xs">{t("loading")}</div>
             ) : notifications.length === 0 ? (
-              <div className="p-4 text-center text-zinc-500 text-xs">Bildirim yok</div>
+              <div className="p-4 text-center text-zinc-500 text-xs">{t("empty")}</div>
             ) : (
               <div className="divide-y divide-[#1e293b]">
                 {notifications.map((notif) => (
@@ -158,7 +159,7 @@ export default function NotificationBell() {
                               className="text-[9px] text-[#00d9ff] hover:underline"
                               onClick={() => setIsOpen(false)}
                             >
-                              Görüntüle
+                              {t("view")}
                             </Link>
                           )}
                         </div>
@@ -167,7 +168,7 @@ export default function NotificationBell() {
                         <button 
                           onClick={() => markAsRead(notif.id)}
                           className="text-zinc-500 hover:text-[#00d9ff]"
-                          title="Okundu işaretle"
+                          title={t("markRead")}
                         >
                           <div className="h-2 w-2 rounded-full bg-[#00d9ff]"></div>
                         </button>
@@ -185,7 +186,7 @@ export default function NotificationBell() {
               className="text-[10px] text-zinc-400 hover:text-white transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              Tüm Bildirimleri Gör
+              {t("viewAll")}
             </Link>
           </div>
         </div>

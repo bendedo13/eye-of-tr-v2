@@ -61,7 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
       setMounted(true);
     }
-  }, []);
+  }, [token]);
 
   const login = async (email: string, password: string) => {
     const { access_token } = await apiLogin(email, password);
@@ -103,6 +103,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const u = await me(t);
     setUser(u);
   };
+
+  // Auto-refresh token every 50 minutes (before 60min expiry)
+  useEffect(() => {
+    if (!token || !user) return;
+
+    const refreshInterval = setInterval(async () => {
+      try {
+        const freshUser = await me(token);
+        setUser(freshUser);
+      } catch (error) {
+        console.error("Token refresh failed:", error);
+        logout();
+      }
+    }, 50 * 60 * 1000); // 50 minutes
+
+    return () => clearInterval(refreshInterval);
+  }, [token, user]);
 
   const logout = () => {
     localStorage.removeItem(TOKEN_KEY);

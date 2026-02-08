@@ -8,6 +8,7 @@ import ClientOnly from "@/components/ClientOnly";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/Button";
 import { Mail, Key, ShieldCheck, Zap, ArrowRight, Layout } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { use } from "react";
 
@@ -19,6 +20,9 @@ export default function LoginPage({
   const { locale } = use(params);
   const router = useRouter();
   const { login, user, mounted, loading } = useAuth();
+  const tLogin = useTranslations("auth.login");
+  const tErrors = useTranslations("auth.errors");
+  const tCommon = useTranslations("auth.common");
 
   const [formData, setFormData] = useState({
     email: "",
@@ -38,7 +42,7 @@ export default function LoginPage({
     setError("");
 
     if (!formData.email || !formData.password) {
-      setError("Lütfen tüm alanları doldurun");
+      setError(tErrors("required"));
       return;
     }
 
@@ -50,15 +54,21 @@ export default function LoginPage({
     } catch (err: any) {
       // Provide more specific error messages
       if (err.statusCode === 401) {
-        setError("E-posta veya şifre hatalı. Lütfen kontrol edip tekrar deneyin.");
+        setError(tErrors("invalidLogin"));
+      } else if (err.statusCode === 403) {
+        if (typeof window !== "undefined") {
+          window.localStorage.setItem("pending-verify-email", formData.email);
+        }
+        router.push(`/${locale}/verify-email?email=${encodeURIComponent(formData.email)}`);
+        return;
       } else if (err.statusCode === 400) {
-        setError(err.message || "Geçersiz giriş bilgileri.");
+        setError(err.message || tErrors("invalidCredentials"));
       } else if (err.statusCode === 408 || err.message?.includes("Timeout")) {
-        setError("Sunucuya bağlanılamıyor. İnternet bağlantınızı kontrol edin.");
+        setError(tErrors("timeout"));
       } else if (err.statusCode >= 500) {
-        setError("Sunucu hatası. Lütfen daha sonra tekrar deneyin.");
+        setError(tErrors("serverError"));
       } else {
-        setError(err.message || "Giriş başarısız. Kimlik bilgilerinizi kontrol edin.");
+        setError(err.message || tErrors("invalidCredentials"));
       }
     } finally {
       setIsLoading(false);
@@ -73,7 +83,13 @@ export default function LoginPage({
     );
   }
 
-  if (user) return null;
+  if (user) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
+        <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <ClientOnly>
@@ -83,15 +99,15 @@ export default function LoginPage({
 
         <div className="w-full max-w-[480px] animate-in fade-in zoom-in duration-700">
           <div className="text-center mb-12">
-            <Link href="/" className="inline-flex items-center gap-3 mb-8 group transition-transform hover:scale-105">
+            <Link href={`/${locale}`} className="inline-flex items-center gap-3 mb-8 group transition-transform hover:scale-105">
               <div className="w-14 h-14 bg-primary/20 border border-primary/40 rounded-2xl flex items-center justify-center text-primary shadow-2xl shadow-primary/20 group-hover:rotate-6 transition-transform">
                 <ShieldCheck size={32} />
               </div>
               <span className="font-black text-3xl tracking-tighter text-white uppercase">FACE<span className="text-zinc-600">SEEK</span></span>
             </Link>
-            <h1 className="text-2xl font-black text-white uppercase tracking-tight mb-2">OPERASYONEL ERİŞİM</h1>
+            <h1 className="text-2xl font-black text-white uppercase tracking-tight mb-2">{tLogin("title")}</h1>
             <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-2">
-              <Layout size={12} /> Secure Portal Entry Protocol
+              <Layout size={12} /> {tLogin("subtitle")}
             </p>
           </div>
 
@@ -106,7 +122,7 @@ export default function LoginPage({
               <div className="space-y-6">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest flex items-center gap-2 px-1">
-                    <Mail size={12} /> E-POSTA ADRESİ
+                    <Mail size={12} /> {tLogin("emailLabel")}
                   </label>
                   <input
                     type="email"
@@ -122,9 +138,9 @@ export default function LoginPage({
                 <div className="space-y-2">
                   <div className="flex items-center justify-between px-1">
                     <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest flex items-center gap-2">
-                      <Key size={12} /> PAROLA
+                      <Key size={12} /> {tLogin("passwordLabel")}
                     </label>
-                    <Link href={`/${locale}/forgot-password`} className="text-[9px] font-black text-primary/60 hover:text-primary uppercase tracking-widest transition-colors">ŞİFREMİ UNUTTUM</Link>
+                    <Link href={`/${locale}/forgot-password`} className="text-[9px] font-black text-primary/60 hover:text-primary uppercase tracking-widest transition-colors">{tLogin("forgotPassword")}</Link>
                   </div>
                   <input
                     type="password"
@@ -143,13 +159,13 @@ export default function LoginPage({
                 isLoading={isLoading}
                 className="w-full h-16 font-black uppercase tracking-[0.3em] shadow-xl shadow-primary/20"
               >
-                SİSTEME GİRİŞ YAP <ArrowRight className="ml-3" size={18} />
+                {tLogin("submit")} <ArrowRight className="ml-3" size={18} />
               </Button>
             </form>
           </GlassCard>
 
           <p className="mt-10 text-center text-zinc-500 text-xs font-bold uppercase tracking-widest">
-            Hesabınız yok mu? <Link href={`/${locale}/register`} className="text-primary hover:text-white transition-colors underline underline-offset-4 decoration-primary/40 hover:decoration-primary">OPERASYONA KATILIN</Link>
+            {tLogin("noAccount")} <Link href={`/${locale}/register`} className="text-primary hover:text-white transition-colors underline underline-offset-4 decoration-primary/40 hover:decoration-primary">{tLogin("registerLink")}</Link>
           </p>
 
           <div className="mt-12 flex justify-center items-center gap-8 grayscale opacity-30">
@@ -164,10 +180,10 @@ export default function LoginPage({
           {/* Professional Developer Credit */}
           <div className="mt-8 text-center">
             <p className="text-slate-500 text-xs">
-              © 2017-2026 Face Seek. All Rights Reserved.
+              {tCommon("copyright")}
             </p>
             <p className="text-slate-600 text-xs mt-2">
-              Developed by <span className="text-[#00d9ff] font-semibold">ALAN</span>
+              {tCommon("developer")} <span className="text-[#00d9ff] font-semibold">ALAN</span>
             </p>
           </div>
         </div>
