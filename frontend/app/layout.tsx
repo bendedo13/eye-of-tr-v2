@@ -1,16 +1,7 @@
 import "./globals.css";
 import type { ReactNode } from "react";
-import { Geist, Geist_Mono } from "next/font/google";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
 
 type Props = {
   children: ReactNode;
@@ -19,7 +10,7 @@ type Props = {
 export default function RootLayout({ children }: Props) {
   return (
     <html suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
+      <body className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}>{children}</body>
     </html>
   );
 }
