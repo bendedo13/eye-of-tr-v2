@@ -64,8 +64,8 @@ class Settings(BaseSettings):
     RAPIDAPI_IMAGE_SEARCH_SAFE_SEARCH: str = "off"
     RAPIDAPI_IMAGE_SEARCH_REGION: str = "us"
 
-    # Lens API
-    RAPIDAPI_LENS_KEY: str = "e04cfd391dmsh5bad32e4055f7d3p1be7c6jsn2c85bac04ee7"
+    # Lens API (set via RAPIDAPI_LENS_KEY env var)
+    RAPIDAPI_LENS_KEY: str = ""
     RAPIDAPI_LENS_HOST: str = "real-time-lens-data.p.rapidapi.com"
     RAPIDAPI_LENS_BASE_URL: str = "https://real-time-lens-data.p.rapidapi.com"
 
@@ -158,18 +158,14 @@ class Settings(BaseSettings):
         extra = "ignore"
 
 
+_settings_instance: Settings | None = None
+
+
 def get_settings() -> Settings:
-    # Create a fresh Settings instance so env overrides can take effect even if
-    # other modules imported settings earlier.
-    return Settings()
+    global _settings_instance
+    if _settings_instance is None:
+        _settings_instance = Settings()
+    return _settings_instance
 
 
-class _SettingsProxy:
-    def __getattr__(self, name):
-        return getattr(get_settings(), name)
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({get_settings()!r})"
-
-
-settings = _SettingsProxy()
+settings = get_settings()
