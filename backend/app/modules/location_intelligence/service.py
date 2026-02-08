@@ -1,13 +1,18 @@
 from __future__ import annotations
 
+import base64
+import logging
 from dataclasses import dataclass
-from typing import List, Tuple
+from typing import List, Optional
 
-import cv2
-import numpy as np
+import httpx
 
+from app.core.config import settings
 from app.modules.location_intelligence.schemas import LocationIntelligenceResult, LocationPrediction
+from app.modules.visual_location.service import visual_similarity_location_service
 
+
+logger = logging.getLogger(__name__)
 
 MANDATORY_NOTICE_TR = (
     "Bu sonuçlar yapay zekâ tarafından üretilmiş tahminlerdir. "
@@ -16,29 +21,16 @@ MANDATORY_NOTICE_TR = (
 
 
 @dataclass
-class _Signals:
-    brightness: float
-    saturation: float
-    green_ratio: float
-    blue_ratio: float
-    warm_ratio: float
-    edge_density: float
-    blur_score: float
-    sky_ratio_top: float
+class _VisionResult:
+    description: Optional[str]
+    latitude: Optional[float]
+    longitude: Optional[float]
+    score: Optional[float]
+    web_labels: List[str]
 
 
 class LocationIntelligenceService:
-    def analyze(self, image_bytes: bytes) -> LocationIntelligenceResult:
-        bgr = self._decode(image_bytes)
-        bgr_small = self._downscale(bgr, max_side=768)
-        signals = self._extract_signals(bgr_small)
-        label, score, factors = self._classify(signals)
-
-        confidence = int(max(0, min(100, round(score * 100))))
-        confidence = max(5, min(92, confidence))
-
-        analysis = self._analysis_text(label=label, signals=signals, factors=factors)
-
+    async def analyze(self, image_bytes: bytes) -> LocationIntelligenceResult:
         predicted_location = LocationPrediction(
             country="Bilinmiyor",
             city=None,
@@ -47,145 +39,192 @@ class LocationIntelligenceService:
             latitude=None,
             longitude=None,
         )
+        factors: List[str] = []
+        analysis_parts: List[str] = []
+        confidence = 10
 
+        local = visual_similarity_location_service.infer_from_local_index(image_bytes, top_k=10)
+        local_pred = self._to_location_prediction(local.predicted_location)
+        if self._has_location(local_pred):
+            predicted_location = self._merge_location(predicted_location, local_pred)
+            local_conf = int(max(0, min(100, round(local.confidence_0_1 * 100))))
+            confidence = max(confidence, max(55, min(92, local_conf)))
+            factors.append("Yerel görsel indeks eşleşmeleri kullanıldı.")
+            analysis_parts.append("Yerel görsel indeks eşleşmeleri konum tahmini için sinyal sağladı.")
+
+        exif_pred = visual_similarity_location_service.extract_exif_gps(image_bytes)
+        if exif_pred and isinstance(exif_pred.latitude, (int, float)) and isinstance(exif_pred.longitude, (int, float)):
+            predicted_location = self._merge_location(
+                predicted_location,
+                LocationPrediction(
+                    country=None,
+                    city=None,
+                    district=None,
+                    neighborhood=None,
+                    latitude=float(exif_pred.latitude),
+                    longitude=float(exif_pred.longitude),
+                ),
+            )
+            confidence = max(confidence, 90)
+            factors.append("EXIF GPS koordinatları bulundu.")
+            analysis_parts.append("Görüntü EXIF GPS verisi içeriyor; koordinatlar dosyadan alındı.")
+
+        vision_used = False
+        if not self._has_location(predicted_location):
+            vision_used = True
+            vision = await self._vision_analyze(image_bytes)
+            if vision and vision.latitude is not None and vision.longitude is not None:
+                predicted_location = self._merge_location(
+                    predicted_location,
+                    LocationPrediction(
+                        country=None,
+                        city=None,
+                        district=None,
+                        neighborhood=None,
+                        latitude=vision.latitude,
+                        longitude=vision.longitude,
+                    ),
+                )
+                if vision.description:
+                    factors.append(f"Google Vision landmark tespiti: {vision.description}")
+                else:
+                    factors.append("Google Vision landmark tespiti bulundu.")
+                if vision.score is not None:
+                    confidence = max(confidence, int(max(45, min(95, vision.score * 100))))
+                else:
+                    confidence = max(confidence, 60)
+                analysis_parts.append("Google Cloud Vision Landmark tespiti devreye alındı.")
+            elif vision and vision.web_labels:
+                label_str = ", ".join(vision.web_labels[:3])
+                factors.append(f"Google Vision web etiketleri: {label_str}")
+                confidence = max(confidence, 35)
+                analysis_parts.append("Google Cloud Vision Web tespiti etiketler sundu ancak net bir konum çıkmadı.")
+
+        if not analysis_parts:
+            analysis_parts.append("EXIF ve yerel indeks eşleşmeleri konum için yeterli sinyal üretmedi.")
+            if vision_used:
+                analysis_parts.append("Google Cloud Vision landmark tespiti bulunamadı.")
+
+        analysis_parts.append("Bu analiz yüz/kimlik tespiti yapmaz; yalnızca konum ipuçlarından tahmin üretir.")
+
+        if not factors:
+            factors.append("Yeterli sinyal bulunamadı.")
+
+        analysis = " ".join(analysis_parts)
         return LocationIntelligenceResult(
             predicted_location=predicted_location,
             analysis=analysis,
-            confidence=confidence,
+            confidence=int(max(1, min(100, confidence))),
             factors=factors,
             mandatory_notice=MANDATORY_NOTICE_TR,
         )
 
-    def _decode(self, image_bytes: bytes) -> np.ndarray:
-        arr = np.frombuffer(image_bytes, dtype=np.uint8)
-        bgr = cv2.imdecode(arr, cv2.IMREAD_COLOR)
-        if bgr is None:
-            raise ValueError("Görüntü okunamadı")
-        return bgr
+    def _is_unknown_text(self, value: Optional[str]) -> bool:
+        if not value:
+            return True
+        v = value.strip().lower()
+        return v in {"bilinmiyor", "unknown", "n/a", "na"}
 
-    def _downscale(self, bgr: np.ndarray, *, max_side: int) -> np.ndarray:
-        h, w = bgr.shape[:2]
-        if max(h, w) <= max_side:
-            return bgr
-        scale = float(max_side) / float(max(h, w))
-        new_w = max(1, int(round(w * scale)))
-        new_h = max(1, int(round(h * scale)))
-        return cv2.resize(bgr, (new_w, new_h), interpolation=cv2.INTER_AREA)
-
-    def _extract_signals(self, bgr: np.ndarray) -> _Signals:
-        hsv = cv2.cvtColor(bgr, cv2.COLOR_BGR2HSV)
-        h = hsv[:, :, 0].astype(np.float32)
-        s = hsv[:, :, 1].astype(np.float32)
-        v = hsv[:, :, 2].astype(np.float32)
-
-        brightness = float(np.mean(v) / 255.0)
-        saturation = float(np.mean(s) / 255.0)
-
-        mask_color = (s > 60) & (v > 50)
-        green = mask_color & (h >= 35) & (h <= 85)
-        blue = mask_color & (h >= 85) & (h <= 130)
-        warm = mask_color & ((h <= 20) | (h >= 160))
-
-        total = float(h.size)
-        green_ratio = float(np.count_nonzero(green) / total)
-        blue_ratio = float(np.count_nonzero(blue) / total)
-        warm_ratio = float(np.count_nonzero(warm) / total)
-
-        gray = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)
-        edges = cv2.Canny(gray, 80, 160)
-        edge_density = float(np.count_nonzero(edges) / float(edges.size))
-
-        lap = cv2.Laplacian(gray, cv2.CV_64F)
-        blur_score = float(lap.var())
-
-        top = hsv[: max(1, hsv.shape[0] // 3), :, :]
-        ht = top[:, :, 0].astype(np.float32)
-        st = top[:, :, 1].astype(np.float32)
-        vt = top[:, :, 2].astype(np.float32)
-        sky = (st > 40) & (vt > 60) & (ht >= 85) & (ht <= 130)
-        sky_ratio_top = float(np.count_nonzero(sky) / float(sky.size))
-
-        return _Signals(
-            brightness=brightness,
-            saturation=saturation,
-            green_ratio=green_ratio,
-            blue_ratio=blue_ratio,
-            warm_ratio=warm_ratio,
-            edge_density=edge_density,
-            blur_score=blur_score,
-            sky_ratio_top=sky_ratio_top,
+    def _has_location(self, pred: LocationPrediction) -> bool:
+        if pred is None:
+            return False
+        if isinstance(pred.latitude, (int, float)) and isinstance(pred.longitude, (int, float)):
+            return True
+        return any(
+            not self._is_unknown_text(v)
+            for v in [pred.country, pred.city, pred.district, pred.neighborhood]
         )
 
-    def _classify(self, sig: _Signals) -> Tuple[str, float, List[str]]:
-        factors: List[str] = []
+    def _pick_text(self, incoming: Optional[str], existing: Optional[str]) -> Optional[str]:
+        if incoming and not self._is_unknown_text(incoming):
+            return incoming
+        return existing
 
-        low_quality = sig.blur_score < 35.0
-        if low_quality:
-            factors.append("Görüntü bulanık / düşük detaylı (düşük kalite sinyali)")
+    def _merge_location(self, base: LocationPrediction, incoming: LocationPrediction) -> LocationPrediction:
+        return LocationPrediction(
+            country=self._pick_text(incoming.country, base.country),
+            city=self._pick_text(incoming.city, base.city),
+            district=self._pick_text(incoming.district, base.district),
+            neighborhood=self._pick_text(incoming.neighborhood, base.neighborhood),
+            latitude=incoming.latitude if incoming.latitude is not None else base.latitude,
+            longitude=incoming.longitude if incoming.longitude is not None else base.longitude,
+        )
 
-        if sig.green_ratio > 0.16:
-            factors.append("Bitki örtüsü yoğunluğu yüksek (yeşil oranı)")
-        elif sig.green_ratio < 0.05:
-            factors.append("Bitki örtüsü sinyali zayıf (yeşil oranı düşük)")
+    def _to_location_prediction(self, pred) -> LocationPrediction:
+        return LocationPrediction(
+            country=getattr(pred, "country", None),
+            city=getattr(pred, "city", None),
+            district=getattr(pred, "district", None),
+            neighborhood=getattr(pred, "neighborhood", None),
+            latitude=getattr(pred, "latitude", None),
+            longitude=getattr(pred, "longitude", None),
+        )
 
-        if sig.sky_ratio_top > 0.20:
-            factors.append("Üst bölgede gökyüzü olasılığı yüksek (mavi yoğunluğu)")
-        elif sig.sky_ratio_top < 0.06:
-            factors.append("Gökyüzü sinyali zayıf (kapalı alan veya dar kadraj olasılığı)")
+    async def _vision_analyze(self, image_bytes: bytes) -> Optional[_VisionResult]:
+        api_key = getattr(settings, "GOOGLE_CLOUD_VISION_API_KEY", None)
+        if not api_key:
+            return None
 
-        if sig.warm_ratio > 0.18 and sig.brightness > 0.55:
-            factors.append("Sıcak tonlar ve yüksek parlaklık (kurak/sıcak iklim olasılığı)")
-
-        if sig.edge_density > 0.10:
-            factors.append("Yüksek kenar yoğunluğu (kentsel yapı / mimari detay olasılığı)")
-        elif sig.edge_density < 0.04:
-            factors.append("Düşük kenar yoğunluğu (doğal arazi veya düşük detay olasılığı)")
-
-        scores = {
-            "Akdeniz/Denizel": 0.35 + 0.9 * sig.blue_ratio + 0.4 * sig.warm_ratio + 0.25 * sig.brightness,
-            "Kuzey/Serin": 0.30 + 0.35 * (1.0 - sig.saturation) + 0.25 * (1.0 - sig.brightness) + 0.15 * sig.green_ratio,
-            "Kurak/Çöl": 0.30 + 0.9 * sig.warm_ratio + 0.35 * sig.brightness + 0.2 * (1.0 - sig.green_ratio),
-            "Tropikal/Nemli": 0.30 + 1.1 * sig.green_ratio + 0.25 * sig.saturation + 0.15 * sig.brightness,
-            "Kentsel/Yoğun": 0.28 + 1.0 * sig.edge_density + 0.15 * sig.brightness,
+        endpoint = getattr(settings, "GOOGLE_CLOUD_VISION_ENDPOINT", "https://vision.googleapis.com/v1/images:annotate")
+        url = f"{endpoint}?key={api_key}"
+        payload = {
+            "requests": [
+                {
+                    "image": {"content": base64.b64encode(image_bytes).decode("utf-8")},
+                    "features": [
+                        {"type": "LANDMARK_DETECTION", "maxResults": int(getattr(settings, "GOOGLE_CLOUD_VISION_MAX_RESULTS", 5))},
+                        {"type": "WEB_DETECTION", "maxResults": 3},
+                    ],
+                }
+            ]
         }
 
-        label = max(scores, key=scores.get)
-        raw = float(scores[label])
-        score = max(0.10, min(0.85, raw / 1.8))
+        try:
+            async with httpx.AsyncClient(timeout=float(getattr(settings, "GOOGLE_CLOUD_VISION_TIMEOUT", 20))) as client:
+                response = await client.post(url, json=payload)
+                response.raise_for_status()
+                data = response.json()
+        except Exception as exc:
+            logger.warning("Google Vision request failed: %s", exc)
+            return None
 
-        if low_quality:
-            score = max(0.08, score * 0.65)
+        responses = data.get("responses") or []
+        if not responses:
+            return None
 
-        if sig.sky_ratio_top < 0.06 and sig.edge_density < 0.05:
-            factors.append("Kapalı alan / tabela ve yol işaretleri görünmüyor olabilir")
-            score = max(0.06, score * 0.75)
+        response0 = responses[0] or {}
+        if response0.get("error"):
+            logger.warning("Google Vision response error: %s", response0.get("error"))
+            return None
 
-        if sig.edge_density < 0.03 and sig.saturation > 0.55:
-            factors.append("AI üretilmiş görsel olasılığı (anormal doku/kenar profili)")
-            score = max(0.06, score * 0.80)
+        landmarks = response0.get("landmarkAnnotations") or []
+        best = None
+        if landmarks:
+            best = max(landmarks, key=lambda x: x.get("score", 0))
 
-        factors.insert(0, f"Tahmini çevresel bölge: {label}")
+        lat = None
+        lon = None
+        desc = None
+        score = None
+        if best:
+            desc = best.get("description")
+            score = best.get("score")
+            locations = best.get("locations") or []
+            if locations:
+                lat_lng = (locations[0] or {}).get("latLng") or {}
+                lat = lat_lng.get("latitude")
+                lon = lat_lng.get("longitude")
 
-        return label, score, factors
+        web = response0.get("webDetection") or {}
+        labels = [l.get("label") for l in (web.get("bestGuessLabels") or []) if l.get("label")]
 
-    def _analysis_text(self, *, label: str, signals: _Signals, factors: List[str]) -> str:
-        parts: List[str] = []
-        if label == "Akdeniz/Denizel":
-            parts.append("Renk dağılımı ve üst bölgede mavi yoğunluğu, denizel/akdeniz iklimine benzer bir çevreyi işaret ediyor.")
-        elif label == "Kurak/Çöl":
-            parts.append("Sıcak tonların baskınlığı ve düşük yeşil oranı, kurak/arid bir iklim olasılığını artırıyor.")
-        elif label == "Tropikal/Nemli":
-            parts.append("Yeşil yoğunluğu ve doygunluk seviyesi, nemli/tropikal bir çevre olasılığını artırıyor.")
-        elif label == "Kentsel/Yoğun":
-            parts.append("Kenar yoğunluğu ve geometrik detaylar, kentsel/mimari yapı yoğunluğu olasılığına işaret ediyor.")
-        else:
-            parts.append("Parlaklık, doygunluk ve renk dağılımı, daha serin/kapalı hava koşullarına benzer bir çevre olasılığına işaret ediyor.")
-
-        if signals.blur_score < 35.0:
-            parts.append("Görüntü bulanık olduğu için tabela dili, yol çizgileri ve küçük çevresel ipuçları güvenilir biçimde ayrılamayabilir.")
-
-        parts.append("Bu analiz yüz/kimlik tespiti yapmaz; sadece çevresel ipuçlarından tahmin üretir.")
-        return " ".join(parts)
+        return _VisionResult(
+            description=desc,
+            latitude=lat if isinstance(lat, (int, float)) else None,
+            longitude=lon if isinstance(lon, (int, float)) else None,
+            score=score if isinstance(score, (int, float)) else None,
+            web_labels=labels,
+        )
 
 
 location_intelligence_service = LocationIntelligenceService()

@@ -73,7 +73,7 @@ async def analyze_location_intelligence(
         raise HTTPException(status_code=status.HTTP_402_PAYMENT_REQUIRED, detail="Insufficient credits")
 
     try:
-        result = location_intelligence_service.analyze(content)
+        result = await location_intelligence_service.analyze(content)
     except ValueError as e:
         CreditService.add_credits(user, db, 1, reason="location_intelligence_refund")
         raise HTTPException(status_code=422, detail=str(e))
@@ -82,4 +82,3 @@ async def analyze_location_intelligence(
         raise HTTPException(status_code=500, detail="Analiz başarısız")
 
     return result
-

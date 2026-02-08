@@ -139,6 +139,12 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: Optional[str] = None
     OPENAI_MODEL: str = "gpt-4o-mini"  # Default to cost-effective model
     OPENAI_ENABLED: bool = True  # Feature flag
+
+    # Google Cloud Vision
+    GOOGLE_CLOUD_VISION_API_KEY: Optional[str] = None
+    GOOGLE_CLOUD_VISION_ENDPOINT: str = "https://vision.googleapis.com/v1/images:annotate"
+    GOOGLE_CLOUD_VISION_TIMEOUT: int = 20
+    GOOGLE_CLOUD_VISION_MAX_RESULTS: int = 5
     
     @property
     def cors_origins_list(self):
