@@ -7,6 +7,7 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/Button";
 import { Mail, ShieldCheck, ArrowRight } from "lucide-react";
 import { requestPasswordReset } from "@/lib/api";
+import { useTranslations } from "next-intl";
 
 export default function ForgotPasswordPage({
   params,
@@ -19,6 +20,8 @@ export default function ForgotPasswordPage({
   const [sent, setSent] = useState(false);
   const [debugUrl, setDebugUrl] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const tForgot = useTranslations("auth.forgotPassword");
+  const tErrors = useTranslations("auth.errors");
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +32,7 @@ export default function ForgotPasswordPage({
       setDebugUrl(res.debug_reset_url || null);
       setSent(true);
     } catch (err: any) {
-      setError(err.message || "İstek başarısız.");
+      setError(err.message || tErrors("resetFailed"));
     } finally {
       setBusy(false);
     }
@@ -50,16 +53,16 @@ export default function ForgotPasswordPage({
                 FACE<span className="text-zinc-600">SEEK</span>
               </span>
             </Link>
-            <h1 className="text-2xl font-black text-white uppercase tracking-tight mb-2">ŞİFRE SIFIRLAMA</h1>
-            <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em]">E-posta adresini gir</p>
+            <h1 className="text-2xl font-black text-white uppercase tracking-tight mb-2">{tForgot("title")}</h1>
+            <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em]">{tForgot("subtitle")}</p>
           </div>
 
           <GlassCard className="p-10 border-t-4 border-t-primary/30" hasScanline>
             {sent ? (
               <div className="space-y-6 text-center">
-                <div className="text-white font-black uppercase tracking-tight">Eğer hesap varsa mail gönderildi.</div>
+                <div className="text-white font-black uppercase tracking-tight">{tForgot("sentTitle")}</div>
                 <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest">
-                  Mail kutunu kontrol et. Linkin süresi sınırlıdır.
+                  {tForgot("sentSubtitle")}
                 </p>
                 {debugUrl && (
                   <a
@@ -70,7 +73,7 @@ export default function ForgotPasswordPage({
                   </a>
                 )}
                 <Button className="h-14 w-full" onClick={() => (window.location.href = `/${locale}/login`)}>
-                  GİRİŞE DÖN <ArrowRight size={16} className="ml-2" />
+                  {tForgot("backToLogin")} <ArrowRight size={16} className="ml-2" />
                 </Button>
               </div>
             ) : (
@@ -83,7 +86,7 @@ export default function ForgotPasswordPage({
 
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest flex items-center gap-2 px-1">
-                    <Mail size={12} /> E-POSTA
+                    <Mail size={12} /> {tForgot("emailLabel")}
                   </label>
                   <input
                     type="email"
@@ -97,13 +100,13 @@ export default function ForgotPasswordPage({
                 </div>
 
                 <Button type="submit" isLoading={busy} className="h-14 w-full">
-                  RESET LİNKİ GÖNDER <ArrowRight size={16} className="ml-2" />
+                  {tForgot("submit")} <ArrowRight size={16} className="ml-2" />
                 </Button>
 
                 <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest text-center">
-                  Giriş ekranına dön:{" "}
+                  {tForgot("backToLogin")}:{" "}
                   <Link href={`/${locale}/login`} className="text-primary hover:text-white transition-colors underline underline-offset-4 decoration-primary/40 hover:decoration-primary">
-                    OPERASYONEL ERİŞİM
+                    {tForgot("backToLogin")}
                   </Link>
                 </p>
               </form>

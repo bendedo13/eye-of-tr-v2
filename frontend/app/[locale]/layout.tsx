@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation';
 import { locales } from '@/i18n';
 import { HtmlLang } from "@/components/HtmlLang";
 import CookieConsent from "@/components/CookieConsent";
+import MaintenanceGate from "@/components/MaintenanceGate";
 
 export function generateStaticParams() {
     return locales.map((locale) => ({ locale }));
@@ -33,7 +34,9 @@ export default async function LocaleLayout({
         <NextIntlClientProvider locale={locale} messages={messages}>
             <HtmlLang lang={locale} />
             <Providers>
-                {children}
+                <MaintenanceGate locale={locale}>
+                    {children}
+                </MaintenanceGate>
                 <CookieConsent />
             </Providers>
         </NextIntlClientProvider>

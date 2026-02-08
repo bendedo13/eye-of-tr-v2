@@ -8,6 +8,7 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/Button";
 import { ShieldCheck, KeyRound, ArrowRight } from "lucide-react";
 import { resetPassword } from "@/lib/api";
+import { useTranslations } from "next-intl";
 
 export default function ResetPasswordPage({
   params,
@@ -20,6 +21,8 @@ export default function ResetPasswordPage({
   const router = useRouter();
   const email = searchParams.email || "";
   const token = searchParams.token || "";
+  const tReset = useTranslations("auth.resetPassword");
+  const tErrors = useTranslations("auth.errors");
 
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -30,15 +33,15 @@ export default function ResetPasswordPage({
     e.preventDefault();
     setError("");
     if (!email || !token) {
-      setError("Link geçersiz.");
+      setError(tErrors("resetInvalid"));
       return;
     }
     if (password.length < 8) {
-      setError("Şifre en az 8 karakter olmalı.");
+      setError(tErrors("resetTooShort"));
       return;
     }
     if (password !== confirm) {
-      setError("Şifreler eşleşmiyor.");
+      setError(tErrors("passwordMismatch"));
       return;
     }
     setBusy(true);
@@ -46,7 +49,7 @@ export default function ResetPasswordPage({
       await resetPassword(email, token, password);
       router.push(`/${locale}/login`);
     } catch (err: any) {
-      setError(err.message || "Şifre sıfırlama başarısız.");
+      setError(err.message || tErrors("resetFailed"));
     } finally {
       setBusy(false);
     }
@@ -67,7 +70,7 @@ export default function ResetPasswordPage({
                 FACE<span className="text-zinc-600">SEEK</span>
               </span>
             </Link>
-            <h1 className="text-2xl font-black text-white uppercase tracking-tight mb-2">YENİ ŞİFRE</h1>
+            <h1 className="text-2xl font-black text-white uppercase tracking-tight mb-2">{tReset("title")}</h1>
             <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em]">{email || "—"}</p>
           </div>
 
@@ -81,7 +84,7 @@ export default function ResetPasswordPage({
 
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest flex items-center gap-2 px-1">
-                  <KeyRound size={12} /> YENİ ŞİFRE
+                  <KeyRound size={12} /> {tReset("passwordLabel")}
                 </label>
                 <input
                   type="password"
@@ -96,7 +99,7 @@ export default function ResetPasswordPage({
 
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest flex items-center gap-2 px-1">
-                  <KeyRound size={12} /> TEKRAR
+                  <KeyRound size={12} /> {tReset("confirmLabel")}
                 </label>
                 <input
                   type="password"
@@ -110,7 +113,7 @@ export default function ResetPasswordPage({
               </div>
 
               <Button type="submit" isLoading={busy} className="h-14 w-full">
-                KAYDET <ArrowRight size={16} className="ml-2" />
+                {tReset("submit")} <ArrowRight size={16} className="ml-2" />
               </Button>
             </form>
           </GlassCard>

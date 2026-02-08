@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -13,6 +13,7 @@ import FacialRecognitionDemo from "@/components/brand/FacialRecognitionDemo";
 import { GlassCard } from "@/components/ui/GlassCard";
 import ReferralPromo from "@/components/marketing/ReferralPromo";
 import TrustCounter from "@/components/marketing/TrustCounter";
+import { useSiteConfig } from "@/lib/siteConfig";
 import {
   ShieldCheck,
   Search,
@@ -48,14 +49,7 @@ export default function HomeClient({
   const tFooter = useTranslations('footer');
   const tNav = useTranslations('nav');
 
-  const [siteConfig, setSiteConfig] = useState<Record<string, any> | null>(null);
-
-  useEffect(() => {
-    fetch(`/api/public/site-config?locale=${encodeURIComponent(locale)}`)
-      .then((r) => r.json())
-      .then((d) => setSiteConfig(d.config || {}))
-      .catch(() => setSiteConfig(null));
-  }, [locale]);
+  const { config: siteConfig } = useSiteConfig(locale);
 
   const homeOverrides = useMemo(() => {
     const cfg = siteConfig || {};
@@ -76,6 +70,8 @@ export default function HomeClient({
     };
   }, [siteConfig, locale]);
 
+  const contactEmail = (siteConfig || {})["site.contact_email"] || "benalanx@face-seek.com";
+
   if (!mounted || loading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center space-y-4">
@@ -89,11 +85,11 @@ export default function HomeClient({
 
   if (homeOverrides.maintenanceMode) {
     return (
-      <ClientOnly>
+          <ClientOnly>
         <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 text-center">
-          <div className="text-4xl font-black text-white uppercase tracking-tight mb-4">MAINTENANCE</div>
+          <div className="text-4xl font-black text-white uppercase tracking-tight mb-4">{tHome("maintenance.title")}</div>
           <div className="text-zinc-500 text-sm font-medium max-w-xl">
-            {locale === "tr" ? "Sistem kısa süreli bakım modunda. Lütfen daha sonra tekrar deneyin." : "The system is under maintenance. Please try again later."}
+            {tHome("maintenance.message")}
           </div>
         </div>
       </ClientOnly>
@@ -172,7 +168,7 @@ export default function HomeClient({
                     onClick={() => router.push(`/${locale}/register`)}
                     className="h-16 px-12 text-base face-seek-gradient hover:opacity-90 transition-opacity"
                   >
-                    🚀 {t('ctaPrimary')}
+                    {t('ctaPrimary')}
                   </Button>
                   <Button
                     onClick={() => router.push(`/${locale}/login`)}
@@ -209,10 +205,10 @@ export default function HomeClient({
         <section className="py-16 px-6">
           <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { icon: <Shield size={22} />, label: "SSL Secure" },
-              { icon: <BadgeCheck size={22} />, label: "KVKK Uyumlu" },
-              { icon: <ShieldCheck size={22} />, label: "GDPR Ready" },
-              { icon: <Lock size={22} />, label: "Privacy First" }
+              { icon: <Shield size={22} />, label: tHome("trustBadges.sslSecure") },
+              { icon: <BadgeCheck size={22} />, label: tHome("trustBadges.kvkkCompliant") },
+              { icon: <ShieldCheck size={22} />, label: tHome("trustBadges.gdprReady") },
+              { icon: <Lock size={22} />, label: tHome("trustBadges.privacyFirst") }
             ].map((b, i) => (
               <div key={i} className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm font-semibold text-zinc-300">
                 <span className="text-primary">{b.icon}</span>
@@ -357,7 +353,7 @@ export default function HomeClient({
                 <div className="flex flex-col gap-4">
                   <Link href={`/${locale}/legal/about`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tFooter("links.aboutUs")}</Link>
                   <Link href={`/${locale}/blog`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tNav("blog")}</Link>
-                  <a href="mailto:benalanx@face-seek.com" className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tFooter("links.contact")}</a>
+                  <a href={`mailto:${contactEmail}`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tFooter("links.contact")}</a>
                 </div>
               </div>
               <div className="space-y-6">
