@@ -19,3 +19,6 @@ node_modules/
 .DS_Store
 *.zip
 eye-of-tr-v2/
+
+# Temp directories
+tmpclaude-*-cwd
