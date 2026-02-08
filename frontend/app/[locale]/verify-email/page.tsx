@@ -8,6 +8,7 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/Button";
 import { ShieldCheck, KeyRound, Mail, ArrowRight, RefreshCcw } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { useTranslations } from "next-intl";
 
 import { use } from "react";
 
@@ -21,6 +22,8 @@ export default function VerifyEmailPage({
   const { locale } = use(params);
   const router = useRouter();
   const { user, mounted, loading, verifyEmail, resendCode } = useAuth();
+  const tVerify = useTranslations("auth.verifyEmail");
+  const tErrors = useTranslations("auth.errors");
 
   const [email, setEmail] = useState(searchParams.email || "");
   const [code, setCode] = useState((searchParams.debug_code || "").replace(/\D/g, "").slice(0, 6));
@@ -44,23 +47,26 @@ export default function VerifyEmailPage({
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!email) {
-      setError("Email parametresi eksik.");
+
+    if (!email || email.trim() === "") {
+      setError(tErrors("verifyEmailMissing"));
       return;
     }
+
     if (!/^[0-9]{6}$/.test(code)) {
-      setError("Doğrulama kodu 6 haneli olmalı.");
+      setError(tErrors("verifyCodeInvalid"));
       return;
     }
+
     setBusy(true);
     try {
-      await verifyEmail(email, code);
+      await verifyEmail(email.trim(), code);
       if (typeof window !== "undefined") {
         window.localStorage.removeItem("pending-verify-email");
       }
       router.push(`/${locale}/dashboard`);
     } catch (err: any) {
-      setError(err.message || "Doğrulama başarısız.");
+      setError(err.message || tErrors("verifyFailed"));
     } finally {
       setBusy(false);
     }
@@ -69,7 +75,7 @@ export default function VerifyEmailPage({
   const resend = async () => {
     setError("");
     if (!email) {
-      setError("Email parametresi eksik.");
+      setError(tErrors("verifyEmailMissing"));
       return;
     }
     setResending(true);
@@ -77,7 +83,7 @@ export default function VerifyEmailPage({
       const dbg = await resendCode(email);
       if (dbg) setCode(dbg);
     } catch (err: any) {
-      setError(err.message || "Kod tekrar gönderilemedi.");
+      setError(err.message || tErrors("resendFailed"));
     } finally {
       setResending(false);
     }
@@ -108,7 +114,7 @@ export default function VerifyEmailPage({
                 FACE<span className="text-zinc-600">SEEK</span>
               </span>
             </Link>
-            <h1 className="text-2xl font-black text-white uppercase tracking-tight mb-2">E-POSTA DOĞRULAMA</h1>
+            <h1 className="text-2xl font-black text-white uppercase tracking-tight mb-2">{tVerify("title")}</h1>
             <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-2">
               <Mail size={12} /> {email || "—"}
             </p>
@@ -119,7 +125,7 @@ export default function VerifyEmailPage({
               {!email && (
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest flex items-center gap-2 px-1">
-                    <Mail size={12} /> E-POSTA
+                    <Mail size={12} /> {tVerify("emailLabel")}
                   </label>
                   <input
                     type="email"
@@ -139,7 +145,7 @@ export default function VerifyEmailPage({
 
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest flex items-center gap-2 px-1">
-                  <KeyRound size={12} /> 6 HANELİ KOD
+                  <KeyRound size={12} /> {tVerify("codeLabel")}
                 </label>
                 <input
                   type="text"
@@ -155,17 +161,17 @@ export default function VerifyEmailPage({
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button type="button" variant="outline" className="h-14 flex-1" disabled={resending || busy} onClick={resend}>
-                  <RefreshCcw size={16} className="mr-2" /> KODU TEKRAR GÖNDER
+                  <RefreshCcw size={16} className="mr-2" /> {tVerify("resend")}
                 </Button>
                 <Button type="submit" isLoading={busy} className="h-14 flex-1">
-                  DOĞRULA <ArrowRight size={16} className="ml-2" />
+                  {tVerify("verify")} <ArrowRight size={16} className="ml-2" />
                 </Button>
               </div>
 
               <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest text-center">
-                Giriş ekranına dön:{" "}
+                {tVerify("backToLogin")}:{" "}
                 <Link href={`/${locale}/login`} className="text-primary hover:text-white transition-colors underline underline-offset-4 decoration-primary/40 hover:decoration-primary">
-                  OPERASYONEL ERİŞİM
+                  {tVerify("backToLogin")}
                 </Link>
               </p>
             </form>

@@ -101,6 +101,16 @@
       "biometricSecure": "BİYOMETRİK GÜVENLİ",
       "gdprCompliant": "GDPR UYUMLU",
       "multiEngine": "ÇOK MOTORLU"
+    },
+    "maintenance": {
+      "title": "BAKIM",
+      "message": "Sistem k?sa s?reli bak?m modunda. L?tfen daha sonra tekrar deneyin."
+    },
+    "trustBadges": {
+      "sslSecure": "SSL G?VENL?",
+      "kvkkCompliant": "KVKK UYUMLU",
+      "gdprReady": "GDPR HAZIR",
+      "privacyFirst": "G?ZL?L?K ?NCEL?KL?"
     }
   },
   "liveStats": {
@@ -189,5 +199,151 @@
     "titlePart2": "BAŞLAYIN",
     "description": "Etik yüz istihbaratı için FaceSeek kullanan binlerce profesyonele katılın. Yapay zeka yüz arama platformumuzu deneyimlemek için 3 ücretsiz arama hakkı alın.",
     "button": "Ücretsiz Hesap Oluştur"
+  },
+  "auth": {
+    "login": {
+      "title": "OPERASYONEL ERİŞİM",
+      "subtitle": "Güvenli Portal Giriş Protokolü",
+      "emailLabel": "E-POSTA ADRESİ",
+      "passwordLabel": "PAROLA",
+      "forgotPassword": "ŞİFREMİ UNUTTUM",
+      "submit": "SİSTEME GİRİŞ YAP",
+      "noAccount": "Hesabınız yok mu?",
+      "registerLink": "OPERASYONA KATILIN"
+    },
+    "register": {
+      "title": "OPERASYONEL KAYIT",
+      "subtitle": "Yeni Analist Kayıt Protokolü",
+      "usernameLabel": "ANALİST ADI",
+      "emailLabel": "E-POSTA",
+      "passwordLabel": "PAROLA",
+      "confirmPasswordLabel": "DOĞRULA",
+      "referralLabel": "DAVET KODU (OPSİYONEL)",
+      "termsPrefix": "Kayıt olarak",
+      "termsLink": "Hizmet Şartlarını",
+      "termsConjunction": "ve",
+      "privacyLink": "Gizlilik Politikasını",
+      "termsSuffix": "kabul etmiş sayılırsınız. Verileriniz operasyonel gizlilik kurallarına göre işlenir.",
+      "submit": "HESABI OLUŞTUR",
+      "haveAccount": "Zaten bir hesabınız var mı?",
+      "loginLink": "OTURUM AÇIN"
+    },
+    "verifyEmail": {
+      "title": "E-POSTA DOĞRULAMA",
+      "emailLabel": "E-POSTA",
+      "codeLabel": "6 HANELİ KOD",
+      "resend": "KODU TEKRAR GÖNDER",
+      "verify": "DOĞRULA",
+      "backToLogin": "Giriş ekranına dön"
+    },
+    "forgotPassword": {
+      "title": "ŞİFRE SIFIRLAMA",
+      "subtitle": "E-posta adresini gir",
+      "sentTitle": "Eğer hesap varsa mail gönderildi.",
+      "sentSubtitle": "Mail kutunu kontrol et. Linkin süresi sınırlıdır.",
+      "backToLogin": "GİRİŞE DÖN",
+      "emailLabel": "E-POSTA",
+      "submit": "RESET LİNKİ GÖNDER"
+    },
+    "resetPassword": {
+      "title": "YENİ ŞİFRE",
+      "passwordLabel": "YENİ ŞİFRE",
+      "confirmLabel": "TEKRAR",
+      "submit": "KAYDET"
+    },
+    "errors": {
+      "required": "Lütfen gerekli alanları doldurun.",
+      "passwordMismatch": "Şifreler eşleşmiyor.",
+      "invalidLogin": "E-posta veya şifre hatalı. Lütfen kontrol edip tekrar deneyin.",
+      "invalidCredentials": "Geçersiz giriş bilgileri.",
+      "emailNotVerified": "E-posta doğrulaması gerekli. Lütfen hesabınızı doğrulayın.",
+      "timeout": "Sunucuya bağlanılamıyor. İnternet bağlantınızı kontrol edin.",
+      "serverError": "Sunucu hatası. Lütfen daha sonra tekrar deneyin.",
+      "registrationInvalid": "Kayıt başarısız. Lütfen bilgilerinizi kontrol edin.",
+      "emailTaken": "Bu e-posta adresi zaten kayıtlı.",
+      "usernameTaken": "Bu kullanıcı adı zaten alınmış.",
+      "tooManyAttempts": "Çok fazla deneme yapıldı. Lütfen daha sonra tekrar deneyin.",
+      "verifyEmailMissing": "Email parametresi eksik.",
+      "verifyCodeInvalid": "Doğrulama kodu 6 haneli olmalı.",
+      "verifyFailed": "Doğrulama başarısız.",
+      "resendFailed": "Kod tekrar gönderilemedi.",
+      "resetInvalid": "Link geçersiz.",
+      "resetTooShort": "Şifre en az 8 karakter olmalı.",
+      "resetFailed": "Şifre sıfırlama başarısız."
+    },
+    "common": {
+      "systemTitle": "FACESEEK",
+      "developer": "Developed by",
+      "copyright": "© 2017-2026 Face Seek. Tüm Hakları Saklıdır."
+    }
+  },
+  "cookie": {
+    "title": "Çerez Tercihleri",
+    "description": "Sizlere daha iyi hizmet sunabilmek, site trafiğini analiz etmek ve kişiselleştirilmiş içerik sunmak amacıyla çerezleri (cookies) kullanıyoruz. \"Kabul Et\" seçeneğine tıklayarak tüm çerezlerin kullanımını kabul etmiş olursunuz.",
+    "moreInfo": "Detaylı bilgi için",
+    "privacyLink": "Gizlilik Politikası",
+    "accept": "Kabul Et",
+    "reject": "Reddet"
+  },
+  "notifications": {
+    "title": "Bildirimler",
+    "markAllRead": "Tümünü Okundu İşaretle",
+    "loading": "Yükleniyor...",
+    "empty": "Bildirim yok",
+    "view": "Görüntüle",
+    "viewAll": "Tüm Bildirimleri Gör",
+    "markRead": "Okundu işaretle"
+  },
+  "support": {
+    "title": "Destek Merkezi",
+    "loginTitle": "Destek Sistemi",
+    "loginMessage": "Destek talebi oluşturmak için giriş yapmanız gerekiyor.",
+    "loginCta": "Giriş Yap",
+    "newTicket": "Yeni Talep",
+    "tickets": "Talepler",
+    "createTicket": "Talep Oluştur",
+    "cancel": "İptal",
+    "send": "Gönder",
+    "reply": "Yanıtla",
+    "noTickets": "Henüz destek talebi yok.",
+    "noMessages": "Henüz mesaj yok.",
+    "titleLabel": "Başlık",
+    "descriptionLabel": "Açıklama",
+    "categoryLabel": "Kategori",
+    "priorityLabel": "Öncelik",
+    "statusLabel": "Durum",
+    "attachmentsLabel": "Dosyalar",
+    "status": {
+      "open": "Açık",
+      "in_progress": "İşlemde",
+      "resolved": "Çözüldü",
+      "closed": "Kapalı"
+    },
+    "priority": {
+      "urgent": "Acil",
+      "high": "Yüksek",
+      "medium": "Orta",
+      "low": "Düşük"
+    },
+    "category": {
+      "general": "Genel",
+      "technical": "Teknik",
+      "billing": "Ödeme",
+      "account": "Hesap",
+      "bug_report": "Hata Raporu",
+      "feature_request": "Özellik Talebi"
+    },
+    "errors": {
+      "loadTickets": "Talepler yüklenemedi.",
+      "loadMessages": "Mesajlar yüklenemedi.",
+      "createTicket": "Talep oluşturulamadı.",
+      "sendMessage": "Mesaj gönderilemedi."
+    }
+  },
+  "api": {
+    "maintenance": "Planlı bakım çalışması, lütfen sonra tekrar deneyin.",
+    "serverBusy": "Sunucu şu anda yoğun veya bakımda. Lütfen birazdan tekrar deneyin.",
+    "timeout": "İstek zaman aşımına uğradı. Bağlantınızı kontrol edin.",
+    "invalidDevice": "Cihaz kimliği oluşturulamadı. Tarayıcınızın localStorage'ı desteklediğinden emin olun."
   }
 }
