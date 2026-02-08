@@ -82,7 +82,7 @@
     "poweredBy": "Powered by",
     "tagline": "Professional Facial Search Engine",
     "systemStatusOnline": "System Status: Online",
-    "copyright": "? 2026 FaceSeek. All rights reserved.",
+    "copyright": "© 2026 FaceSeek. All rights reserved.",
     "links": {
       "faceSearch": "Face Search",
       "aboutUs": "About Us",
@@ -121,7 +121,7 @@
     "subtitle": "Enterprise-grade face search capabilities",
     "feature1": {
       "title": "Reverse Image Face Search",
-      "description": "Upload any photo and find matching faces across Google, Bing, Yandex, and OSINT databases. Our AI engine processes billions of images."
+      "description": "Upload any photo and find matching faces across Google, Bing, Yandex, and OSINT databases."
     },
     "feature2": {
       "title": "OSINT Face Search",
@@ -129,11 +129,11 @@
     },
     "feature3": {
       "title": "Privacy-First Face Search",
-      "description": "GDPR compliant. No persistent biometric database. Images are deleted within 24 hours. Your searches stay private."
+      "description": "GDPR compliant. No persistent biometric database. Images are deleted within 24 hours."
     },
     "feature4": {
       "title": "Ethical AI Facial Recognition",
-      "description": "Responsible platform with strict acceptable-use policies. Public data only. No law enforcement affiliation."
+      "description": "Responsible platform with strict acceptable-use policies. Public data only."
     },
     "feature5": {
       "title": "Multi-Engine Aggregation",
@@ -141,7 +141,7 @@
     },
     "feature6": {
       "title": "Face Recognition SaaS",
-      "description": "Cloud-based face search engine accessible anywhere. No setup required. Enterprise API available."
+      "description": "Cloud-based face search engine accessible anywhere. No setup required."
     }
   },
   "howItWorks": {
@@ -149,15 +149,15 @@
     "subtitle": "Professional face search in 3 simple steps",
     "step1": {
       "title": "Upload Image",
-      "description": "Upload a face image. Our engine automatically detects and extracts face features using advanced AI mapping."
+      "description": "Upload a face image. Our engine automatically detects and extracts face features."
     },
     "step2": {
       "title": "AI Processing",
-      "description": "Our algorithms build a biometric signature and search billions of indexed images across multiple sources."
+      "description": "Our algorithms build a biometric signature and search billions of indexed images."
     },
     "step3": {
       "title": "Get Results",
-      "description": "Receive comprehensive intelligence reports with confidence scores, source URLs, and context."
+      "description": "Receive comprehensive intelligence reports with confidence scores and source URLs."
     }
   },
   "howItWorksSection": {
@@ -189,5 +189,170 @@
     "titlePart2": "FACE SEARCH",
     "description": "Join thousands of professionals using FaceSeek for ethical facial intelligence. Get 3 free searches to start.",
     "button": "Create Free Account"
+  },
+  "socialProof": {
+    "title": "TRUSTED",
+    "titleHighlight": "WORLDWIDE",
+    "subtitle": "Used by investigators, journalists, and security professionals globally",
+    "testimonial1": {
+      "text": "FaceSeek has been a game-changer in our OSINT investigations. The speed and accuracy are incredible.",
+      "name": "James R.",
+      "role": "Cybersecurity Analyst"
+    },
+    "testimonial2": {
+      "text": "The GDPR compliance and no-data-retention policy give us peace of mind. A truly professional tool.",
+      "name": "Sarah M.",
+      "role": "Investigative Journalist"
+    },
+    "testimonial3": {
+      "text": "Multi-engine search delivers comprehensive results in a single query. Huge time saver.",
+      "name": "David L.",
+      "role": "Private Investigator"
+    }
+  },
+  "pricingPreview": {
+    "title": "AFFORDABLE",
+    "titleHighlight": "PLANS",
+    "subtitle": "Flexible pricing to fit your needs",
+    "free": {
+      "name": "Starter",
+      "price": "Free",
+      "desc": "Explore the platform",
+      "feature1": "3 free searches",
+      "feature2": "Basic results",
+      "feature3": "Email support"
+    },
+    "pro": {
+      "name": "Professional",
+      "price": "$29",
+      "period": "/mo",
+      "desc": "Ideal for researchers",
+      "feature1": "50 searches",
+      "feature2": "Advanced results",
+      "feature3": "Priority support",
+      "feature4": "API access",
+      "popular": "Most Popular"
+    },
+    "enterprise": {
+      "name": "Enterprise",
+      "price": "Custom",
+      "desc": "For teams and organizations",
+      "feature1": "Unlimited searches",
+      "feature2": "Custom API",
+      "feature3": "24/7 support",
+      "feature4": "SLA guarantee"
+    },
+    "viewAll": "View all plans"
+  },
+  "faq": {
+    "title": "FREQUENTLY ASKED",
+    "titleHighlight": "QUESTIONS",
+    "q1": {
+      "question": "How does FaceSeek work?",
+      "answer": "FaceSeek analyzes faces in uploaded photos using AI and searches across Google, Bing, Yandex and other engines for matching images. Results are presented with similarity scores."
+    },
+    "q2": {
+      "question": "Is my data secure?",
+      "answer": "Yes. Uploaded images are deleted after processing. No biometric data is stored. We are GDPR and KVKK compliant with 256-bit encryption."
+    },
+    "q3": {
+      "question": "Can I use it for free?",
+      "answer": "Yes! You get 3 free searches when you sign up. You can also earn additional credits by inviting friends."
+    },
+    "q4": {
+      "question": "What file formats are supported?",
+      "answer": "We support JPG, PNG, WebP, and HEIC formats. Maximum file size is 10MB. The system automatically optimizes resolution for accuracy."
+    },
+    "q5": {
+      "question": "Is API integration available?",
+      "answer": "Yes. Our Enterprise plan includes RESTful API access. You can add face search capabilities to your own applications."
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "OPERATIONAL ACCESS",
+      "subtitle": "Secure Portal Entry Protocol",
+      "emailLabel": "EMAIL ADDRESS",
+      "emailPlaceholder": "analyst@faceseek.io",
+      "passwordLabel": "PASSWORD",
+      "forgotPassword": "FORGOT PASSWORD",
+      "submitButton": "LOGIN TO SYSTEM",
+      "noAccount": "Don't have an account?",
+      "registerLink": "JOIN OPERATIONS",
+      "errorInvalidCredentials": "Invalid email or password. Please check and try again.",
+      "errorInvalidInput": "Invalid login credentials.",
+      "errorTimeout": "Cannot connect to server. Check your internet connection.",
+      "errorServer": "Server error. Please try again later.",
+      "errorGeneric": "Login failed. Please check your credentials.",
+      "errorFillAll": "Please fill in all fields",
+      "encryption": "256-BIT AES",
+      "instantSync": "INSTANT SYNC"
+    },
+    "register": {
+      "title": "OPERATIONAL REGISTER",
+      "subtitle": "New Analyst Enlistment Protocol",
+      "usernameLabel": "ANALYST NAME",
+      "usernamePlaceholder": "John Doe",
+      "emailLabel": "EMAIL",
+      "emailPlaceholder": "analyst@faceseek.io",
+      "passwordLabel": "PASSWORD",
+      "confirmLabel": "CONFIRM",
+      "referralLabel": "REFERRAL CODE (OPTIONAL)",
+      "referralPlaceholder": "LOD-X92-2024",
+      "termsPrefix": "By registering, you agree to our",
+      "termsLink": "Terms of Service",
+      "termsMiddle": "and",
+      "privacyLink": "Privacy Policy",
+      "termsSuffix": ". All data is stored under operational privacy rules.",
+      "submitButton": "CREATE ACCOUNT",
+      "hasAccount": "Already have an account?",
+      "loginLink": "SIGN IN",
+      "errorFillRequired": "Please fill in the required fields",
+      "errorPasswordMismatch": "Passwords do not match",
+      "errorEmailTaken": "This email address is already registered.",
+      "errorUsernameTaken": "This username is already taken.",
+      "errorInvalidInput": "Invalid registration details.",
+      "errorRateLimit": "Too many registration attempts. Please try again later.",
+      "errorTimeout": "Cannot connect to server. Check your internet connection.",
+      "errorServer": "Server error. Please try again later.",
+      "errorGeneric": "Registration failed. Please check your information."
+    },
+    "forgotPassword": {
+      "title": "PASSWORD RESET",
+      "subtitle": "Enter your email address",
+      "emailLabel": "EMAIL",
+      "emailPlaceholder": "mail@example.com",
+      "submitButton": "SEND RESET LINK",
+      "successMessage": "If the account exists, an email has been sent.",
+      "successHint": "Check your inbox. The link has a limited validity.",
+      "backToLogin": "Back to login:",
+      "loginLink": "OPERATIONAL ACCESS",
+      "errorGeneric": "Request failed."
+    },
+    "verifyEmail": {
+      "title": "EMAIL VERIFICATION",
+      "emailLabel": "EMAIL",
+      "emailPlaceholder": "analyst@faceseek.com",
+      "codeLabel": "6-DIGIT CODE",
+      "codePlaceholder": "123456",
+      "resendButton": "RESEND CODE",
+      "submitButton": "VERIFY",
+      "backToLogin": "Back to login:",
+      "loginLink": "OPERATIONAL ACCESS",
+      "errorNoEmail": "Email parameter is missing.",
+      "errorInvalidCode": "Verification code must be 6 digits.",
+      "errorGeneric": "Verification failed.",
+      "errorResend": "Could not resend code."
+    },
+    "resetPassword": {
+      "title": "NEW PASSWORD",
+      "passwordLabel": "NEW PASSWORD",
+      "confirmLabel": "CONFIRM",
+      "submitButton": "SAVE",
+      "errorInvalidLink": "Invalid link.",
+      "errorMinLength": "Password must be at least 8 characters.",
+      "errorMismatch": "Passwords do not match.",
+      "errorGeneric": "Password reset failed."
+    }
   }
 }

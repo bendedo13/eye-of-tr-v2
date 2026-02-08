@@ -2,6 +2,7 @@
 
 import { use, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import ClientOnly from "@/components/ClientOnly";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/Button";
@@ -14,6 +15,7 @@ export default function ForgotPasswordPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = use(params);
+  const t = useTranslations("auth.forgotPassword");
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [sent, setSent] = useState(false);
@@ -29,7 +31,7 @@ export default function ForgotPasswordPage({
       setDebugUrl(res.debug_reset_url || null);
       setSent(true);
     } catch (err: any) {
-      setError(err.message || "İstek başarısız.");
+      setError(err.message || t("errorGeneric"));
     } finally {
       setBusy(false);
     }
@@ -50,16 +52,16 @@ export default function ForgotPasswordPage({
                 FACE<span className="text-zinc-600">SEEK</span>
               </span>
             </Link>
-            <h1 className="text-2xl font-black text-white uppercase tracking-tight mb-2">ŞİFRE SIFIRLAMA</h1>
-            <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em]">E-posta adresini gir</p>
+            <h1 className="text-2xl font-black text-white uppercase tracking-tight mb-2">{t("title")}</h1>
+            <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em]">{t("subtitle")}</p>
           </div>
 
           <GlassCard className="p-10 border-t-4 border-t-primary/30" hasScanline>
             {sent ? (
               <div className="space-y-6 text-center">
-                <div className="text-white font-black uppercase tracking-tight">Eğer hesap varsa mail gönderildi.</div>
+                <div className="text-white font-black uppercase tracking-tight">{t("successMessage")}</div>
                 <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest">
-                  Mail kutunu kontrol et. Linkin süresi sınırlıdır.
+                  {t("successHint")}
                 </p>
                 {debugUrl && (
                   <a
@@ -70,7 +72,7 @@ export default function ForgotPasswordPage({
                   </a>
                 )}
                 <Button className="h-14 w-full" onClick={() => (window.location.href = `/${locale}/login`)}>
-                  GİRİŞE DÖN <ArrowRight size={16} className="ml-2" />
+                  {t("loginLink")} <ArrowRight size={16} className="ml-2" />
                 </Button>
               </div>
             ) : (
@@ -83,27 +85,27 @@ export default function ForgotPasswordPage({
 
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest flex items-center gap-2 px-1">
-                    <Mail size={12} /> E-POSTA
+                    <Mail size={12} /> {t("emailLabel")}
                   </label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="input-field w-full h-14 bg-black/40 border-zinc-900 focus:border-primary/50"
-                    placeholder="mail@ornek.com"
+                    placeholder={t("emailPlaceholder")}
                     required
                     disabled={busy}
                   />
                 </div>
 
                 <Button type="submit" isLoading={busy} className="h-14 w-full">
-                  RESET LİNKİ GÖNDER <ArrowRight size={16} className="ml-2" />
+                  {t("submitButton")} <ArrowRight size={16} className="ml-2" />
                 </Button>
 
                 <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest text-center">
-                  Giriş ekranına dön:{" "}
+                  {t("backToLogin")}{" "}
                   <Link href={`/${locale}/login`} className="text-primary hover:text-white transition-colors underline underline-offset-4 decoration-primary/40 hover:decoration-primary">
-                    OPERASYONEL ERİŞİM
+                    {t("loginLink")}
                   </Link>
                 </p>
               </form>

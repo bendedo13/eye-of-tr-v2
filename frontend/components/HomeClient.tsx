@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -26,8 +26,34 @@ import {
   Layers,
   Sparkles,
   BadgeCheck,
-  Shield
+  Shield,
+  Star,
+  Check,
+  ChevronDown,
+  ChevronUp,
+  Users,
+  Award
 } from "lucide-react";
+
+function FAQItem({ question, answer }: { question: string; answer: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="border border-white/5 rounded-2xl overflow-hidden transition-all duration-300 hover:border-primary/20">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between p-6 text-left"
+      >
+        <span className="text-white font-bold text-sm pr-4">{question}</span>
+        {open ? <ChevronUp size={18} className="text-primary flex-shrink-0" /> : <ChevronDown size={18} className="text-zinc-500 flex-shrink-0" />}
+      </button>
+      {open && (
+        <div className="px-6 pb-6 -mt-2">
+          <p className="text-zinc-400 text-sm leading-relaxed">{answer}</p>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function HomeClient({
   locale
@@ -38,7 +64,6 @@ export default function HomeClient({
   const router = useRouter();
   const t = useTranslations('hero');
   const tFeatures = useTranslations('features');
-  const tHowItWorks = useTranslations('howItWorks');
   const tWhyFaceSeek = useTranslations('whyFaceSeek');
   const tFeatureCards = useTranslations('featureCards');
   const tHowItWorksSection = useTranslations('howItWorksSection');
@@ -47,6 +72,9 @@ export default function HomeClient({
   const tCta = useTranslations('cta');
   const tFooter = useTranslations('footer');
   const tNav = useTranslations('nav');
+  const tSocialProof = useTranslations('socialProof');
+  const tPricing = useTranslations('pricingPreview');
+  const tFaq = useTranslations('faq');
 
   const [siteConfig, setSiteConfig] = useState<Record<string, any> | null>(null);
 
@@ -93,7 +121,7 @@ export default function HomeClient({
         <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 text-center">
           <div className="text-4xl font-black text-white uppercase tracking-tight mb-4">MAINTENANCE</div>
           <div className="text-zinc-500 text-sm font-medium max-w-xl">
-            {locale === "tr" ? "Sistem kısa süreli bakım modunda. Lütfen daha sonra tekrar deneyin." : "The system is under maintenance. Please try again later."}
+            {locale === "tr" ? "Sistem kisa sureli bakim modunda. Lutfen daha sonra tekrar deneyin." : "The system is under maintenance. Please try again later."}
           </div>
         </div>
       </ClientOnly>
@@ -106,9 +134,8 @@ export default function HomeClient({
         <Navbar />
         <TrustCounter locale={locale} />
 
-        {/* Face Seek Hero Section */}
+        {/* ===== HERO SECTION ===== */}
         <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden py-24 px-6 circuit-pattern">
-          {/* Animated Background */}
           <div className="absolute inset-0 bg-gradient-to-b from-[#0a0e27] via-[#1a1f3a]/50 to-[#0a0e27] pointer-events-none"></div>
           {homeOverrides.heroImageUrl && (
             <div
@@ -118,7 +145,6 @@ export default function HomeClient({
           )}
           <div className="absolute inset-0 data-stream opacity-30"></div>
 
-          {/* Biometric Grid Pattern */}
           <div className="absolute inset-0 opacity-20">
             <div className="absolute top-1/4 left-1/4 w-2 h-2 rounded-full bg-[#00d9ff] animate-pulse"></div>
             <div className="absolute top-1/3 right-1/3 w-2 h-2 rounded-full bg-[#0ea5e9] animate-pulse" style={{ animationDelay: '0.5s' }}></div>
@@ -127,7 +153,6 @@ export default function HomeClient({
           </div>
 
           <div className="relative max-w-7xl mx-auto text-center z-10">
-            {/* Status Badge */}
             <div className="inline-flex items-center gap-2 bg-[#00d9ff]/10 border border-[#00d9ff]/30 px-4 py-2 rounded-full text-[#00d9ff] text-[10px] font-black uppercase tracking-[0.2em] mb-10 glow-cyan">
               <Sparkles size={12} className="animate-pulse" /> {homeOverrides.heroBadge || t('badge')}
             </div>
@@ -137,18 +162,15 @@ export default function HomeClient({
               </div>
             </div>
 
-            {/* Main Heading with Face Seek Branding */}
             <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white mb-6 leading-[1.1] tracking-tight uppercase">
               {homeOverrides.heroTitle || t('title')}
             </h1>
 
-            {/* Tagline */}
             <p className="text-slate-400 text-base sm:text-lg md:text-xl font-medium mb-12 max-w-4xl mx-auto leading-relaxed">
               {homeOverrides.heroSubtitle || t('subtitle')}
             </p>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-20">
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-12">
               {user ? (
                 <>
                   <Button
@@ -172,7 +194,7 @@ export default function HomeClient({
                     onClick={() => router.push(`/${locale}/register`)}
                     className="h-16 px-12 text-base face-seek-gradient hover:opacity-90 transition-opacity"
                   >
-                    🚀 {t('ctaPrimary')}
+                    {t('ctaPrimary')} <ArrowRight className="ml-2" size={18} />
                   </Button>
                   <Button
                     onClick={() => router.push(`/${locale}/login`)}
@@ -184,6 +206,24 @@ export default function HomeClient({
                 </>
               )}
             </div>
+
+            {/* Social proof mini stats */}
+            {!user && (
+              <div className="flex flex-wrap justify-center gap-8 mb-16">
+                <div className="flex items-center gap-2 text-zinc-400 text-sm">
+                  <Users size={16} className="text-primary" />
+                  <span className="font-bold">3,400+</span> {locale === 'tr' ? 'aktif kullanici' : 'active users'}
+                </div>
+                <div className="flex items-center gap-2 text-zinc-400 text-sm">
+                  <Search size={16} className="text-primary" />
+                  <span className="font-bold">12,000+</span> {locale === 'tr' ? 'tamamlanan arama' : 'searches completed'}
+                </div>
+                <div className="flex items-center gap-2 text-zinc-400 text-sm">
+                  <Award size={16} className="text-primary" />
+                  <span className="font-bold">98.7%</span> {locale === 'tr' ? 'dogruluk orani' : 'accuracy rate'}
+                </div>
+              </div>
+            )}
 
             {/* Trust Indicators */}
             <div className="flex flex-wrap justify-center gap-10 opacity-40 grayscale hover:grayscale-0 transition-all duration-700">
@@ -198,20 +238,19 @@ export default function HomeClient({
               </div>
             </div>
 
-            {/* Animated Facial Recognition Demo */}
             <div className="mt-20 max-w-2xl mx-auto">
               <FacialRecognitionDemo />
             </div>
           </div>
         </section>
 
-        {/* Trust Badges */}
+        {/* ===== TRUST BADGES ===== */}
         <section className="py-16 px-6">
           <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
               { icon: <Shield size={22} />, label: "SSL Secure" },
-              { icon: <BadgeCheck size={22} />, label: "KVKK Uyumlu" },
-              { icon: <ShieldCheck size={22} />, label: "GDPR Ready" },
+              { icon: <BadgeCheck size={22} />, label: "KVKK" },
+              { icon: <ShieldCheck size={22} />, label: "GDPR" },
               { icon: <Lock size={22} />, label: "Privacy First" }
             ].map((b, i) => (
               <div key={i} className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm font-semibold text-zinc-300">
@@ -222,18 +261,56 @@ export default function HomeClient({
           </div>
         </section>
 
+        {/* ===== REFERRAL PROMO ===== */}
         <div className="px-6 -mt-10">
           <ReferralPromo locale={locale} />
         </div>
 
-        {/* Live Stats Section */}
+        {/* ===== SOCIAL PROOF / TESTIMONIALS ===== */}
+        <section className="py-32 px-6 relative">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-20">
+              <h2 className="text-4xl md:text-6xl font-black text-white mb-4 uppercase tracking-tighter">
+                {tSocialProof('title')} <span className="text-primary">{tSocialProof('titleHighlight')}</span>
+              </h2>
+              <p className="text-zinc-500 text-lg font-medium">{tSocialProof('subtitle')}</p>
+              <div className="w-20 h-1.5 bg-primary mx-auto rounded-full mt-6"></div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {['testimonial1', 'testimonial2', 'testimonial3'].map((key, i) => (
+                <GlassCard key={i} className="p-8 hover:border-primary/30 transition-all duration-500">
+                  <div className="flex gap-1 mb-6">
+                    {[...Array(5)].map((_, j) => (
+                      <Star key={j} size={16} className="text-yellow-500 fill-yellow-500" />
+                    ))}
+                  </div>
+                  <p className="text-zinc-300 text-sm leading-relaxed mb-8 italic">
+                    &ldquo;{tSocialProof(`${key}.text`)}&rdquo;
+                  </p>
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-primary font-black text-sm">
+                      {tSocialProof(`${key}.name`).charAt(0)}
+                    </div>
+                    <div>
+                      <div className="text-white text-sm font-bold">{tSocialProof(`${key}.name`)}</div>
+                      <div className="text-zinc-500 text-xs font-medium">{tSocialProof(`${key}.role`)}</div>
+                    </div>
+                  </div>
+                </GlassCard>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ===== LIVE STATS ===== */}
         <section className="py-24 px-6">
           <div className="max-w-7xl mx-auto">
             <LiveStats />
           </div>
         </section>
 
-        {/* Features Grid */}
+        {/* ===== FEATURES GRID ===== */}
         <section className="py-32 px-6 relative">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-24">
@@ -260,7 +337,7 @@ export default function HomeClient({
           </div>
         </section>
 
-        {/* How It Works Layered UI */}
+        {/* ===== HOW IT WORKS ===== */}
         <section className="py-32 px-6 bg-white/[0.02] border-y border-white/5">
           <div className="max-w-7xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
@@ -303,7 +380,127 @@ export default function HomeClient({
           </div>
         </section>
 
-        {/* Call to Action */}
+        {/* ===== PRICING PREVIEW ===== */}
+        <section className="py-32 px-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-20">
+              <h2 className="text-4xl md:text-6xl font-black text-white mb-4 uppercase tracking-tighter">
+                {tPricing('title')} <span className="text-primary">{tPricing('titleHighlight')}</span>
+              </h2>
+              <p className="text-zinc-500 text-lg font-medium">{tPricing('subtitle')}</p>
+              <div className="w-20 h-1.5 bg-primary mx-auto rounded-full mt-6"></div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+              {/* Free Plan */}
+              <GlassCard className="p-8 hover:border-primary/30 transition-all duration-500">
+                <h3 className="text-lg font-black text-white uppercase tracking-tight mb-2">{tPricing('free.name')}</h3>
+                <p className="text-zinc-500 text-sm mb-6">{tPricing('free.desc')}</p>
+                <div className="text-3xl font-black text-white mb-8">{tPricing('free.price')}</div>
+                <div className="space-y-3 mb-8">
+                  {['feature1', 'feature2', 'feature3'].map((fk) => (
+                    <div key={fk} className="flex items-center gap-3 text-sm text-zinc-400">
+                      <Check size={16} className="text-primary flex-shrink-0" />
+                      {tPricing(`free.${fk}`)}
+                    </div>
+                  ))}
+                </div>
+                <Button
+                  onClick={() => router.push(`/${locale}/register`)}
+                  variant="outline"
+                  className="w-full h-12 border-white/10"
+                >
+                  {tPricing('free.name')} <ArrowRight size={16} className="ml-2" />
+                </Button>
+              </GlassCard>
+
+              {/* Pro Plan - Highlighted */}
+              <div className="relative">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
+                  <span className="bg-primary text-black text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full">
+                    {tPricing('pro.popular')}
+                  </span>
+                </div>
+                <GlassCard className="p-8 border-primary/40 shadow-2xl shadow-primary/10 relative">
+                  <h3 className="text-lg font-black text-white uppercase tracking-tight mb-2">{tPricing('pro.name')}</h3>
+                  <p className="text-zinc-500 text-sm mb-6">{tPricing('pro.desc')}</p>
+                  <div className="text-3xl font-black text-white mb-8">
+                    {tPricing('pro.price')}<span className="text-lg text-zinc-500">{tPricing('pro.period')}</span>
+                  </div>
+                  <div className="space-y-3 mb-8">
+                    {['feature1', 'feature2', 'feature3', 'feature4'].map((fk) => (
+                      <div key={fk} className="flex items-center gap-3 text-sm text-zinc-300">
+                        <Check size={16} className="text-primary flex-shrink-0" />
+                        {tPricing(`pro.${fk}`)}
+                      </div>
+                    ))}
+                  </div>
+                  <Button
+                    onClick={() => router.push(`/${locale}/pricing`)}
+                    className="w-full h-12 face-seek-gradient"
+                  >
+                    {tPricing('pro.name')} <ArrowRight size={16} className="ml-2" />
+                  </Button>
+                </GlassCard>
+              </div>
+
+              {/* Enterprise Plan */}
+              <GlassCard className="p-8 hover:border-primary/30 transition-all duration-500">
+                <h3 className="text-lg font-black text-white uppercase tracking-tight mb-2">{tPricing('enterprise.name')}</h3>
+                <p className="text-zinc-500 text-sm mb-6">{tPricing('enterprise.desc')}</p>
+                <div className="text-3xl font-black text-white mb-8">{tPricing('enterprise.price')}</div>
+                <div className="space-y-3 mb-8">
+                  {['feature1', 'feature2', 'feature3', 'feature4'].map((fk) => (
+                    <div key={fk} className="flex items-center gap-3 text-sm text-zinc-400">
+                      <Check size={16} className="text-primary flex-shrink-0" />
+                      {tPricing(`enterprise.${fk}`)}
+                    </div>
+                  ))}
+                </div>
+                <Button
+                  onClick={() => router.push(`/${locale}/contact`)}
+                  variant="outline"
+                  className="w-full h-12 border-white/10"
+                >
+                  {tPricing('enterprise.name')} <ArrowRight size={16} className="ml-2" />
+                </Button>
+              </GlassCard>
+            </div>
+
+            <div className="text-center mt-10">
+              <Link
+                href={`/${locale}/pricing`}
+                className="text-primary text-sm font-bold hover:underline underline-offset-4 inline-flex items-center gap-2"
+              >
+                {tPricing('viewAll')} <ArrowRight size={14} />
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ===== FAQ SECTION ===== */}
+        <section className="py-32 px-6 bg-white/[0.02] border-y border-white/5">
+          <div className="max-w-3xl mx-auto">
+            <div className="text-center mb-20">
+              <h2 className="text-4xl md:text-6xl font-black text-white mb-4 uppercase tracking-tighter">
+                {tFaq('title')} <span className="text-primary">{tFaq('titleHighlight')}</span>
+              </h2>
+              <div className="w-20 h-1.5 bg-primary mx-auto rounded-full mt-6"></div>
+            </div>
+
+            <div className="space-y-4">
+              {['q1', 'q2', 'q3', 'q4', 'q5'].map((qKey) => (
+                <FAQItem
+                  key={qKey}
+                  question={tFaq(`${qKey}.question`)}
+                  answer={tFaq(`${qKey}.answer`)}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ===== FINAL CTA ===== */}
         <section className="py-40 px-6">
           <div className="max-w-5xl mx-auto">
             <GlassCard className="p-20 text-center relative overflow-hidden" hasScanline>
@@ -324,7 +521,7 @@ export default function HomeClient({
           </div>
         </section>
 
-        {/* Professional Footer */}
+        {/* ===== FOOTER ===== */}
         <footer className="py-24 px-6 border-t border-white/5 bg-black/40">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-16">
             <div className="flex flex-col items-start max-w-sm">
@@ -349,7 +546,7 @@ export default function HomeClient({
                 <div className="flex flex-col gap-4">
                   <Link href={`/${locale}/search`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tFooter("links.faceSearch")}</Link>
                   <Link href={`/${locale}/pricing`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tNav("pricing")}</Link>
-                  <Link href={`/${locale}/api`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tNav("enterpriseApi")}</Link>
+                  <Link href={`/${locale}/support`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tNav("support")}</Link>
                 </div>
               </div>
               <div className="space-y-6">
@@ -357,7 +554,7 @@ export default function HomeClient({
                 <div className="flex flex-col gap-4">
                   <Link href={`/${locale}/legal/about`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tFooter("links.aboutUs")}</Link>
                   <Link href={`/${locale}/blog`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tNav("blog")}</Link>
-                  <a href="mailto:benalanx@face-seek.com" className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tFooter("links.contact")}</a>
+                  <Link href={`/${locale}/contact`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tFooter("links.contact")}</Link>
                 </div>
               </div>
               <div className="space-y-6">

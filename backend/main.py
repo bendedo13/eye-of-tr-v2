@@ -30,6 +30,7 @@ from app.api.admin_email_endpoints import router as admin_email_router
 from app.api.notifications import router as notifications_router
 from app.api.support import router as support_router
 from app.api.admin_support import router as admin_support_router
+from app.api.face_compare import router as face_compare_router
 from app.db.database import get_engine, Base, SessionLocal  # Use database.py directly
 from app.middleware.rate_limit import RateLimitMiddleware
 
@@ -153,6 +154,7 @@ app.include_router(admin_email_router)
 app.include_router(notifications_router)
 app.include_router(support_router)
 app.include_router(admin_support_router)
+app.include_router(face_compare_router)
 logger.info("✅ Face search router: /api/upload-face, /api/search-face")
 logger.info(f"✅ Auth router: {auth_router.prefix}")
 logger.info(f"✅ Dashboard router: {dashboard_router.prefix}")

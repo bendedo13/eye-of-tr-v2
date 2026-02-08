@@ -1,22 +1,158 @@
-# FaceSeek Project Rules - DO NOT MODIFY THESE FILES WITHOUT APPROVAL
+# FaceSeek Project Rules
+# Bu dosya tüm yapay zeka asistanları (Claude, Cursor, Copilot, vb.) için bağlayıcı kurallardır.
+# Proje: face-seek.com | Stack: Next.js 16 + FastAPI + PostgreSQL
 
-## Protected Files (Core API - Never auto-modify):
-- frontend/app/api/auth/register/route.ts
-- frontend/app/api/auth/login/route.ts
-- frontend/app/api/auth/me/route.ts
-- frontend/app/api/dashboard/stats/route.ts
-- frontend/app/api/search/route.ts
-- frontend/app/api/credits/route.ts
-- frontend/lib/api.ts
-- frontend/context/AuthContext.tsx
-- frontend/prisma/schema.prisma
+## ============================================================
+## 1. KRİTİK KORUNAN DOSYALAR (ASLA OTOMATİK DEĞİŞTİRME)
+## ============================================================
+# Bu dosyalar backend-frontend sözleşmesinin temelidir.
+# Değişiklik sadece proje sahibi onayı ile yapılabilir.
 
-## Database: Supabase PostgreSQL
-## Auth: Custom JWT-less session (userId based)
-## Credits: 10 free on signup, 1 per search
+### Frontend Korumalı:
+- frontend/lib/api.ts                    # API istemci katmanı
+- frontend/context/AuthContext.tsx        # Kimlik doğrulama state yönetimi
+- frontend/app/api/credits/route.ts      # Kredi yönetimi endpoint
 
-## Rules:
-1. Never change API response formats
-2. Never modify Prisma schema without migration
-3. Always check credits before search
-4. Keep error messages in Turkish
+### Backend Korumalı:
+- backend/app/core/config.py             # Merkezi konfigürasyon
+- backend/app/db/database.py             # Veritabanı bağlantısı
+- backend/main.py                        # FastAPI uygulama girişi (router kayıtları)
+
+## ============================================================
+## 2. MİMARİ KURALLAR
+## ============================================================
+
+### Backend (FastAPI):
+- Tüm endpoint'ler /backend/app/routers/ altında ayrı dosyalarda olmalı
+- Her router main.py'de kayıtlı olmalı
+- Yeni model eklerken /backend/app/models/ altına ekle ve main.py'de import et
+- Servisler /backend/app/services/ altında, iş mantığını router'dan ayır
+- Adapter pattern: Dış API'ler /backend/app/adapters/ altında
+- Modüller: Bağımsız özellikler /backend/app/modules/ altında
+
+### Frontend (Next.js 16):
+- Sayfalar: /frontend/app/[locale]/ altında (i18n zorunlu)
+- Bileşenler: /frontend/components/ altında, alt klasörler: ui/, brand/, marketing/
+- API çağrıları: /frontend/lib/api.ts üzerinden (doğrudan fetch kullanma)
+- State yönetimi: Context API (/frontend/context/)
+- Çeviriler: /frontend/messages/tr.json ve en.json (hardcoded metin YASAK)
+
+### Backend-Frontend Sözleşmesi:
+- API yanıt formatlarını ASLA değiştirme (breaking change yasak)
+- Yeni alan eklerken geriye uyumlu ol (opsiyonel alanlar)
+- Hata mesajları Türkçe olmalı (backend tarafında)
+- Frontend'de tüm kullanıcıya görünen metinler i18n üzerinden
+
+## ============================================================
+## 3. GÜVENLİK KURALLARI
+## ============================================================
+
+- Biyometrik veri (yüz embedding) ASLA diske yazılmaz
+- Yüz embedding'leri sadece RAM'de tutulur, yanıt sonrası silinir
+- Kullanıcı şifreleri bcrypt ile hashlenmelidir
+- JWT token'ları SECRET_KEY ile imzalanmalıdır
+- Tüm dosya yüklemeleri boyut ve tip kontrolünden geçmeli (maks 10MB)
+- Rate limiting tüm public endpoint'lerde aktif olmalı
+- SQL injection'a karşı SQLAlchemy ORM kullanılmalı
+- XSS'e karşı kullanıcı girdileri sanitize edilmeli
+- CORS sadece izin verilen origin'lere açık olmalı
+- .env dosyaları ASLA commit edilmemeli
+
+## ============================================================
+## 4. VERİTABANI KURALLARI
+## ============================================================
+
+- Veritabanı: PostgreSQL (production), SQLite (development)
+- ORM: SQLAlchemy 2.0
+- Migration yapmadan model değiştirme YASAK
+- Yeni tablo eklerken main.py'de create_all çağrısını kontrol et
+- İndeks: Sık sorgulanan alanlara index ekle
+- Soft delete tercih et (is_deleted flag)
+
+## ============================================================
+## 5. KREDİ SİSTEMİ
+## ============================================================
+
+- Kayıtta 10 ücretsiz kredi verilir
+- Her arama 1 kredi harcar
+- Arama öncesi kredi kontrolü ZORUNLU
+- Referans sistemi: 3 doğrulanmış davet = +1 kredi
+- Kredi manipülasyonu için audit log tutulmalı
+
+## ============================================================
+## 6. KOD STİLİ VE STANDARTLARI
+## ============================================================
+
+### Genel:
+- Kod basit ve okunabilir olmalı (over-engineering YASAK)
+- DRY prensibi: Tekrarlayan kod fonksiyona çıkarılmalı
+- Tek sorumluluk: Her dosya/fonksiyon tek bir iş yapmalı
+- Yorum: Sadece karmaşık mantık için, her yere yorum yazma
+- Console.log / print: Production'da bırakma
+
+### TypeScript (Frontend):
+- Strict mode aktif
+- any tipi minimize et, tip tanımla
+- Component'ler fonksiyonel olmalı (class component YASAK)
+- Tailwind CSS kullan, inline style minimize et
+- Lucide React ikonları kullan
+
+### Python (Backend):
+- Type hints kullan
+- Pydantic schema'lar ile validasyon
+- async/await tercih et
+- Hata yakalama: try-except ile spesifik hatalar
+
+## ============================================================
+## 7. i18n (ÇOK DİL DESTEĞİ)
+## ============================================================
+
+- Desteklenen diller: Türkçe (tr), İngilizce (en)
+- Tüm kullanıcıya görünen metinler /frontend/messages/ altında
+- Hardcoded Türkçe/İngilizce metin YASAK
+- Yeni metin eklerken HER İKİ dile de ekle
+- Çeviri anahtarları: camelCase (ör: "heroTitle", "ctaButton")
+
+## ============================================================
+## 8. YASAL UYUMLULUK
+## ============================================================
+
+- KVKK ve GDPR uyumluluğu zorunlu
+- Biyometrik veritabanı oluşturma YASAK
+- Yüz tanıma sistemi kimlik tespiti YAPMAZ
+- Benzerlik skorları yalnızca yüzde olarak sunulur
+- Kullanıcı onayı olmadan yüz karşılaştırma YASAK
+- Cookie consent banner aktif olmalı
+- Gizlilik politikası ve kullanım şartları güncel olmalı
+
+## ============================================================
+## 9. PERFORMANS
+## ============================================================
+
+- Görseller optimize edilmeli (WebP tercih)
+- Lazy loading: Viewport dışındaki bileşenler
+- API yanıtları cache'lenmeli (Redis)
+- Database sorguları optimize: N+1 sorunu önle
+- Bundle size: Gereksiz dependency ekleme
+
+## ============================================================
+## 10. DEPLOYMENT
+## ============================================================
+
+- Production: VDS sunucu (Ubuntu 22.04)
+- Backend: Gunicorn + Uvicorn workers
+- Frontend: Next.js standalone build
+- Reverse proxy: Nginx
+- Process manager: Systemd
+- Monitoring: Prometheus + Grafana
+- SSL: Let's Encrypt
+
+## ============================================================
+## 11. GIT KURALLARI
+## ============================================================
+
+- main branch'e direkt push YASAK
+- Feature branch'ler: feature/ozellik-adi
+- Commit mesajları Türkçe, açıklayıcı
+- .env, node_modules, __pycache__, uploads/ commit edilmez
+- PR açmadan önce lint ve test çalıştır

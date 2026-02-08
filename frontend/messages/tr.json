@@ -121,7 +121,7 @@
     "subtitle": "Kurumsal düzeyde yüz arama yetenekleri",
     "feature1": {
       "title": "Ters Görüntü Yüz Arama",
-      "description": "Herhangi bir fotoğraf yükleyin ve Google, Bing, Yandex ve özel OSINT veritabanlarında eşleşen yüzleri bulun. Yapay zeka yüz tanıma motorumuz milyarlarca görüntüyü işler."
+      "description": "Herhangi bir fotoğraf yükleyin ve Google, Bing, Yandex ve özel OSINT veritabanlarında eşleşen yüzleri bulun."
     },
     "feature2": {
       "title": "OSINT Yüz Arama",
@@ -129,11 +129,11 @@
     },
     "feature3": {
       "title": "Gizlilik Odaklı Yüz Arama",
-      "description": "GDPR ve KVKK uyumlu. Kalıcı biyometrik veritabanı yok. Görüntüler 24 saat içinde siliniyor. Yüz arama sorgularınız gizli kalır."
+      "description": "GDPR ve KVKK uyumlu. Kalıcı biyometrik veritabanı yok. Görüntüler 24 saat içinde siliniyor."
     },
     "feature4": {
       "title": "Etik Yapay Zeka Yüz Tanıma",
-      "description": "Sıkı kabul edilebilir kullanım politikalarına sahip sorumlu yüz istihbarat platformu. Yalnızca kamu verileri. Kolluk kuvvetleri bağlantısı yok."
+      "description": "Sıkı kabul edilebilir kullanım politikalarına sahip sorumlu yüz istihbarat platformu."
     },
     "feature5": {
       "title": "Çoklu Motor Toplama",
@@ -141,7 +141,7 @@
     },
     "feature6": {
       "title": "Yüz Tanıma SaaS",
-      "description": "Her yerden erişilebilen bulut tabanlı yüz arama motoru. Kurulum gerektirmez. Kurumsal API mevcut."
+      "description": "Her yerden erişilebilen bulut tabanlı yüz arama motoru. Kurulum gerektirmez."
     }
   },
   "howItWorks": {
@@ -149,15 +149,15 @@
     "subtitle": "3 basit adımda profesyonel yüz arama",
     "step1": {
       "title": "Görüntü Yükle",
-      "description": "Yüz içeren bir fotoğraf yükleyin. Yüz arama motorumuz, gelişmiş yapay zeka yüz haritalama teknolojisini kullanarak yüz özelliklerini otomatik olarak algılar ve çıkarır."
+      "description": "Yüz içeren bir fotoğraf yükleyin."
     },
     "step2": {
       "title": "Yapay Zeka İşleme",
-      "description": "Yüz tanıma algoritmalarımız benzersiz bir biyometrik imza oluşturur ve çoklu kaynak indeksleme yoluyla Google, Bing, Yandex ve OSINT veritabanlarından milyarlarca indekslenmiş görüntüde arama yapar."
+      "description": "Yüz tanıma algoritmalarımız benzersiz bir biyometrik imza oluşturur."
     },
     "step3": {
       "title": "Sonuçları Al",
-      "description": "Profesyonel doğrulama için eşleşme güven puanları, kaynak URL'leri ve bağlamsal bilgilerle kapsamlı yüz istihbarat raporları alın."
+      "description": "Eşleşme güven puanları ve kaynak URL'leri ile kapsamlı raporlar alın."
     }
   },
   "howItWorksSection": {
@@ -171,17 +171,17 @@
     "step2": {
       "number": "02",
       "title": "YAPAY ZEKA YÜZ HARİTALAMA",
-      "desc": "Gelişmiş biyometrik algoritmalar 128 benzersiz yüz işaretini çıkarır. Görüntü istihbarat sistemimiz milyarlarca indekslenmiş görüntüde hassas yüz tanıma araması için matematiksel bir imza oluşturur."
+      "desc": "Gelişmiş biyometrik algoritmalar 128 benzersiz yüz işaretini çıkarır. Görüntü istihbarat sistemimiz hassas yüz tanıma araması için matematiksel bir imza oluşturur."
     },
     "step3": {
       "number": "03",
       "title": "ÇOK KAYNAKLI İNDEKSLEME",
-      "desc": "Yüz arama sorgunuz Google, Bing, Yandex ve özel OSINT veritabanlarında eşzamanlı olarak işlenir. Ters görüntü yüz arama teknolojimiz gerçek zamanlı olarak küresel web indekslerinden sonuçları toplar."
+      "desc": "Yüz arama sorgunuz Google, Bing, Yandex ve özel OSINT veritabanlarında eşzamanlı olarak işlenir."
     },
     "step4": {
       "number": "04",
       "title": "SONUÇLAR VE ANALİTİK",
-      "desc": "Güven skorları, kaynak URL'leri ve bağlamsal metadata ile kapsamlı yüz istihbarat raporları alın. Her yüz tanıma araması profesyonel doğrulama için detaylı analitik içerir."
+      "desc": "Güven skorları, kaynak URL'leri ve bağlamsal metadata ile kapsamlı yüz istihbarat raporları alın."
     }
   },
   "cta": {
@@ -189,5 +189,170 @@
     "titlePart2": "BAŞLAYIN",
     "description": "Etik yüz istihbaratı için FaceSeek kullanan binlerce profesyonele katılın. Yapay zeka yüz arama platformumuzu deneyimlemek için 3 ücretsiz arama hakkı alın.",
     "button": "Ücretsiz Hesap Oluştur"
+  },
+  "socialProof": {
+    "title": "DÜNYA GENELİNDE",
+    "titleHighlight": "GÜVENİLİYOR",
+    "subtitle": "Araştırmacılar, gazeteciler ve güvenlik uzmanları tarafından tercih ediliyor",
+    "testimonial1": {
+      "text": "FaceSeek, OSINT araştırmalarımızda oyun değiştirici oldu. Hız ve doğruluk inanılmaz.",
+      "name": "Ahmet K.",
+      "role": "Siber Güvenlik Uzmanı"
+    },
+    "testimonial2": {
+      "text": "KVKK uyumlu çalışması ve veri saklamama politikası bizi çok rahatlattı. Profesyonel bir araç.",
+      "name": "Elif M.",
+      "role": "Araştırmacı Gazeteci"
+    },
+    "testimonial3": {
+      "text": "Çoklu arama motoru desteği tek seferde kapsamlı sonuçlar sunuyor. Zamandan büyük tasarruf.",
+      "name": "Mert Y.",
+      "role": "Özel Dedektif"
+    }
+  },
+  "pricingPreview": {
+    "title": "UYGUN FİYATLI",
+    "titleHighlight": "PLANLAR",
+    "subtitle": "İhtiyacınıza göre esnek fiyatlandırma",
+    "free": {
+      "name": "Başlangıç",
+      "price": "Ücretsiz",
+      "desc": "Platformu keşfetmek için",
+      "feature1": "3 ücretsiz arama hakkı",
+      "feature2": "Temel sonuçlar",
+      "feature3": "E-posta desteği"
+    },
+    "pro": {
+      "name": "Profesyonel",
+      "price": "₺299",
+      "period": "/ay",
+      "desc": "Araştırmacılar için ideal",
+      "feature1": "50 arama hakkı",
+      "feature2": "Gelişmiş sonuçlar",
+      "feature3": "Öncelikli destek",
+      "feature4": "API erişimi",
+      "popular": "En Popüler"
+    },
+    "enterprise": {
+      "name": "Kurumsal",
+      "price": "Özel Teklif",
+      "desc": "Şirketler ve kurumlar için",
+      "feature1": "Sınırsız arama",
+      "feature2": "Özel API",
+      "feature3": "7/24 destek",
+      "feature4": "SLA garantisi"
+    },
+    "viewAll": "Tüm planları gör"
+  },
+  "faq": {
+    "title": "SIK SORULAN",
+    "titleHighlight": "SORULAR",
+    "q1": {
+      "question": "FaceSeek nasıl çalışır?",
+      "answer": "Yüklediğiniz fotoğraftaki yüzü yapay zeka ile analiz eder ve Google, Bing, Yandex gibi arama motorlarında eşleşen görselleri bulur. Sonuçlar benzerlik skoruyla birlikte sunulur."
+    },
+    "q2": {
+      "question": "Verilerim güvende mi?",
+      "answer": "Evet. Yüklenen görseller işlem sonrası silinir, biyometrik veri saklanmaz. KVKK ve GDPR uyumlu çalışıyoruz. 256-bit şifreleme ile tüm verileriniz korunur."
+    },
+    "q3": {
+      "question": "Ücretsiz kullanabilir miyim?",
+      "answer": "Evet! Kayıt olduğunuzda 3 ücretsiz arama hakkı kazanırsınız. Ayrıca arkadaşlarınızı davet ederek ek kredi kazanabilirsiniz."
+    },
+    "q4": {
+      "question": "Hangi dosya formatları destekleniyor?",
+      "answer": "JPG, PNG, WebP ve HEIC formatlarını destekliyoruz. Maksimum dosya boyutu 10MB'dır. Sistem, yüz tanıma doğruluğu için çözünürlüğü otomatik optimize eder."
+    },
+    "q5": {
+      "question": "API entegrasyonu mevcut mu?",
+      "answer": "Evet. Kurumsal planımız ile RESTful API erişimi sağlanır. Kendi uygulamalarınıza yüz arama özelliği ekleyebilirsiniz."
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "OPERASYONEL ERİŞİM",
+      "subtitle": "Güvenli Portal Giriş Protokolü",
+      "emailLabel": "E-POSTA ADRESİ",
+      "emailPlaceholder": "ornek@faceseek.io",
+      "passwordLabel": "PAROLA",
+      "forgotPassword": "ŞİFREMİ UNUTTUM",
+      "submitButton": "SİSTEME GİRİŞ YAP",
+      "noAccount": "Hesabınız yok mu?",
+      "registerLink": "OPERASYONA KATILIN",
+      "errorInvalidCredentials": "E-posta veya şifre hatalı. Lütfen kontrol edip tekrar deneyin.",
+      "errorInvalidInput": "Geçersiz giriş bilgileri.",
+      "errorTimeout": "Sunucuya bağlanılamıyor. İnternet bağlantınızı kontrol edin.",
+      "errorServer": "Sunucu hatası. Lütfen daha sonra tekrar deneyin.",
+      "errorGeneric": "Giriş başarısız. Kimlik bilgilerinizi kontrol edin.",
+      "errorFillAll": "Lütfen tüm alanları doldurun",
+      "encryption": "256-BIT AES",
+      "instantSync": "ANINDA SENKRON"
+    },
+    "register": {
+      "title": "OPERASYONEL KAYIT",
+      "subtitle": "Yeni Analist Kayıt Protokolü",
+      "usernameLabel": "ANALİST ADI",
+      "usernamePlaceholder": "Adınız Soyadınız",
+      "emailLabel": "E-POSTA",
+      "emailPlaceholder": "ornek@faceseek.io",
+      "passwordLabel": "PAROLA",
+      "confirmLabel": "DOĞRULA",
+      "referralLabel": "DAVET KODU (OPSİYONEL)",
+      "referralPlaceholder": "LOD-X92-2024",
+      "termsPrefix": "Kayıt olarak",
+      "termsLink": "Hizmet Şartlarını",
+      "termsMiddle": "ve",
+      "privacyLink": "Gizlilik Politikasını",
+      "termsSuffix": "kabul etmiş sayılırsınız. Tüm verileriniz operasyonel gizlilik kuralları çerçevesinde saklanır.",
+      "submitButton": "HESABI OLUŞTUR",
+      "hasAccount": "Zaten bir hesabınız var mı?",
+      "loginLink": "OTURUM AÇIN",
+      "errorFillRequired": "Lütfen gerekli alanları doldurun",
+      "errorPasswordMismatch": "Şifreler eşleşmiyor",
+      "errorEmailTaken": "Bu e-posta adresi zaten kayıtlı.",
+      "errorUsernameTaken": "Bu kullanıcı adı zaten alınmış.",
+      "errorInvalidInput": "Kayıt bilgileri geçersiz.",
+      "errorRateLimit": "Çok fazla kayıt denemesi yapıldı. Lütfen daha sonra tekrar deneyin.",
+      "errorTimeout": "Sunucuya bağlanılamıyor. İnternet bağlantınızı kontrol edin.",
+      "errorServer": "Sunucu hatası. Lütfen daha sonra tekrar deneyin.",
+      "errorGeneric": "Kayıt başarısız. Lütfen bilgilerinizi kontrol edin."
+    },
+    "forgotPassword": {
+      "title": "ŞİFRE SIFIRLAMA",
+      "subtitle": "E-posta adresini gir",
+      "emailLabel": "E-POSTA",
+      "emailPlaceholder": "mail@ornek.com",
+      "submitButton": "RESET LİNKİ GÖNDER",
+      "successMessage": "Eğer hesap varsa mail gönderildi.",
+      "successHint": "Mail kutunu kontrol et. Linkin süresi sınırlıdır.",
+      "backToLogin": "Giriş ekranına dön:",
+      "loginLink": "OPERASYONEL ERİŞİM",
+      "errorGeneric": "İstek başarısız."
+    },
+    "verifyEmail": {
+      "title": "E-POSTA DOĞRULAMA",
+      "emailLabel": "E-POSTA",
+      "emailPlaceholder": "ornek@faceseek.com",
+      "codeLabel": "6 HANELİ KOD",
+      "codePlaceholder": "123456",
+      "resendButton": "KODU TEKRAR GÖNDER",
+      "submitButton": "DOĞRULA",
+      "backToLogin": "Giriş ekranına dön:",
+      "loginLink": "OPERASYONEL ERİŞİM",
+      "errorNoEmail": "Email parametresi eksik.",
+      "errorInvalidCode": "Doğrulama kodu 6 haneli olmalı.",
+      "errorGeneric": "Doğrulama başarısız.",
+      "errorResend": "Kod tekrar gönderilemedi."
+    },
+    "resetPassword": {
+      "title": "YENİ ŞİFRE",
+      "passwordLabel": "YENİ ŞİFRE",
+      "confirmLabel": "TEKRAR",
+      "submitButton": "KAYDET",
+      "errorInvalidLink": "Link geçersiz.",
+      "errorMinLength": "Şifre en az 8 karakter olmalı.",
+      "errorMismatch": "Şifreler eşleşmiyor.",
+      "errorGeneric": "Şifre sıfırlama başarısız."
+    }
   }
 }

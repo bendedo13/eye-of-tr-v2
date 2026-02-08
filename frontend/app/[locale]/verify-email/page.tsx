@@ -1,15 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import ClientOnly from "@/components/ClientOnly";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/Button";
 import { ShieldCheck, KeyRound, Mail, ArrowRight, RefreshCcw } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-
-import { use } from "react";
 
 export default function VerifyEmailPage({
   params,
@@ -21,6 +20,7 @@ export default function VerifyEmailPage({
   const { locale } = use(params);
   const router = useRouter();
   const { user, mounted, loading, verifyEmail, resendCode } = useAuth();
+  const t = useTranslations("auth.verifyEmail");
 
   const [email, setEmail] = useState(searchParams.email || "");
   const [code, setCode] = useState((searchParams.debug_code || "").replace(/\D/g, "").slice(0, 6));
@@ -45,11 +45,11 @@ export default function VerifyEmailPage({
     e.preventDefault();
     setError("");
     if (!email) {
-      setError("Email parametresi eksik.");
+      setError(t("errorNoEmail"));
       return;
     }
     if (!/^[0-9]{6}$/.test(code)) {
-      setError("Doğrulama kodu 6 haneli olmalı.");
+      setError(t("errorInvalidCode"));
       return;
     }
     setBusy(true);
@@ -60,7 +60,7 @@ export default function VerifyEmailPage({
       }
       router.push(`/${locale}/dashboard`);
     } catch (err: any) {
-      setError(err.message || "Doğrulama başarısız.");
+      setError(err.message || t("errorGeneric"));
     } finally {
       setBusy(false);
     }
@@ -69,7 +69,7 @@ export default function VerifyEmailPage({
   const resend = async () => {
     setError("");
     if (!email) {
-      setError("Email parametresi eksik.");
+      setError(t("errorNoEmail"));
       return;
     }
     setResending(true);
@@ -77,7 +77,7 @@ export default function VerifyEmailPage({
       const dbg = await resendCode(email);
       if (dbg) setCode(dbg);
     } catch (err: any) {
-      setError(err.message || "Kod tekrar gönderilemedi.");
+      setError(err.message || t("errorResend"));
     } finally {
       setResending(false);
     }
@@ -108,7 +108,7 @@ export default function VerifyEmailPage({
                 FACE<span className="text-zinc-600">SEEK</span>
               </span>
             </Link>
-            <h1 className="text-2xl font-black text-white uppercase tracking-tight mb-2">E-POSTA DOĞRULAMA</h1>
+            <h1 className="text-2xl font-black text-white uppercase tracking-tight mb-2">{t("title")}</h1>
             <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-2">
               <Mail size={12} /> {email || "—"}
             </p>
@@ -119,14 +119,14 @@ export default function VerifyEmailPage({
               {!email && (
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest flex items-center gap-2 px-1">
-                    <Mail size={12} /> E-POSTA
+                    <Mail size={12} /> {t("emailLabel")}
                   </label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="input-field w-full h-14 bg-black/40 border-zinc-900 focus:border-primary/50"
-                    placeholder="ornek@faceseek.com"
+                    placeholder={t("emailPlaceholder")}
                     disabled={busy || resending}
                   />
                 </div>
@@ -139,7 +139,7 @@ export default function VerifyEmailPage({
 
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest flex items-center gap-2 px-1">
-                  <KeyRound size={12} /> 6 HANELİ KOD
+                  <KeyRound size={12} /> {t("codeLabel")}
                 </label>
                 <input
                   type="text"
@@ -148,24 +148,24 @@ export default function VerifyEmailPage({
                   value={code}
                   onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
                   className="input-field w-full h-14 bg-black/40 border-zinc-900 focus:border-primary/50 font-mono tracking-[0.35em] text-center"
-                  placeholder="123456"
+                  placeholder={t("codePlaceholder")}
                   disabled={busy}
                 />
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button type="button" variant="outline" className="h-14 flex-1" disabled={resending || busy} onClick={resend}>
-                  <RefreshCcw size={16} className="mr-2" /> KODU TEKRAR GÖNDER
+                  <RefreshCcw size={16} className="mr-2" /> {t("resendButton")}
                 </Button>
                 <Button type="submit" isLoading={busy} className="h-14 flex-1">
-                  DOĞRULA <ArrowRight size={16} className="ml-2" />
+                  {t("submitButton")} <ArrowRight size={16} className="ml-2" />
                 </Button>
               </div>
 
               <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest text-center">
-                Giriş ekranına dön:{" "}
+                {t("backToLogin")}{" "}
                 <Link href={`/${locale}/login`} className="text-primary hover:text-white transition-colors underline underline-offset-4 decoration-primary/40 hover:decoration-primary">
-                  OPERASYONEL ERİŞİM
+                  {t("loginLink")}
                 </Link>
               </p>
             </form>

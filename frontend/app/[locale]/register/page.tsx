@@ -1,15 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import ClientOnly from "@/components/ClientOnly";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/Button";
 import { UserPlus, Mail, Key, ShieldCheck, Zap, ArrowRight, Layout, User } from "lucide-react";
-
-import { use } from "react";
 
 export default function RegisterPage({
   params
@@ -19,6 +18,7 @@ export default function RegisterPage({
   const { locale } = use(params);
   const router = useRouter();
   const { register, user, mounted, loading } = useAuth();
+  const t = useTranslations("auth.register");
 
   const [formData, setFormData] = useState({
     username: "",
@@ -50,12 +50,12 @@ export default function RegisterPage({
     setError("");
 
     if (!formData.username || !formData.email || !formData.password) {
-      setError("Lütfen gerekli alanları doldurun");
+      setError(t("errorFillRequired"));
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Şifreler eşleşmiyor");
+      setError(t("errorPasswordMismatch"));
       return;
     }
 
@@ -74,23 +74,22 @@ export default function RegisterPage({
         router.push(`/${locale}/dashboard?welcome=true`);
       }
     } catch (err: any) {
-      // Provide more specific error messages
       if (err.statusCode === 400) {
         if (err.message?.toLowerCase().includes("email")) {
-          setError("Bu e-posta adresi zaten kayıtlı.");
+          setError(t("errorEmailTaken"));
         } else if (err.message?.toLowerCase().includes("username")) {
-          setError("Bu kullanıcı adı zaten alınmış.");
+          setError(t("errorUsernameTaken"));
         } else {
-          setError(err.message || "Kayıt bilgileri geçersiz.");
+          setError(err.message || t("errorInvalidInput"));
         }
       } else if (err.statusCode === 429) {
-        setError("Çok fazla kayıt denemesi yapıldı. Lütfen daha sonra tekrar deneyin.");
+        setError(t("errorRateLimit"));
       } else if (err.statusCode === 408 || err.message?.includes("Timeout")) {
-        setError("Sunucuya bağlanılamıyor. İnternet bağlantınızı kontrol edin.");
+        setError(t("errorTimeout"));
       } else if (err.statusCode >= 500) {
-        setError("Sunucu hatası. Lütfen daha sonra tekrar deneyin.");
+        setError(t("errorServer"));
       } else {
-        setError(err.message || "Kayıt başarısız. Lütfen bilgilerinizi kontrol edin.");
+        setError(err.message || t("errorGeneric"));
       }
     } finally {
       setIsLoading(false);
@@ -114,15 +113,15 @@ export default function RegisterPage({
 
         <div className="w-full max-w-[550px] animate-in fade-in zoom-in duration-700">
           <div className="text-center mb-12">
-            <Link href="/" className="inline-flex items-center gap-3 mb-8 group transition-transform hover:scale-105">
+            <Link href={`/${locale}`} className="inline-flex items-center gap-3 mb-8 group transition-transform hover:scale-105">
               <div className="w-14 h-14 bg-primary/20 border border-primary/40 rounded-2xl flex items-center justify-center text-primary shadow-2xl shadow-primary/20 group-hover:rotate-6 transition-transform">
                 <ShieldCheck size={32} />
               </div>
               <span className="font-black text-3xl tracking-tighter text-white uppercase">FACE<span className="text-zinc-600">SEEK</span></span>
             </Link>
-            <h1 className="text-2xl font-black text-white uppercase tracking-tight mb-2">OPERASYONEL KAYIT</h1>
+            <h1 className="text-2xl font-black text-white uppercase tracking-tight mb-2">{t("title")}</h1>
             <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-2">
-              <Layout size={12} /> New Analyst Enlistment Protocol
+              <Layout size={12} /> {t("subtitle")}
             </p>
           </div>
 
@@ -137,7 +136,7 @@ export default function RegisterPage({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest flex items-center gap-2 px-1">
-                    <User size={12} /> ANALİST ADI
+                    <User size={12} /> {t("usernameLabel")}
                   </label>
                   <input
                     type="text"
@@ -145,14 +144,14 @@ export default function RegisterPage({
                     value={formData.username}
                     onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                     className="input-field w-full h-14 bg-black/40 border-zinc-900 focus:border-primary/50"
-                    placeholder="John Doe"
+                    placeholder={t("usernamePlaceholder")}
                     disabled={isLoading}
                   />
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest flex items-center gap-2 px-1">
-                    <Mail size={12} /> E-POSTA
+                    <Mail size={12} /> {t("emailLabel")}
                   </label>
                   <input
                     type="email"
@@ -160,14 +159,14 @@ export default function RegisterPage({
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="input-field w-full h-14 bg-black/40 border-zinc-900 focus:border-primary/50"
-                    placeholder="analyst@faceseek.io"
+                    placeholder={t("emailPlaceholder")}
                     disabled={isLoading}
                   />
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest flex items-center gap-2 px-1">
-                    <Key size={12} /> PAROLA
+                    <Key size={12} /> {t("passwordLabel")}
                   </label>
                   <input
                     type="password"
@@ -182,7 +181,7 @@ export default function RegisterPage({
 
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest flex items-center gap-2 px-1">
-                    <Key size={12} /> DOĞRULA
+                    <Key size={12} /> {t("confirmLabel")}
                   </label>
                   <input
                     type="password"
@@ -197,14 +196,14 @@ export default function RegisterPage({
 
                 <div className="space-y-2 md:col-span-2">
                   <label className="text-[10px] font-black text-zinc-600 uppercase tracking-widest flex items-center gap-2 px-1">
-                    <Zap size={12} /> DAVET KODU (OPSİYONEL)
+                    <Zap size={12} /> {t("referralLabel")}
                   </label>
                   <input
                     type="text"
                     value={formData.referralCode}
                     onChange={(e) => setFormData({ ...formData, referralCode: e.target.value })}
                     className="input-field w-full h-14 bg-black/40 border-zinc-900 focus:border-primary/50 font-mono tracking-widest p-6"
-                    placeholder="LOD-X92-2024"
+                    placeholder={t("referralPlaceholder")}
                     disabled={isLoading}
                   />
                 </div>
@@ -213,7 +212,7 @@ export default function RegisterPage({
               <div className="p-6 bg-primary/5 border border-primary/10 rounded-2xl flex items-start gap-4">
                 <ShieldCheck className="text-primary flex-shrink-0 mt-1" size={18} />
                 <p className="text-[10px] text-zinc-500 font-medium leading-relaxed">
-                  Kayıt olarak <Link href={`/${locale}/legal/terms`} className="text-white hover:underline">Hizmet Şartlarını</Link> ve <Link href={`/${locale}/legal/privacy`} className="text-white hover:underline">Gizlilik Politikasını</Link> kabul etmiş sayılırsınız. Tüm verileriniz operasyonel gizlilik kuralları çerçevesinde saklanır.
+                  {t("termsPrefix")} <Link href={`/${locale}/legal/terms`} className="text-white hover:underline">{t("termsLink")}</Link> {t("termsMiddle")} <Link href={`/${locale}/legal/privacy`} className="text-white hover:underline">{t("privacyLink")}</Link> {t("termsSuffix")}
                 </p>
               </div>
 
@@ -222,13 +221,13 @@ export default function RegisterPage({
                 isLoading={isLoading}
                 className="w-full h-16 font-black uppercase tracking-[0.3em] shadow-xl shadow-primary/20"
               >
-                HESABI OLUŞTUR <ArrowRight className="ml-3" size={18} />
+                {t("submitButton")} <ArrowRight className="ml-3" size={18} />
               </Button>
             </form>
           </GlassCard>
 
           <p className="mt-10 text-center text-zinc-500 text-xs font-bold uppercase tracking-widest">
-            Zaten bir hesabınız var mı? <Link href={`/${locale}/login`} className="text-primary hover:text-white transition-colors underline underline-offset-4 decoration-primary/40 hover:decoration-primary">OTURUM AÇIN</Link>
+            {t("hasAccount")} <Link href={`/${locale}/login`} className="text-primary hover:text-white transition-colors underline underline-offset-4 decoration-primary/40 hover:decoration-primary">{t("loginLink")}</Link>
           </p>
 
           {/* Professional Developer Credit */}

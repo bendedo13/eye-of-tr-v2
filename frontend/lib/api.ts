@@ -261,6 +261,41 @@ export interface AdvancedSearchParams {
   include_facecheck?: boolean;
 }
 
+export async function compareFaces(
+  token: string,
+  source: File,
+  targets: File[],
+  consent: boolean = true
+) {
+  const formData = new FormData();
+  formData.append("source", source);
+  targets.forEach((t) => formData.append("targets", t));
+  formData.append("consent", consent ? "true" : "false");
+
+  const base = (API_BASE || "").replace(/\/+$/, "");
+  const res = await fetch(`${base}/face/compare`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  if (!res.ok) {
+    if (res.status === 402) {
+      throw new APIError("Insufficient credits", 402);
+    }
+    const err = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new APIError(
+      err.error || err.detail || `HTTP ${res.status}`,
+      res.status,
+      err
+    );
+  }
+
+  return res.json();
+}
+
 export async function advancedSearchFace(
   token: string,
   file: File,
