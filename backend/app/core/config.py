@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     API_VERSION: str = "1.0.0"
     API_HOST: str = "0.0.0.0"
     API_PORT: int = 8000
-    DEBUG: bool = True
+    DEBUG: bool = False
     LOG_LEVEL: str = "INFO"
     
     # Upload Settings
@@ -24,10 +24,10 @@ class Settings(BaseSettings):
     FAISS_TOP_K_DEFAULT: int = 3
     
     # Database
-    DATABASE_URL: str = "sqlite:///./faceseek.db"
+    DATABASE_URL: str = "postgresql+psycopg2://faceseek:faceseek@postgres:5432/faceseek"
     
     # Security
-    SECRET_KEY: str = "INSECURE_DEV_KEY_CHANGE_IN_PRODUCTION"
+    SECRET_KEY: str = ""
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
 
