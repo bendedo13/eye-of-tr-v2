@@ -19,12 +19,12 @@ class EyeOfWebAdapter(BaseSearchAdapter):
         
         self.eyeofweb_path = self.config.get(
             "eyeofweb_path",
-            r"C:\Users\Asus\Desktop\eye_of_web"
+            os.environ.get("EYEOFWEB_PATH", "/opt/eyeofweb")
         )
-        
+
         self.python_path = self.config.get(
             "python_path",
-            os.path.join(self.eyeofweb_path, "venv", "Scripts", "python.exe")
+            os.path.join(self.eyeofweb_path, "venv", "bin", "python")
         )
         
         self.timeout = self.config.get("timeout", 30)

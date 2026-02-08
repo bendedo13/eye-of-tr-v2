@@ -6,7 +6,7 @@ git pull origin main
 
 cat > frontend/.env.local << 'ENVEOF'
 NEXT_PUBLIC_API_BASE_URL=/api
-SERVER_API_URL=http://unix:/run/faceseek/backend.sock
+SERVER_API_URL=http://127.0.0.1:8000
 NEXT_PUBLIC_SITE_URL=https://face-seek.com
 ENVEOF
 

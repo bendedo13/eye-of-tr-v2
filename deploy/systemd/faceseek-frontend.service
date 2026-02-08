@@ -1,6 +1,6 @@
 [Unit]
 Description=FaceSeek Frontend (Next.js)
-After=network.target
+After=network.target faceseek-backend.service
 
 [Service]
 Type=simple
@@ -8,7 +8,8 @@ WorkingDirectory=/opt/faceseek/repo/frontend
 EnvironmentFile=/etc/faceseek/frontend.env
 User=faceseek
 Group=faceseek
-ExecStart=/usr/bin/npm run start -- -p 3000
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+ExecStart=/usr/bin/env npm run start -- -p 3000
 Restart=always
 RestartSec=2
 

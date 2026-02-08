@@ -91,11 +91,15 @@ class SearchService:
         
         # EyeOfWeb adapter (eski)
         try:
-            if hasattr(settings, "EYEOFWEB_PATH"):
+            eyeofweb_path = getattr(settings, "EYEOFWEB_PATH", None)
+            if eyeofweb_path:
+                import os as _os
+                python_path = _os.path.join(eyeofweb_path, "venv", "bin", "python")
+                eyeofweb_timeout = getattr(settings, "EYEOFWEB_TIMEOUT", 30)
                 eyeofweb_config = {
-                    "eyeofweb_path": settings.EYEOFWEB_PATH,
-                    "python_path": settings.get_eyeofweb_python_path(),
-                    "timeout": settings.EYEOFWEB_TIMEOUT
+                    "eyeofweb_path": eyeofweb_path,
+                    "python_path": python_path,
+                    "timeout": eyeofweb_timeout
                 }
                 self.adapters["eyeofweb"] = get_eyeofweb_adapter(eyeofweb_config)
                 logger.info("✅ EyeOfWeb adapter yüklendi")

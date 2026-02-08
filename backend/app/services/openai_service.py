@@ -10,27 +10,28 @@ class OpenAIService:
         self.api_key = settings.OPENAI_API_KEY
         self.enabled = settings.OPENAI_ENABLED
         self.model = settings.OPENAI_MODEL or "gpt-4o-mini"
-        
+        self._client = None
+
         if self.enabled and self.api_key:
-            openai.api_key = self.api_key
+            self._client = openai.AsyncOpenAI(api_key=self.api_key)
 
     async def analyze_search_results(self, query: str, results: list) -> str:
         """Arama sonuçlarını analiz edip özet çıkarır"""
-        if not self.enabled or not self.api_key:
+        if not self.enabled or not self.api_key or not self._client:
             return "AI analizi devre dışı (API Key eksik)."
 
         try:
             prompt = f"""
             Aşağıdaki arama sonuçlarını analiz et ve kullanıcı için profesyonel, merak uyandırıcı kısa bir özet yaz.
             Sanki bir istihbarat raporu sunuyormuş gibi resmi ama etkileyici bir dil kullan.
-            
+
             Aranan: {query}
             Sonuçlar: {str(results)[:2000]}... (kısaltıldı)
-            
+
             Özet:
             """
-            
-            response = await openai.ChatCompletion.acreate(
+
+            response = await self._client.chat.completions.create(
                 model=self.model,
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=250
@@ -42,7 +43,7 @@ class OpenAIService:
 
     async def get_failure_message(self, failure_type: str, context: Optional[str] = None) -> str:
         """Başarısızlık durumları için özel mesaj üretir"""
-        if not self.enabled or not self.api_key:
+        if not self.enabled or not self.api_key or not self._client:
             # Fallback mesajlar
             if failure_type == "resolution":
                 return "Sonuç fotoğraf çözünürlüğünden dolayı bulunamadı. Lütfen daha yüksek çözünürlüklü bir görsel yükleyin."
@@ -54,15 +55,15 @@ class OpenAIService:
             if failure_type == "resolution":
                 system_msg = "Sen profesyonel bir görüntü analiz asistanısın."
                 prompt = "Kullanıcıya fotoğraf çözünürlüğü yetersiz olduğu için yüz tanımanın başarısız olduğunu, daha net bir fotoğraf yüklemesi gerektiğini söyleyen kısa, profesyonel bir hata mesajı yaz."
-            
+
             elif failure_type == "privacy":
                 system_msg = "Sen gizlilik ve güvenlik uzmanısın."
                 prompt = f"Kullanıcı '{context}' kişisini aradı ancak sonuç yok. Kullanıcıya 'Aradığınız kişi kendi verisini korumaya almış ve ücretli olarak kendisini koruyor' mesajını temel alan, çok profesyonel ve gizemli bir uyarı metni yaz."
-            
+
             else:
                 return "Arama kriterlerine uygun sonuç bulunamadı."
 
-            response = await openai.ChatCompletion.acreate(
+            response = await self._client.chat.completions.create(
                 model=self.model,
                 messages=[
                     {"role": "system", "content": system_msg},
@@ -71,7 +72,7 @@ class OpenAIService:
                 max_tokens=100
             )
             return response.choices[0].message.content.strip()
-        
+
         except Exception as e:
             logger.error(f"OpenAI failure message generation failed: {e}")
             # Hata durumunda hardcoded fallback
@@ -93,7 +94,7 @@ class OpenAIService:
         """
         if not self.is_available():
             return "AI açıklaması devre dışı."
-        
+
         # Basit bir şablon döndür (async çağırmak zor olduğu için şimdilik)
         return f"Arama kriterlerinize göre {total_matches} eşleşme bulundu. Hassasiyet: {search_params.get('precision')}."
 
