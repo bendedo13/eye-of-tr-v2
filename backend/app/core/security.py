@@ -5,6 +5,7 @@ from typing import Optional
 from jose import jwt
 from jose.exceptions import JWTError
 from passlib.context import CryptContext
+from passlib.exc import UnknownHashError
 
 from app.core.config import settings
 
@@ -13,7 +14,11 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Düz metin şifreyi hash ile doğrula"""
-    return pwd_context.verify(plain_password, hashed_password)
+    try:
+        return pwd_context.verify(plain_password, hashed_password)
+    except UnknownHashError:
+        # Geçersiz/bozuk hash formatı -> doğrulama başarısız
+        return False
 
 
 def get_password_hash(password: str) -> str:

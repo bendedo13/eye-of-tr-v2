@@ -125,7 +125,19 @@ def register(data: UserRegister, request: Request, db: Session = Depends(get_db)
 def login(data: UserLogin, db: Session = Depends(get_db)):
     """Giriş, JWT döndür"""
     user = db.query(User).filter(User.email == data.email).first()
-    if not user or not verify_password(data.password, user.hashed_password):
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+        )
+    password_ok = verify_password(data.password, user.hashed_password)
+    if not password_ok:
+        # Eski/bozuk kayıtlar için: düz metin şifre eşleşirse otomatik re-hash
+        if user.hashed_password == data.password:
+            user.hashed_password = get_password_hash(data.password)
+            db.commit()
+            password_ok = True
+    if not password_ok:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
