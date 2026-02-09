@@ -1,18 +1,14 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from 'next-intl';
-import LiveStats from "@/components/LiveStats";
 import Navbar from "@/components/Navbar";
 import ClientOnly from "@/components/ClientOnly";
 import { Button } from "@/components/ui/Button";
-import FacialRecognitionDemo from "@/components/brand/FacialRecognitionDemo";
 import { GlassCard } from "@/components/ui/GlassCard";
-import ReferralPromo from "@/components/marketing/ReferralPromo";
-import TrustCounter from "@/components/marketing/TrustCounter";
 import { useSiteConfig } from "@/lib/siteConfig";
 import {
   ShieldCheck,
@@ -27,27 +23,220 @@ import {
   Layers,
   Sparkles,
   BadgeCheck,
-  Shield
+  Shield,
+  Upload,
+  Cpu,
+  FileSearch,
+  ChevronDown,
+  Star,
+  Quote,
+  Eye,
+  Users,
+  MapPin,
+  Clock
 } from "lucide-react";
 
-export default function HomeClient({
-  locale
-}: {
-  locale: string;
-}) {
+/* ─── Inline Sub-components ──────────────────────────────── */
+
+function StatCounter({ end, suffix = "", duration = 2000 }: { end: number; suffix?: string; duration?: number }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
+  const started = useRef(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !started.current) {
+          started.current = true;
+          const startTime = performance.now();
+          const tick = (now: number) => {
+            const elapsed = now - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            setCount(Math.floor(eased * end));
+            if (progress < 1) requestAnimationFrame(tick);
+          };
+          requestAnimationFrame(tick);
+        }
+      },
+      { threshold: 0.3 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [end, duration]);
+
+  return (
+    <div ref={ref} className="text-3xl sm:text-4xl font-black text-white tabular-nums">
+      {count.toLocaleString()}{suffix}
+    </div>
+  );
+}
+
+function TrustActivityFeed({ locale }: { locale: string }) {
+  const names = useMemo(() =>
+    locale === "tr"
+      ? ["Mehmet A.", "Ayse K.", "Emre T.", "Fatma D.", "Burak S.", "Zeynep M.", "Ali R.", "Seda Y."]
+      : ["James W.", "Maria G.", "Alex K.", "Sarah L.", "David R.", "Emma T.", "Michael B.", "Lisa P."],
+    [locale]
+  );
+  const cities = useMemo(() =>
+    locale === "tr"
+      ? ["Istanbul", "Ankara", "Izmir", "Antalya", "Bursa"]
+      : ["New York", "London", "Berlin", "Tokyo", "Paris"],
+    [locale]
+  );
+  const actionText = locale === "tr" ? "arama tamamladi" : "completed a search";
+
+  const [current, setCurrent] = useState(0);
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setVisible(false);
+      setTimeout(() => {
+        setCurrent((p) => (p + 1) % names.length);
+        setVisible(true);
+      }, 400);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [names.length]);
+
+  const name = names[current];
+  const city = cities[current % cities.length];
+  const minutes = ((current * 3 + 1) % 12) + 1;
+
+  return (
+    <div
+      className={`inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-2 text-xs font-medium transition-all duration-400 ${
+        visible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
+      }`}
+    >
+      <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+      <span className="text-emerald-300">{name}</span>
+      <span className="text-zinc-500">{actionText}</span>
+      <span className="text-zinc-600">
+        <MapPin size={10} className="inline mr-0.5" />{city} · {minutes}m
+      </span>
+    </div>
+  );
+}
+
+function ReviewsCarousel({ locale }: { locale: string }) {
+  const reviews = useMemo(() =>
+    locale === "tr"
+      ? [
+          { name: "Ahmet Y.", role: "Siber Güvenlik Uzmanı", text: "FaceSeek, OSINT araştırmalarımda vazgeçilmez bir araç haline geldi. Doğruluk oranı inanılmaz.", rating: 5 },
+          { name: "Elif K.", role: "Araştırmacı Gazeteci", text: "Gizlilik odaklı yaklaşımları ile sektörde fark yaratıyorlar. Hızlı ve güvenilir.", rating: 5 },
+          { name: "Murat S.", role: "Özel Dedektif", text: "Çoklu motor desteği sayesinde tek bir aramada kapsamlı sonuçlar alıyorum.", rating: 4 },
+          { name: "Derya T.", role: "Dijital Forensik Analisti", text: "KVKK ve GDPR uyumlu bir platform bulmak zor. FaceSeek bunu başarıyor.", rating: 5 },
+          { name: "Kemal B.", role: "IT Güvenlik Müdürü", text: "Kurumsal API entegrasyonu ile iş akışlarımıza sorunsuz entegre ettik.", rating: 4 },
+        ]
+      : [
+          { name: "James W.", role: "Cybersecurity Analyst", text: "FaceSeek has become an essential tool in my OSINT investigations. The accuracy rate is incredible.", rating: 5 },
+          { name: "Sarah L.", role: "Investigative Journalist", text: "Their privacy-focused approach sets them apart. Fast, reliable, and ethical.", rating: 5 },
+          { name: "David R.", role: "Private Investigator", text: "Multi-engine support lets me get comprehensive results from a single search.", rating: 4 },
+          { name: "Emma T.", role: "Digital Forensics Expert", text: "Finding a GDPR-compliant platform is rare. FaceSeek delivers on privacy.", rating: 5 },
+          { name: "Michael B.", role: "IT Security Director", text: "Enterprise API integration was seamless. Great documentation and support.", rating: 4 },
+        ],
+    [locale]
+  );
+
+  const [idx, setIdx] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => setIdx((p) => (p + 1) % reviews.length), 5000);
+    return () => clearInterval(interval);
+  }, [reviews.length]);
+
+  return (
+    <div className="relative overflow-hidden">
+      <div className="flex transition-transform duration-700 ease-in-out" style={{ transform: `translateX(-${idx * 100}%)` }}>
+        {reviews.map((r, i) => (
+          <div key={i} className="min-w-full px-4">
+            <GlassCard className="p-8 md:p-10 text-center">
+              <Quote size={28} className="text-primary/30 mx-auto mb-4" />
+              <p className="text-zinc-300 text-lg leading-relaxed mb-6 italic">&ldquo;{r.text}&rdquo;</p>
+              <div className="flex justify-center gap-1 mb-4">
+                {Array.from({ length: 5 }).map((_, s) => (
+                  <Star key={s} size={14} className={s < r.rating ? "text-yellow-400 fill-yellow-400" : "text-zinc-700"} />
+                ))}
+              </div>
+              <div className="text-white font-bold">{r.name}</div>
+              <div className="text-zinc-500 text-sm">{r.role}</div>
+            </GlassCard>
+          </div>
+        ))}
+      </div>
+      <div className="flex justify-center gap-2 mt-6">
+        {reviews.map((_, i) => (
+          <button key={i} onClick={() => setIdx(i)} className={`w-2 h-2 rounded-full transition-all ${i === idx ? "bg-primary w-6" : "bg-zinc-700"}`} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FAQSection({ locale }: { locale: string }) {
+  const faqs = useMemo(() =>
+    locale === "tr"
+      ? [
+          { q: "FaceSeek nasıl çalışır?", a: "Yüklediğiniz fotoğraftaki yüzü yapay zeka ile analiz eder, Google, Bing, Yandex ve OSINT veritabanlarında eşzamanlı arama yapar ve eşleşmeleri güven skoru ile raporlar." },
+          { q: "Fotoğraflarım saklanıyor mu?", a: "Hayır. Yüklenen görseller işlem tamamlandıktan sonra otomatik olarak silinir. Kalıcı biyometrik veritabanı tutmuyoruz." },
+          { q: "KVKK ve GDPR uyumlu mu?", a: "Evet. Platform tamamen KVKK ve GDPR düzenlemelerine uygun olarak tasarlanmıştır. Verileriniz şifrelenir ve izinsiz paylaşılmaz." },
+          { q: "Ücretsiz kullanabilir miyim?", a: "Evet. Kayıt olduğunuzda 3 ücretsiz arama hakkı verilir. Daha fazla arama için uygun fiyatlı kredi paketlerimizi inceleyebilirsiniz." },
+          { q: "Hangi görüntü formatları destekleniyor?", a: "JPG, PNG, WebP ve BMP formatlarında fotoğraf yükleyebilirsiniz. Maksimum dosya boyutu 10MB'dır." },
+          { q: "Sonuçların doğruluk oranı nedir?", a: "Yapay zeka motorumuz %98.7 doğruluk oranı ile çalışır. Her sonuç güven skoru ile birlikte sunulur." },
+        ]
+      : [
+          { q: "How does FaceSeek work?", a: "It analyzes the face in your uploaded photo using AI, searches simultaneously across Google, Bing, Yandex, and OSINT databases, and reports matches with confidence scores." },
+          { q: "Are my photos stored?", a: "No. Uploaded images are automatically deleted after processing. We do not maintain a persistent biometric database." },
+          { q: "Is FaceSeek GDPR compliant?", a: "Yes. The platform is fully compliant with GDPR and KVKK regulations. Your data is encrypted and never shared without authorization." },
+          { q: "Can I use it for free?", a: "Yes. You get 3 free searches upon registration. For more searches, check our affordable credit packages." },
+          { q: "What image formats are supported?", a: "You can upload JPG, PNG, WebP, and BMP images. Maximum file size is 10MB." },
+          { q: "What is the accuracy rate?", a: "Our AI engine operates at 98.7% accuracy. Each result includes a confidence score for validation." },
+        ],
+    [locale]
+  );
+
+  const [open, setOpen] = useState<number | null>(null);
+
+  return (
+    <div className="space-y-3">
+      {faqs.map((faq, i) => (
+        <div key={i} className="border border-white/10 rounded-xl overflow-hidden bg-white/[0.02] hover:bg-white/[0.04] transition-colors">
+          <button
+            onClick={() => setOpen(open === i ? null : i)}
+            className="w-full flex items-center justify-between p-5 text-left"
+          >
+            <span className="text-white font-semibold pr-4">{faq.q}</span>
+            <ChevronDown size={18} className={`text-zinc-500 shrink-0 transition-transform duration-300 ${open === i ? "rotate-180" : ""}`} />
+          </button>
+          <div className={`overflow-hidden transition-all duration-300 ${open === i ? "max-h-40 pb-5 px-5" : "max-h-0"}`}>
+            <p className="text-zinc-400 leading-relaxed">{faq.a}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ─── Main Component ──────────────────────────────────────── */
+
+export default function HomeClient({ locale }: { locale: string }) {
   const { user, mounted, loading } = useAuth();
   const router = useRouter();
   const t = useTranslations('hero');
-  const tFeatures = useTranslations('features');
-  const tHowItWorks = useTranslations('howItWorks');
-  const tWhyFaceSeek = useTranslations('whyFaceSeek');
   const tFeatureCards = useTranslations('featureCards');
-  const tHowItWorksSection = useTranslations('howItWorksSection');
+  const tWhyFaceSeek = useTranslations('whyFaceSeek');
+  const tHowItWorks = useTranslations('howItWorks');
   const tCommon = useTranslations('common');
   const tHome = useTranslations('home');
   const tCta = useTranslations('cta');
   const tFooter = useTranslations('footer');
   const tNav = useTranslations('nav');
+  const tLanding = useTranslations('landing');
 
   const { config: siteConfig } = useSiteConfig(locale);
 
@@ -58,15 +247,10 @@ export default function HomeClient({
       heroBadge: cfg[`home.${locale}.hero_badge`],
       heroTitle: cfg[`home.${locale}.hero_title`],
       heroSubtitle: cfg[`home.${locale}.hero_subtitle`],
-      privacyBadge: cfg[`home.${locale}.privacy_badge`],
       ctaTitlePart1: cfg[`home.${locale}.cta_title_part1`],
       ctaTitlePart2: cfg[`home.${locale}.cta_title_part2`],
       ctaDescription: cfg[`home.${locale}.cta_description`],
       ctaButton: cfg[`home.${locale}.cta_button`],
-      heroImageUrl: cfg["home.hero_image_url"],
-      heroImageTitle: cfg["home.hero_image_title"],
-      analysisVideoUrl: cfg["home.analysis_video_url"],
-      analysisVideoTitle: cfg["home.analysis_video_title"],
     };
   }, [siteConfig, locale]);
 
@@ -75,7 +259,7 @@ export default function HomeClient({
   if (!mounted || loading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center space-y-4">
-        <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+        <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
         <div className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] animate-pulse">
           {tCommon("initializingProtocol")}
         </div>
@@ -85,12 +269,10 @@ export default function HomeClient({
 
   if (homeOverrides.maintenanceMode) {
     return (
-          <ClientOnly>
+      <ClientOnly>
         <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 text-center">
           <div className="text-4xl font-black text-white uppercase tracking-tight mb-4">{tHome("maintenance.title")}</div>
-          <div className="text-zinc-500 text-sm font-medium max-w-xl">
-            {tHome("maintenance.message")}
-          </div>
+          <div className="text-zinc-500 text-sm font-medium max-w-xl">{tHome("maintenance.message")}</div>
         </div>
       </ClientOnly>
     );
@@ -100,275 +282,268 @@ export default function HomeClient({
     <ClientOnly>
       <div className="min-h-screen bg-background text-slate-200 selection:bg-primary/30 selection:text-white">
         <Navbar />
-        <TrustCounter locale={locale} />
 
-        {/* Face Seek Hero Section */}
-        <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden py-24 px-6 circuit-pattern">
-          {/* Animated Background */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0a0e27] via-[#1a1f3a]/50 to-[#0a0e27] pointer-events-none"></div>
-          {homeOverrides.heroImageUrl && (
-            <div
-              className="absolute inset-0 pointer-events-none bg-center bg-cover opacity-25"
-              style={{ backgroundImage: `url(${homeOverrides.heroImageUrl})` }}
-            />
-          )}
-          <div className="absolute inset-0 data-stream opacity-30"></div>
+        {/* ═══ HERO ═══ */}
+        <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden py-24 px-6 circuit-pattern">
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0a0e27] via-[#1a1f3a]/50 to-[#0a0e27] pointer-events-none" />
+          <div className="absolute inset-0 data-stream opacity-20" />
 
-          {/* Biometric Grid Pattern */}
-          <div className="absolute inset-0 opacity-20">
-            <div className="absolute top-1/4 left-1/4 w-2 h-2 rounded-full bg-[#00d9ff] animate-pulse"></div>
-            <div className="absolute top-1/3 right-1/3 w-2 h-2 rounded-full bg-[#0ea5e9] animate-pulse" style={{ animationDelay: '0.5s' }}></div>
-            <div className="absolute bottom-1/4 left-1/3 w-2 h-2 rounded-full bg-[#8b5cf6] animate-pulse" style={{ animationDelay: '1s' }}></div>
-            <div className="absolute bottom-1/3 right-1/4 w-2 h-2 rounded-full bg-[#00d9ff] animate-pulse" style={{ animationDelay: '1.5s' }}></div>
+          {/* Floating dots */}
+          <div className="absolute inset-0 opacity-20 pointer-events-none">
+            <div className="absolute top-1/4 left-1/4 w-2 h-2 rounded-full bg-[#00d9ff] animate-pulse" />
+            <div className="absolute top-1/3 right-1/3 w-2 h-2 rounded-full bg-[#0ea5e9] animate-pulse" style={{ animationDelay: "0.5s" }} />
+            <div className="absolute bottom-1/4 left-1/3 w-2 h-2 rounded-full bg-[#8b5cf6] animate-pulse" style={{ animationDelay: "1s" }} />
+            <div className="absolute bottom-1/3 right-1/4 w-2 h-2 rounded-full bg-[#00d9ff] animate-pulse" style={{ animationDelay: "1.5s" }} />
           </div>
 
           <div className="relative max-w-7xl mx-auto text-center z-10">
-            {/* Status Badge */}
-            <div className="inline-flex items-center gap-2 bg-[#00d9ff]/10 border border-[#00d9ff]/30 px-4 py-2 rounded-full text-[#00d9ff] text-[10px] font-black uppercase tracking-[0.2em] mb-10 glow-cyan">
-              <Sparkles size={12} className="animate-pulse" /> {homeOverrides.heroBadge || t('badge')}
+            {/* Trust Activity Feed */}
+            <div className="mb-6">
+              <TrustActivityFeed locale={locale} />
             </div>
-            <div className="flex justify-center mb-10 -mt-6">
-              <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] text-zinc-300">
-                <ShieldCheck size={12} className="text-primary" /> {homeOverrides.privacyBadge || tHome("privacyBadge")}
+
+            {/* Badges Row */}
+            <div className="flex flex-wrap justify-center gap-3 mb-8">
+              <div className="inline-flex items-center gap-2 bg-[#00d9ff]/10 border border-[#00d9ff]/30 px-3 py-1.5 rounded-full text-[#00d9ff] text-[10px] font-black uppercase tracking-[0.15em]">
+                <Lock size={10} /> {tLanding("badges.noStorage")}
+              </div>
+              <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1.5 rounded-full text-emerald-400 text-[10px] font-black uppercase tracking-[0.15em]">
+                <ShieldCheck size={10} /> {tLanding("badges.gdpr")}
+              </div>
+              <div className="inline-flex items-center gap-2 bg-purple-500/10 border border-purple-500/30 px-3 py-1.5 rounded-full text-purple-400 text-[10px] font-black uppercase tracking-[0.15em]">
+                <Fingerprint size={10} /> {tLanding("badges.encrypted")}
               </div>
             </div>
 
-            {/* Main Heading with Face Seek Branding */}
-            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white mb-6 leading-[1.1] tracking-tight uppercase">
-              {homeOverrides.heroTitle || t('title')}
+            {/* Main Heading */}
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white mb-6 leading-[1.1] tracking-tight uppercase">
+              {homeOverrides.heroTitle || t("title")}
             </h1>
 
             {/* Tagline */}
-            <p className="text-slate-400 text-base sm:text-lg md:text-xl font-medium mb-12 max-w-4xl mx-auto leading-relaxed">
-              {homeOverrides.heroSubtitle || t('subtitle')}
+            <p className="text-slate-400 text-base sm:text-lg md:text-xl font-medium mb-10 max-w-3xl mx-auto leading-relaxed">
+              {homeOverrides.heroSubtitle || t("subtitle")}
             </p>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-20">
+            {/* CTA */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
               {user ? (
                 <>
-                  <Button
-                    onClick={() => router.push(`/${locale}/search`)}
-                    className="h-16 px-10 text-base face-seek-gradient hover:opacity-90 transition-opacity"
-                    variant="primary"
-                  >
-                    <Search className="mr-2" size={20} /> {t('ctaSearch')}
+                  <Button onClick={() => router.push(`/${locale}/search`)} className="h-14 px-10 text-base face-seek-gradient hover:opacity-90 transition-opacity" variant="primary">
+                    <Search className="mr-2" size={18} /> {t("ctaSearch")}
                   </Button>
-                  <Button
-                    onClick={() => router.push(`/${locale}/dashboard`)}
-                    className="h-16 px-10 text-base border-[#00d9ff]/30 bg-[#00d9ff]/5 hover:bg-[#00d9ff]/10"
-                    variant="outline"
-                  >
-                    <BarChart3 className="mr-2" size={20} /> {t('ctaDashboard')}
+                  <Button onClick={() => router.push(`/${locale}/dashboard`)} className="h-14 px-10 text-base border-[#00d9ff]/30 bg-[#00d9ff]/5 hover:bg-[#00d9ff]/10" variant="outline">
+                    <BarChart3 className="mr-2" size={18} /> {t("ctaDashboard")}
                   </Button>
                 </>
               ) : (
                 <>
-                  <Button
-                    onClick={() => router.push(`/${locale}/register`)}
-                    className="h-16 px-12 text-base face-seek-gradient hover:opacity-90 transition-opacity"
-                  >
-                    {t('ctaPrimary')}
+                  <Button onClick={() => router.push(`/${locale}/register`)} className="h-14 px-12 text-base face-seek-gradient hover:opacity-90 transition-opacity shadow-lg shadow-primary/25">
+                    {tLanding("heroCta")} <ArrowRight className="ml-2" size={18} />
                   </Button>
-                  <Button
-                    onClick={() => router.push(`/${locale}/login`)}
-                    className="h-16 px-10 text-base bg-[#00d9ff]/5 border-[#00d9ff]/30 hover:bg-[#00d9ff]/10"
-                    variant="outline"
-                  >
-                    {t('ctaSecondary')}
+                  <Button onClick={() => router.push(`/${locale}/login`)} className="h-14 px-10 text-base bg-[#00d9ff]/5 border-[#00d9ff]/30 hover:bg-[#00d9ff]/10" variant="outline">
+                    {t("ctaSecondary")}
                   </Button>
                 </>
               )}
             </div>
 
-            {/* Trust Indicators */}
-            <div className="flex flex-wrap justify-center gap-10 opacity-40 grayscale hover:grayscale-0 transition-all duration-700">
-              <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em]">
-                <Fingerprint size={16} /> {tHome("trust.biometricSecure")}
+            {/* Hero Trust Row */}
+            <div className="flex flex-wrap justify-center gap-8 text-zinc-500">
+              <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest">
+                <Fingerprint size={14} className="text-primary/60" /> {tHome("trust.biometricSecure")}
               </div>
-              <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em]">
-                <ShieldCheck size={16} /> {tHome("trust.gdprCompliant")}
+              <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest">
+                <ShieldCheck size={14} className="text-primary/60" /> {tHome("trust.gdprCompliant")}
               </div>
-              <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em]">
-                <Layers size={16} /> {tHome("trust.multiEngine")}
+              <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest">
+                <Layers size={14} className="text-primary/60" /> {tHome("trust.multiEngine")}
               </div>
-            </div>
-
-            {/* Animated Facial Recognition Demo */}
-            <div className="mt-20 max-w-2xl mx-auto">
-              <FacialRecognitionDemo />
             </div>
           </div>
         </section>
 
-        {/* Trust Badges */}
-        <section className="py-16 px-6">
-          <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { icon: <Shield size={22} />, label: tHome("trustBadges.sslSecure") },
-              { icon: <BadgeCheck size={22} />, label: tHome("trustBadges.kvkkCompliant") },
-              { icon: <ShieldCheck size={22} />, label: tHome("trustBadges.gdprReady") },
-              { icon: <Lock size={22} />, label: tHome("trustBadges.privacyFirst") }
-            ].map((b, i) => (
-              <div key={i} className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm font-semibold text-zinc-300">
-                <span className="text-primary">{b.icon}</span>
-                <span>{b.label}</span>
-              </div>
-            ))}
+        {/* ═══ STATS BAR ═══ */}
+        <section className="py-16 px-6 border-y border-white/5 bg-white/[0.015]">
+          <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div>
+              <StatCounter end={2500000} suffix="+" />
+              <div className="text-zinc-500 text-xs font-bold uppercase tracking-widest mt-2">{tLanding("stats.totalSearches")}</div>
+            </div>
+            <div>
+              <StatCounter end={98} suffix="%" />
+              <div className="text-zinc-500 text-xs font-bold uppercase tracking-widest mt-2">{tLanding("stats.accuracy")}</div>
+            </div>
+            <div>
+              <StatCounter end={45000} suffix="+" />
+              <div className="text-zinc-500 text-xs font-bold uppercase tracking-widest mt-2">{tLanding("stats.activeUsers")}</div>
+            </div>
+            <div>
+              <StatCounter end={120} suffix="+" />
+              <div className="text-zinc-500 text-xs font-bold uppercase tracking-widest mt-2">{tLanding("stats.countries")}</div>
+            </div>
           </div>
         </section>
 
-        <div className="px-6 -mt-10">
-          <ReferralPromo locale={locale} />
-        </div>
-
-        {/* Live Stats Section */}
-        <section className="py-24 px-6">
-          <div className="max-w-7xl mx-auto">
-            <LiveStats />
-          </div>
-        </section>
-
-        {/* Features Grid */}
-        <section className="py-32 px-6 relative">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-24">
-              <h2 className="text-4xl md:text-6xl font-black text-white mb-6 uppercase tracking-tighter">{tWhyFaceSeek('title')} <span className="text-primary">{tWhyFaceSeek('titleHighlight')}</span></h2>
-              <div className="w-20 h-1.5 bg-primary mx-auto rounded-full"></div>
+        {/* ═══ HOW IT WORKS ═══ */}
+        <section className="py-28 px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-20">
+              <h2 className="text-3xl md:text-5xl font-black text-white mb-4 uppercase tracking-tight">
+                {tLanding("howItWorks.title")}
+              </h2>
+              <p className="text-zinc-500 text-lg font-medium max-w-xl mx-auto">{tLanding("howItWorks.subtitle")}</p>
+              <div className="w-16 h-1 bg-primary mx-auto rounded-full mt-6" />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[
-                { icon: <Zap size={32} />, key: 'card1' },
-                { icon: <Lock size={32} />, key: 'card2' },
-                { icon: <Globe size={32} />, key: 'card3' },
-                { icon: <Target size={32} />, key: 'card4' },
-                { icon: <ShieldCheck size={32} />, key: 'card5' },
-                { icon: <BarChart3 size={32} />, key: 'card6' },
-              ].map((f, i) => (
-                <GlassCard key={i} className="p-10 group hover:border-primary/50 transition-all duration-500">
-                  <div className="text-primary mb-8 transform group-hover:scale-110 group-hover:-rotate-12 transition-transform duration-500">{f.icon}</div>
-                  <h3 className="text-xl font-black text-white mb-4 uppercase tracking-tight">{tFeatureCards(`${f.key}.title`)}</h3>
-                  <p className="text-zinc-500 leading-relaxed font-medium">{tFeatureCards(`${f.key}.desc`)}</p>
+                { icon: <Upload size={28} />, step: "01", key: "step1" },
+                { icon: <Cpu size={28} />, step: "02", key: "step2" },
+                { icon: <FileSearch size={28} />, step: "03", key: "step3" },
+              ].map((s, i) => (
+                <GlassCard key={i} className="p-8 text-center group hover:border-primary/40 transition-all duration-500 relative overflow-hidden">
+                  <div className="absolute top-3 right-4 text-5xl font-black text-white/[0.03]">{s.step}</div>
+                  <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6 text-primary group-hover:scale-110 transition-transform">
+                    {s.icon}
+                  </div>
+                  <h3 className="text-lg font-black text-white mb-3 uppercase tracking-wide">{tLanding(`howItWorks.${s.key}.title`)}</h3>
+                  <p className="text-zinc-500 leading-relaxed">{tLanding(`howItWorks.${s.key}.desc`)}</p>
                 </GlassCard>
               ))}
             </div>
           </div>
         </section>
 
-        {/* How It Works Layered UI */}
-        <section className="py-32 px-6 bg-white/[0.02] border-y border-white/5">
+        {/* ═══ FEATURES GRID ═══ */}
+        <section className="py-28 px-6 bg-white/[0.015] border-y border-white/5">
           <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
-              <div>
-                <h2 className="text-4xl md:text-6xl font-black text-white mb-8 uppercase tracking-tighter">{tHowItWorksSection('title')} <span className="text-zinc-700">{tHowItWorksSection('titleGray')}</span></h2>
-                <div className="space-y-12">
-                  {['step1', 'step2', 'step3', 'step4'].map((stepKey, idx) => (
-                    <div key={idx} className="flex gap-8 group">
-                      <div className="text-4xl font-black text-zinc-800 transition-colors group-hover:text-primary">{tHowItWorksSection(`${stepKey}.number`)}</div>
-                      <div>
-                        <h4 className="text-lg font-black text-white uppercase tracking-widest mb-2">{tHowItWorksSection(`${stepKey}.title`)}</h4>
-                        <p className="text-zinc-500 font-medium">{tHowItWorksSection(`${stepKey}.desc`)}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="relative">
-                <div className="absolute inset-0 bg-primary/20 blur-[120px] rounded-full"></div>
-                <GlassCard className="p-4 border-white/10 shadow-2xl relative z-10" hasScanline>
-                  <div className="bg-zinc-950 rounded-2xl overflow-hidden aspect-square flex items-center justify-center border border-white/5">
-                    <div className="relative w-full h-full">
-                      <video
-                        className="w-full h-full object-cover"
-                        src={homeOverrides.analysisVideoUrl || "/media/face-seek-intro.mp4"}
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
-                      />
-                      <div className="absolute inset-x-0 h-0.5 bg-primary/50 shadow-[0_0_15px_var(--color-primary)] animate-[scanline_3s_linear_infinite]"></div>
-                      <div className="absolute bottom-4 left-0 right-0 text-center text-[9px] font-black text-primary/70 uppercase tracking-[0.4em]">
-                        {homeOverrides.analysisVideoTitle || tHome("systemScanning")}
-                      </div>
-                    </div>
-                  </div>
+            <div className="text-center mb-20">
+              <h2 className="text-3xl md:text-5xl font-black text-white mb-4 uppercase tracking-tight">
+                {tWhyFaceSeek("title")} <span className="text-primary">{tWhyFaceSeek("titleHighlight")}</span>
+              </h2>
+              <div className="w-16 h-1 bg-primary mx-auto rounded-full" />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[
+                { icon: <Zap size={28} />, key: "card1" },
+                { icon: <Lock size={28} />, key: "card2" },
+                { icon: <Globe size={28} />, key: "card3" },
+                { icon: <Target size={28} />, key: "card4" },
+                { icon: <ShieldCheck size={28} />, key: "card5" },
+                { icon: <BarChart3 size={28} />, key: "card6" },
+              ].map((f, i) => (
+                <GlassCard key={i} className="p-8 group hover:border-primary/40 transition-all duration-500">
+                  <div className="text-primary mb-6 group-hover:scale-110 transition-transform duration-500">{f.icon}</div>
+                  <h3 className="text-lg font-black text-white mb-3 uppercase tracking-tight">{tFeatureCards(`${f.key}.title`)}</h3>
+                  <p className="text-zinc-500 leading-relaxed text-sm">{tFeatureCards(`${f.key}.desc`)}</p>
                 </GlassCard>
-              </div>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* Call to Action */}
-        <section className="py-40 px-6">
-          <div className="max-w-5xl mx-auto">
-            <GlassCard className="p-20 text-center relative overflow-hidden" hasScanline>
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-px h-20 bg-gradient-to-b from-primary to-transparent"></div>
-              <h2 className="text-4xl md:text-7xl font-black text-white mb-8 uppercase tracking-tighter">
+        {/* ═══ REVIEWS ═══ */}
+        <section className="py-28 px-6">
+          <div className="max-w-3xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-5xl font-black text-white mb-4 uppercase tracking-tight">
+                {tLanding("reviews.title")}
+              </h2>
+              <p className="text-zinc-500 text-lg font-medium">{tLanding("reviews.subtitle")}</p>
+              <div className="w-16 h-1 bg-primary mx-auto rounded-full mt-6" />
+            </div>
+            <ReviewsCarousel locale={locale} />
+          </div>
+        </section>
+
+        {/* ═══ FAQ ═══ */}
+        <section className="py-28 px-6 bg-white/[0.015] border-y border-white/5">
+          <div className="max-w-3xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-5xl font-black text-white mb-4 uppercase tracking-tight">
+                {tLanding("faq.title")}
+              </h2>
+              <p className="text-zinc-500 text-lg font-medium">{tLanding("faq.subtitle")}</p>
+              <div className="w-16 h-1 bg-primary mx-auto rounded-full mt-6" />
+            </div>
+            <FAQSection locale={locale} />
+          </div>
+        </section>
+
+        {/* ═══ FINAL CTA ═══ */}
+        <section className="py-32 px-6">
+          <div className="max-w-4xl mx-auto">
+            <GlassCard className="p-12 md:p-16 text-center relative overflow-hidden" hasScanline>
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-px h-16 bg-gradient-to-b from-primary to-transparent" />
+              <h2 className="text-3xl md:text-5xl font-black text-white mb-6 uppercase tracking-tight">
                 {homeOverrides.ctaTitlePart1 || tCta("titlePart1")}{" "}
                 <span className="text-zinc-700">{homeOverrides.ctaTitlePart2 || tCta("titlePart2")}</span>
               </h2>
-              <p className="text-zinc-500 text-xl font-medium mb-12 max-w-2xl mx-auto">
+              <p className="text-zinc-500 text-lg font-medium mb-8 max-w-2xl mx-auto">
                 {homeOverrides.ctaDescription || tCta("description")}
               </p>
+              <div className="flex flex-wrap justify-center gap-4 mb-8 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+                <span className="flex items-center gap-1.5"><Lock size={10} className="text-primary/60" /> {tLanding("finalCta.secure")}</span>
+                <span className="flex items-center gap-1.5"><Eye size={10} className="text-primary/60" /> {tLanding("finalCta.private")}</span>
+                <span className="flex items-center gap-1.5"><ShieldCheck size={10} className="text-primary/60" /> {tLanding("finalCta.compliant")}</span>
+              </div>
               {!user && (
-                <Button onClick={() => router.push(`/${locale}/register`)} className="h-20 px-12 text-xl shadow-2xl shadow-primary/40">
-                  {homeOverrides.ctaButton || tCta("button")} <ArrowRight className="ml-4" size={24} />
+                <Button onClick={() => router.push(`/${locale}/register`)} className="h-16 px-12 text-lg shadow-2xl shadow-primary/30">
+                  {homeOverrides.ctaButton || tCta("button")} <ArrowRight className="ml-3" size={20} />
                 </Button>
               )}
             </GlassCard>
           </div>
         </section>
 
-        {/* Professional Footer */}
-        <footer className="py-24 px-6 border-t border-white/5 bg-black/40">
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-16">
+        {/* ═══ FOOTER ═══ */}
+        <footer className="py-20 px-6 border-t border-white/5 bg-black/40">
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-12">
             <div className="flex flex-col items-start max-w-sm">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center text-primary border border-primary/20">
-                  <ShieldCheck size={20} />
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-9 h-9 bg-primary/20 rounded-xl flex items-center justify-center text-primary border border-primary/20">
+                  <ShieldCheck size={18} />
                 </div>
-                <span className="font-black text-2xl tracking-tighter text-white uppercase">FACE<span className="text-primary">SEEK</span></span>
+                <span className="font-black text-xl tracking-tighter text-white uppercase">FACE<span className="text-primary">SEEK</span></span>
               </div>
-              <p className="text-zinc-500 text-sm font-medium leading-relaxed mb-8">{tFooter("description")}</p>
-              <div className="flex gap-4">
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-lg border border-white/5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                  <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">{tFooter("systemStatusOnline")}</span>
-                </div>
+              <p className="text-zinc-500 text-sm font-medium leading-relaxed mb-6">{tFooter("description")}</p>
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-lg border border-white/5">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">{tFooter("systemStatusOnline")}</span>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-12 sm:gap-24">
-              <div className="space-y-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-10 sm:gap-20">
+              <div className="space-y-5">
                 <h4 className="text-[10px] font-black text-white uppercase tracking-[0.3em]">{tFooter("product")}</h4>
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-3">
                   <Link href={`/${locale}/search`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tFooter("links.faceSearch")}</Link>
                   <Link href={`/${locale}/pricing`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tNav("pricing")}</Link>
                   <Link href={`/${locale}/api`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tNav("enterpriseApi")}</Link>
                 </div>
               </div>
-              <div className="space-y-6">
+              <div className="space-y-5">
                 <h4 className="text-[10px] font-black text-white uppercase tracking-[0.3em]">{tFooter("company")}</h4>
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-3">
                   <Link href={`/${locale}/legal/about`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tFooter("links.aboutUs")}</Link>
                   <Link href={`/${locale}/blog`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tNav("blog")}</Link>
                   <a href={`mailto:${contactEmail}`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tFooter("links.contact")}</a>
                 </div>
               </div>
-              <div className="space-y-6">
+              <div className="space-y-5">
                 <h4 className="text-[10px] font-black text-white uppercase tracking-[0.3em]">{tFooter("legal")}</h4>
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-3">
                   <Link href={`/${locale}/legal`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tFooter("links.legalHub")}</Link>
                   <Link href={`/${locale}/legal/privacy`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tFooter("privacy")}</Link>
                   <Link href={`/${locale}/legal/kvkk`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tFooter("kvkk")}</Link>
                   <Link href={`/${locale}/legal/terms`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tFooter("terms")}</Link>
-                  <Link href={`/${locale}/legal/disclaimer`} className="text-sm font-medium text-zinc-500 hover:text-primary transition-colors">{tFooter("disclaimer")}</Link>
                 </div>
               </div>
             </div>
           </div>
-          <div className="max-w-7xl mx-auto mt-24 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="max-w-7xl mx-auto mt-16 pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-zinc-600 text-[10px] font-black uppercase tracking-[0.3em]">{tFooter("copyright")}</p>
             <div className="flex items-center gap-6">
               <span className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">{tFooter("badges.noStoreImages")}</span>

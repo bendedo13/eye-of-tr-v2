@@ -104,13 +104,13 @@
     },
     "maintenance": {
       "title": "BAKIM",
-      "message": "Sistem k?sa s?reli bak?m modunda. L?tfen daha sonra tekrar deneyin."
+      "message": "Sistem kisa sureli bakim modunda. Lutfen daha sonra tekrar deneyin."
     },
     "trustBadges": {
-      "sslSecure": "SSL G?VENL?",
+      "sslSecure": "SSL GUVENLI",
       "kvkkCompliant": "KVKK UYUMLU",
       "gdprReady": "GDPR HAZIR",
-      "privacyFirst": "G?ZL?L?K ?NCEL?KL?"
+      "privacyFirst": "GIZLILIK ONCELIKLI"
     }
   },
   "liveStats": {
@@ -345,5 +345,92 @@
     "serverBusy": "Sunucu şu anda yoğun veya bakımda. Lütfen birazdan tekrar deneyin.",
     "timeout": "İstek zaman aşımına uğradı. Bağlantınızı kontrol edin.",
     "invalidDevice": "Cihaz kimliği oluşturulamadı. Tarayıcınızın localStorage'ı desteklediğinden emin olun."
+  },
+  "landing": {
+    "badges": {
+      "noStorage": "GORSEL SAKLANMAZ",
+      "gdpr": "GDPR & KVKK",
+      "encrypted": "256-BIT SIFRELI"
+    },
+    "heroCta": "UCRETSIZ ARAMA BASLAT",
+    "stats": {
+      "totalSearches": "Toplam Arama",
+      "accuracy": "Dogruluk Orani",
+      "activeUsers": "Aktif Kullanici",
+      "countries": "Ulke"
+    },
+    "howItWorks": {
+      "title": "NASIL CALISIR",
+      "subtitle": "3 basit adimda profesyonel yuz arama",
+      "step1": {
+        "title": "GORUNTU YUKLE",
+        "desc": "Yuz iceren bir fotografinizi guvenli motorumuza yukleyin. Tum standart formatlar desteklenir ve dogruluk icin otomatik optimize edilir."
+      },
+      "step2": {
+        "title": "YAPAY ZEKA ISLEME",
+        "desc": "Algoritmalarimiz 128 noktali biyometrik imza olusturur ve birden fazla motorda milyarlarca indekslenmis goruntuyu tarar."
+      },
+      "step3": {
+        "title": "SONUCLARI AL",
+        "desc": "Guven skorlari, kaynak URL'leri ve baglamsal metadata ile detayli istihbarat raporlari alin."
+      }
+    },
+    "reviews": {
+      "title": "PROFESYONELLERIN TERCIHI",
+      "subtitle": "Kullanicilarimiz FaceSeek hakkinda ne diyor"
+    },
+    "faq": {
+      "title": "SIK SORULAN SORULAR",
+      "subtitle": "FaceSeek hakkinda bilmeniz gereken her sey"
+    },
+    "finalCta": {
+      "secure": "256-BIT GUVENLI",
+      "private": "GIZLILIK ONCELIKLI",
+      "compliant": "GDPR UYUMLU"
+    }
+  },
+  "search": {
+    "title": "YUZ",
+    "titleGray": "TARAMA",
+    "titlePrimary": "MOTORU",
+    "subtitle": "GUVENLI ISTIHBARAT ARAYUZU V2.0",
+    "uploadTitle": "HEDEF GORSELI YUKLE",
+    "uploadFormats": "JPG, PNG, WEBP - MAX 10MB",
+    "uploadPrivacy": "Gorselleri saklamiyoruz",
+    "qualityTips": "En iyi sonuc icin: net on yuz, iyi aydinlatma, minimum 200x200px",
+    "changeImage": "DEGISTIR",
+    "startScan": "TARAMAYI BASLAT",
+    "advancedSearch": "DETAYLI ARAMA",
+    "advancedCredits": "2 KREDI",
+    "creditInfo": "Normal Arama: 1 Kredi - Detayli Arama: 2 Kredi",
+    "disclaimer": "SORUMLULUK BEYANINI KABUL EDIYORUM",
+    "readDisclaimer": "BEYANI OKU",
+    "legalConfirm": "Bu aramanin yalnizca yasal amaclarla yapildigini onayliyorum",
+    "resultsTitle": "TARAMA",
+    "resultsGray": "SONUCLARI",
+    "matchesFound": "POTANSIYEL ESLESME BULUNDU",
+    "providers": "VERI SAGLAYICILARI",
+    "confidence": "GUVEN",
+    "source": "KAYNAK",
+    "unknown": "BILINMEYEN ANALIST",
+    "viewProfile": "PROFILI GOR",
+    "contentProtected": "ICERIK KORUMALI",
+    "contentProtectedDesc": "TAM ERISIM VE PROFIL LINKI ICIN OPERASYONEL KREDI GEREKLIDIR.",
+    "buyCredits": "KREDI SATIN AL",
+    "privacyProtocol": "GIZLILIK PROTOKOLU DEVREDE",
+    "noMatch": "ESLESME BULUNAMADI",
+    "noMatchDesc": "Sistem internet genelindeki acik kaynaklari taradi ancak gorselle eslesen bir sonuc bulamadi. Lutfen farkli bir acidan cekilmis gorsel deneyin.",
+    "aiAnalysis": "YAPAY ZEKA DESTEKLI ANALIZ",
+    "aiDisclaimer": "Bu aciklama yapay zeka tarafindan uretilmistir ve bilgilendirme amaclidir.",
+    "fileTooLarge": "Dosya boyutu 10MB'den kucuk olmali",
+    "selectPhoto": "Lutfen bir fotograf secin.",
+    "acceptFirst": "Aramaya baslamadan once sorumluluk beyanini kabul edin.",
+    "creditsOut": "Krediniz bitti. Fiyatlandirma sayfasina yonlendiriliyorsunuz.",
+    "systemError": "Sistem hatasi: Sunucuya baglanilamadi.",
+    "searchFailed": "Arama basarisiz",
+    "initializing": "Tarama Motoru Baslatiliyor...",
+    "scanning": "Veritabanlari taraniyor...",
+    "analyzing": "Biyometrik veri analiz ediliyor...",
+    "matching": "Eslesmeler karsilastiriliyor..."
   }
 }
