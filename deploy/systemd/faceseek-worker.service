@@ -1,0 +1,17 @@
+[Unit]
+Description=FaceSeek Face Index Worker
+After=network.target redis.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/faceseek/repo/backend
+EnvironmentFile=/etc/faceseek/backend.env
+User=faceseek
+Group=www-data
+UMask=0007
+ExecStart=/opt/faceseek/repo/backend/venv/bin/python -m app.modules.face_index.worker
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

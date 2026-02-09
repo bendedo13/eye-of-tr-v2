@@ -291,3 +291,54 @@ export function adminUpdateTicketStatus(adminKey: string, ticketId: number, stat
     adminKey,
   });
 }
+
+// ---- Face Index API ----
+
+export function adminFaceIndexStatus(adminKey: string) {
+  return adminFetch<any>("/admin/face-index/status", { method: "GET", adminKey });
+}
+
+export function adminFaceIndexListSources(adminKey: string) {
+  return adminFetch<any[]>("/admin/face-index/sources", { method: "GET", adminKey });
+}
+
+export function adminFaceIndexCreateSource(adminKey: string, payload: any) {
+  return adminFetch<any>("/admin/face-index/sources", { method: "POST", body: JSON.stringify(payload), adminKey });
+}
+
+export function adminFaceIndexUpdateSource(adminKey: string, sourceId: number, payload: any) {
+  return adminFetch<any>(`/admin/face-index/sources/${sourceId}`, { method: "PATCH", body: JSON.stringify(payload), adminKey });
+}
+
+export function adminFaceIndexDeleteSource(adminKey: string, sourceId: number) {
+  return adminFetch<any>(`/admin/face-index/sources/${sourceId}`, { method: "DELETE", adminKey });
+}
+
+export function adminFaceIndexTriggerCrawl(adminKey: string, sourceId: number) {
+  return adminFetch<any>(`/admin/face-index/sources/${sourceId}/crawl`, { method: "POST", adminKey });
+}
+
+export function adminFaceIndexListJobs(adminKey: string, params: { source_id?: number; status?: string; limit?: number } = {}) {
+  const usp = new URLSearchParams();
+  if (params.source_id != null) usp.set("source_id", String(params.source_id));
+  if (params.status) usp.set("status", params.status);
+  if (params.limit != null) usp.set("limit", String(params.limit));
+  const qs = usp.toString();
+  return adminFetch<any[]>(`/admin/face-index/jobs${qs ? `?${qs}` : ""}`, { method: "GET", adminKey });
+}
+
+export function adminFaceIndexGetJob(adminKey: string, jobId: number) {
+  return adminFetch<any>(`/admin/face-index/jobs/${jobId}`, { method: "GET", adminKey });
+}
+
+export function adminFaceIndexCancelJob(adminKey: string, jobId: number) {
+  return adminFetch<any>(`/admin/face-index/jobs/${jobId}/cancel`, { method: "POST", adminKey });
+}
+
+export function adminFaceIndexGetConfig(adminKey: string) {
+  return adminFetch<any>("/admin/face-index/config", { method: "GET", adminKey });
+}
+
+export function adminFaceIndexReindex(adminKey: string) {
+  return adminFetch<any>("/admin/face-index/reindex", { method: "POST", adminKey });
+}

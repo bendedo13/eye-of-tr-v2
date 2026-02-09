@@ -432,5 +432,59 @@
     "scanning": "Veritabanlari taraniyor...",
     "analyzing": "Biyometrik veri analiz ediliyor...",
     "matching": "Eslesmeler karsilastiriliyor..."
+  },
+  "faceIndex": {
+    "title": "YUZ INDEKSI",
+    "subtitle": "Self-hosted yuz veritabani yonetimi",
+    "tabs": {
+      "overview": "GENEL BAKIS",
+      "sources": "KAYNAKLAR",
+      "jobs": "ISLER",
+      "config": "KONFIGURASYON"
+    },
+    "stats": {
+      "totalFaces": "Toplam Yuz",
+      "totalImages": "Toplam Gorsel",
+      "activeSources": "Aktif Kaynak",
+      "runningJobs": "Calisan Is",
+      "indexSize": "Index Boyutu",
+      "model": "Model",
+      "version": "Versiyon"
+    },
+    "sources": {
+      "addSource": "KAYNAK EKLE",
+      "name": "Ad",
+      "kind": "Tur",
+      "baseUrl": "Base URL",
+      "rateLimit": "Rate Limit (RPM)",
+      "concurrent": "Esanli",
+      "crawlConfig": "Crawl Ayari (JSON)",
+      "cronSchedule": "Cron Zamanlama",
+      "scheduleActive": "Zamanlama Aktif",
+      "create": "KAYNAK OLUSTUR",
+      "crawl": "TARA",
+      "disable": "DEVRE DISI",
+      "enable": "AKTIF ET",
+      "delete": "SIL"
+    },
+    "jobs": {
+      "pages": "Sayfa",
+      "images": "Gorsel",
+      "faces": "Yuz",
+      "errors": "Hata",
+      "cancel": "IPTAL"
+    },
+    "config": {
+      "searchSettings": "ARAMA AYARLARI",
+      "similarityThreshold": "Benzerlik Esigi",
+      "topKDefault": "Top-K Varsayilan",
+      "minDetScore": "Min Yuz Tespit Skoru",
+      "maxFacesPerImage": "Max Yuz / Gorsel",
+      "crawlerSettings": "CRAWLER AYARLARI",
+      "defaultRpm": "Varsayilan RPM",
+      "dangerZone": "TEHLIKELI ISLEMLER",
+      "resetIndex": "FAISS Index Sifirla",
+      "resetDesc": "Tum indekslenmis yuzler silinir. Yeniden tarama gerekir."
+    }
   }
 }

@@ -140,6 +140,23 @@ class Settings(BaseSettings):
     OPENAI_MODEL: str = "gpt-4o-mini"  # Default to cost-effective model
     OPENAI_ENABLED: bool = True  # Feature flag
 
+    # Face Index Module
+    FACE_INDEX_ENABLED: bool = True
+    FACE_INDEX_DIR: str = "dataset"
+    FACE_INDEX_FAISS_DIR: str = "dataset/faiss_index"
+    FACE_INDEX_SIMILARITY_THRESHOLD: float = 0.6
+    FACE_INDEX_TOP_K_DEFAULT: int = 10
+    FACE_INDEX_MIN_IMAGE_SIZE: int = 10240
+    FACE_INDEX_MIN_FACE_DET_SCORE: float = 0.5
+    FACE_INDEX_CRAWLER_USER_AGENT: str = "FaceSeek-Crawler/1.0 (+https://face-seek.com/bot)"
+    FACE_INDEX_CRAWLER_DEFAULT_RPM: int = 30
+    FACE_INDEX_CRAWLER_CONCURRENT: int = 3
+    FACE_INDEX_EMBEDDING_VERSION: int = 1
+    FACE_INDEX_WORKER_BATCH_SIZE: int = 50
+    FACE_INDEX_MAX_FACES_PER_IMAGE: int = 10
+    GOOGLE_CUSTOM_SEARCH_API_KEY: Optional[str] = None
+    GOOGLE_CUSTOM_SEARCH_CX: Optional[str] = None
+
     # Google Cloud Vision
     GOOGLE_CLOUD_VISION_API_KEY: Optional[str] = None
     GOOGLE_CLOUD_VISION_ENDPOINT: str = "https://vision.googleapis.com/v1/images:annotate"

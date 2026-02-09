@@ -7,6 +7,8 @@ from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, 
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 
+import logging
+
 from app.core.config import settings
 from app.api.deps import get_current_user
 from app.db.database import get_db
@@ -16,6 +18,8 @@ from app.services.embedding_service import EmbeddingError, get_embedder
 from app.services.faiss_service import FaissError, get_faiss_store
 from app.services.openai_service import get_openai_service
 from app.services.search_service import get_search_service
+
+logger = logging.getLogger(__name__)
 
 
 class AdvancedSearchParams(BaseModel):
@@ -45,6 +49,64 @@ def _validate_image_filename(filename: str) -> str:
     if ext not in allowed:
         raise HTTPException(status_code=400, detail=f"Desteklenmeyen dosya formatı: {ext}")
     return ext
+
+
+def _resolve_face_meta(face_id: str, db: Session) -> Optional[dict]:
+    """Look up indexed face metadata from the face_index module."""
+    try:
+        from app.modules.face_index.models import IndexedFace, FaceImage, FaceSource
+        face = db.query(IndexedFace).filter(IndexedFace.face_id == face_id).first()
+        if not face:
+            return None
+        image = db.query(FaceImage).filter(FaceImage.id == face.image_id).first()
+        source = db.query(FaceSource).filter(FaceSource.id == face.source_id).first()
+        return {
+            "face_id": face.face_id,
+            "source_name": source.name if source else "unknown",
+            "source_page_url": image.source_page_url if image else None,
+            "source_url": image.source_url if image else None,
+            "crop_path": face.crop_path,
+            "gender": face.gender,
+            "age": face.age_estimate,
+            "detection_score": face.detection_score,
+        }
+    except Exception:
+        return None
+
+
+async def _search_local_index(vector, top_k: int, threshold: float, db: Session) -> list:
+    """Search the local face index and return formatted match dicts."""
+    results = []
+    try:
+        if not getattr(settings, "FACE_INDEX_ENABLED", True):
+            return results
+        from app.modules.face_index.vector_store import get_face_index_store
+        fi_store = get_face_index_store()
+        if fi_store.total_faces() == 0:
+            return results
+        fi_matches = await fi_store.search(vector, top_k=top_k, threshold=threshold)
+        for match in fi_matches:
+            meta = _resolve_face_meta(match["face_id"], db)
+            if not meta:
+                continue
+            image_url = f"/dataset/{meta['crop_path']}" if meta.get("crop_path") else None
+            results.append({
+                "platform": "local_index",
+                "username": meta["source_name"],
+                "profile_url": meta.get("source_page_url") or meta.get("source_url") or "",
+                "image_url": image_url,
+                "confidence": match["similarity"] * 100.0,
+                "metadata": {
+                    "face_id": meta["face_id"],
+                    "similarity": match["similarity"],
+                    "gender": meta.get("gender"),
+                    "age": meta.get("age"),
+                    "source": "local_index",
+                },
+            })
+    except Exception as e:
+        logger.warning(f"Local face index search failed: {e}")
+    return results
 
 
 @router.post("/upload-face")
@@ -136,19 +198,27 @@ async def search_face(
             }
         )
 
-    # 2. External Waterfall Search (Automatic)
+    # 2. Local Face Index Search
+    fi_threshold = float(getattr(settings, "FACE_INDEX_SIMILARITY_THRESHOLD", 0.6))
+    local_matches = await _search_local_index(emb.vector, top_k=top_k, threshold=fi_threshold, db=db)
+    if local_matches:
+        matches_out.extend(local_matches)
+
+    # 3. External Waterfall Search (Automatic)
     # Saves file temporarily for external services
     external = None
     providers_used = ["faiss"]
-    
+    if local_matches:
+        providers_used.append("local_index")
+
     faces_dir = _faces_dir()
     faces_dir.mkdir(parents=True, exist_ok=True)
     query_filename = f"query_{uuid.uuid4()}{ext}"
     query_path = faces_dir / query_filename
-    
+
     try:
         query_path.write_bytes(content)
-        
+
         # Use fallback strategy: Try standard providers first, then FaceCheck if needed
         srv = get_search_service()
         ext_result = await srv.waterfall_search(
@@ -281,18 +351,26 @@ async def search_face_advanced(
     # Limit to max_results
     matches_out = matches_out[:max_results]
 
-    # 2. External Waterfall Search (Automatic)
+    # 2. Local Face Index Search
+    fi_threshold = max(float(getattr(settings, "FACE_INDEX_SIMILARITY_THRESHOLD", 0.6)), confidence_threshold)
+    local_matches = await _search_local_index(emb.vector, top_k=top_k, threshold=fi_threshold, db=db)
+    if local_matches:
+        matches_out.extend(local_matches)
+
+    # 3. External Waterfall Search (Automatic)
     external = None
     providers_used = ["faiss"]
-    
+    if local_matches:
+        providers_used.append("local_index")
+
     faces_dir = _faces_dir()
     faces_dir.mkdir(parents=True, exist_ok=True)
     query_filename = f"query_{uuid.uuid4()}{ext}"
     query_path = faces_dir / query_filename
-    
+
     try:
         query_path.write_bytes(content)
-        
+
         srv = get_search_service()
         ext_result = await srv.waterfall_search(
             str(query_path), 

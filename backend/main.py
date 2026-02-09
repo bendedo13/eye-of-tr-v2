@@ -50,6 +50,10 @@ from app.models.support import SupportTicket, SupportMessage
 from app.models.bank_transfer import BankTransferRequest
 from app.models.guest_bank_inquiry import GuestBankInquiry
 
+# Face Index Module
+from app.modules.face_index.models import FaceSource, FaceCrawlJob, FaceImage, IndexedFace
+from app.api.admin_face_index import router as admin_face_index_router
+
 # Import WebSocket service
 from app.services.websocket_service import get_socket_server, socket_app
 
@@ -126,6 +130,11 @@ UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 app.mount("/api/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="api-uploads")
 
+# Dataset directory for face index crops
+DATASET_DIR = (Path(__file__).resolve().parent / getattr(settings, "FACE_INDEX_DIR", "dataset")).resolve()
+DATASET_DIR.mkdir(parents=True, exist_ok=True)
+app.mount("/dataset", StaticFiles(directory=str(DATASET_DIR)), name="dataset")
+
 # Search service
 search_service = get_search_service()
 
@@ -153,6 +162,7 @@ app.include_router(admin_email_router)
 app.include_router(notifications_router)
 app.include_router(support_router)
 app.include_router(admin_support_router)
+app.include_router(admin_face_index_router)
 logger.info("✅ Face search router: /api/upload-face, /api/search-face")
 logger.info(f"✅ Auth router: {auth_router.prefix}")
 logger.info(f"✅ Dashboard router: {dashboard_router.prefix}")

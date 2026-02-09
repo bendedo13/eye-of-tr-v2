@@ -432,5 +432,59 @@
     "scanning": "Scanning databases...",
     "analyzing": "Analyzing biometric data...",
     "matching": "Cross-referencing matches..."
+  },
+  "faceIndex": {
+    "title": "FACE INDEX",
+    "subtitle": "Self-hosted face database management",
+    "tabs": {
+      "overview": "OVERVIEW",
+      "sources": "SOURCES",
+      "jobs": "JOBS",
+      "config": "CONFIGURATION"
+    },
+    "stats": {
+      "totalFaces": "Total Faces",
+      "totalImages": "Total Images",
+      "activeSources": "Active Sources",
+      "runningJobs": "Running Jobs",
+      "indexSize": "Index Size",
+      "model": "Model",
+      "version": "Version"
+    },
+    "sources": {
+      "addSource": "ADD SOURCE",
+      "name": "Name",
+      "kind": "Type",
+      "baseUrl": "Base URL",
+      "rateLimit": "Rate Limit (RPM)",
+      "concurrent": "Concurrent",
+      "crawlConfig": "Crawl Config (JSON)",
+      "cronSchedule": "Cron Schedule",
+      "scheduleActive": "Schedule Active",
+      "create": "CREATE SOURCE",
+      "crawl": "CRAWL",
+      "disable": "DISABLE",
+      "enable": "ENABLE",
+      "delete": "DELETE"
+    },
+    "jobs": {
+      "pages": "Pages",
+      "images": "Images",
+      "faces": "Faces",
+      "errors": "Errors",
+      "cancel": "CANCEL"
+    },
+    "config": {
+      "searchSettings": "SEARCH SETTINGS",
+      "similarityThreshold": "Similarity Threshold",
+      "topKDefault": "Top-K Default",
+      "minDetScore": "Min Face Detection Score",
+      "maxFacesPerImage": "Max Faces Per Image",
+      "crawlerSettings": "CRAWLER SETTINGS",
+      "defaultRpm": "Default RPM",
+      "dangerZone": "DANGER ZONE",
+      "resetIndex": "Reset FAISS Index",
+      "resetDesc": "All indexed faces will be deleted. Re-crawl required."
+    }
   }
 }
