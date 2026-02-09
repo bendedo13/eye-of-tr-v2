@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 # ---------- Source ----------
 class SourceCreate(BaseModel):
     name: str = Field(..., max_length=200)
-    kind: str = Field(..., pattern="^(google_images|website|open_dataset|news|archive|upload)$")
+    kind: str = Field(..., pattern="^(website|open_dataset|news|archive|upload|instagram|twitter|facebook)$")
     base_url: str = Field(..., max_length=2048)
     is_enabled: bool = True
     crawl_config_json: str = "{}"
@@ -97,3 +97,35 @@ class FaceSearchMatch(BaseModel):
     crop_url: Optional[str]
     gender: Optional[str]
     age_estimate: Optional[int]
+
+
+# ---------- Proxy ----------
+class ProxyCreate(BaseModel):
+    proxy_url: str = Field(..., max_length=500)
+    proxy_type: str = Field(default="http", pattern="^(http|https|socks5)$")
+    country: Optional[str] = Field(None, max_length=10)
+    label: Optional[str] = Field(None, max_length=100)
+    is_active: bool = True
+
+
+class ProxyOut(BaseModel):
+    id: int
+    proxy_url: str
+    proxy_type: str
+    country: Optional[str]
+    label: Optional[str]
+    is_active: bool
+    last_check_at: Optional[datetime]
+    last_check_ok: Optional[bool]
+    success_count: int
+    fail_count: int
+    avg_response_ms: Optional[int]
+    created_at: Optional[datetime]
+
+    class Config:
+        from_attributes = True
+
+
+class ProxyImport(BaseModel):
+    proxies: str  # newline-separated proxy URLs
+    proxy_type: str = Field(default="http", pattern="^(http|https|socks5)$")

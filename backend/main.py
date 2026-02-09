@@ -51,7 +51,7 @@ from app.models.bank_transfer import BankTransferRequest
 from app.models.guest_bank_inquiry import GuestBankInquiry
 
 # Face Index Module
-from app.modules.face_index.models import FaceSource, FaceCrawlJob, FaceImage, IndexedFace
+from app.modules.face_index.models import FaceSource, FaceCrawlJob, FaceImage, IndexedFace, ProxyServer
 from app.api.admin_face_index import router as admin_face_index_router
 
 # Import WebSocket service

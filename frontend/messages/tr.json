@@ -403,9 +403,9 @@
     "advancedSearch": "DETAYLI ARAMA",
     "advancedCredits": "2 KREDI",
     "creditInfo": "Normal Arama: 1 Kredi - Detayli Arama: 2 Kredi",
-    "disclaimer": "SORUMLULUK BEYANINI KABUL EDIYORUM",
+    "disclaimer": "YUKLEYECEGIM FOTOGRAF BANA AITTIR VE SORUMLULUK BEYANINI KABUL EDIYORUM",
     "readDisclaimer": "BEYANI OKU",
-    "legalConfirm": "Bu aramanin yalnizca yasal amaclarla yapildigini onayliyorum",
+    "legalConfirm": "Bu aramayi yalnizca dolandiricilik/fake hesap tespiti gibi yasal amaclarla yaptigimi, fotografin bana ait oldugunu ve tum sorumlulugu kabul ettigimi onayliyorum",
     "resultsTitle": "TARAMA",
     "resultsGray": "SONUCLARI",
     "matchesFound": "POTANSIYEL ESLESME BULUNDU",
@@ -440,6 +440,7 @@
       "overview": "GENEL BAKIS",
       "sources": "KAYNAKLAR",
       "jobs": "ISLER",
+      "proxies": "PROXY'LER",
       "config": "KONFIGURASYON"
     },
     "stats": {
@@ -473,6 +474,26 @@
       "faces": "Yuz",
       "errors": "Hata",
       "cancel": "IPTAL"
+    },
+    "proxies": {
+      "addProxy": "PROXY EKLE",
+      "importProxies": "TOPLU YUKLE",
+      "testAll": "TUMUNU TEST ET",
+      "proxyUrl": "Proxy URL",
+      "proxyType": "Tur",
+      "country": "Ulke",
+      "label": "Etiket",
+      "active": "Aktif",
+      "successCount": "Basarili",
+      "failCount": "Basarisiz",
+      "avgMs": "Ort (ms)",
+      "lastCheck": "Son Kontrol",
+      "noProxies": "Proxy yapilandirilmadi. Sosyal medya taramasi icin proxy ekleyin.",
+      "importPlaceholder": "Proxy URL'lerini yapistiriniz (satir satir)\nhttp://user:pass@host:port\nsocks5://host:port",
+      "import": "YUKLE",
+      "delete": "SIL",
+      "testing": "Proxy'ler test ediliyor...",
+      "testResult": "Test tamamlandi: {ok} basarili, {failed} basarisiz"
     },
     "config": {
       "searchSettings": "ARAMA AYARLARI",

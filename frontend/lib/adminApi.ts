@@ -342,3 +342,25 @@ export function adminFaceIndexGetConfig(adminKey: string) {
 export function adminFaceIndexReindex(adminKey: string) {
   return adminFetch<any>("/admin/face-index/reindex", { method: "POST", adminKey });
 }
+
+// ---- Face Index Proxies ----
+
+export function adminFaceIndexListProxies(adminKey: string) {
+  return adminFetch<any[]>("/admin/face-index/proxies", { method: "GET", adminKey });
+}
+
+export function adminFaceIndexCreateProxy(adminKey: string, payload: any) {
+  return adminFetch<any>("/admin/face-index/proxies", { method: "POST", body: JSON.stringify(payload), adminKey });
+}
+
+export function adminFaceIndexDeleteProxy(adminKey: string, proxyId: number) {
+  return adminFetch<any>(`/admin/face-index/proxies/${proxyId}`, { method: "DELETE", adminKey });
+}
+
+export function adminFaceIndexTestProxies(adminKey: string) {
+  return adminFetch<any>("/admin/face-index/proxies/test", { method: "POST", adminKey });
+}
+
+export function adminFaceIndexImportProxies(adminKey: string, payload: { proxies: string; proxy_type: string }) {
+  return adminFetch<any>("/admin/face-index/proxies/import", { method: "POST", body: JSON.stringify(payload), adminKey });
+}

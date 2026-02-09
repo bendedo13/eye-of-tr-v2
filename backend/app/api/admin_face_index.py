@@ -8,10 +8,11 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.db.database import get_db
-from app.modules.face_index.models import FaceSource, FaceCrawlJob, FaceImage, IndexedFace
+from app.modules.face_index.models import FaceSource, FaceCrawlJob, FaceImage, IndexedFace, ProxyServer
 from app.modules.face_index.schemas import (
     SourceCreate, SourceUpdate, SourceOut, JobOut,
     FaceIndexConfig, FaceIndexStatus,
+    ProxyCreate, ProxyOut, ProxyImport,
 )
 from app.modules.face_index.vector_store import get_face_index_store
 
@@ -253,3 +254,83 @@ async def reindex(request: Request, db: Session = Depends(get_db)):
         "message": "FAISS index cleared. Re-crawl sources to rebuild.",
         "faces_in_db": len(faces),
     }
+
+
+# ---- Proxies CRUD ----
+
+@router.get("/proxies")
+def list_proxies(request: Request, db: Session = Depends(get_db)):
+    _require_admin_key(request)
+    proxies = db.query(ProxyServer).order_by(ProxyServer.id.desc()).all()
+    return [ProxyOut.model_validate(p) for p in proxies]
+
+
+@router.post("/proxies")
+def create_proxy(request: Request, body: ProxyCreate, db: Session = Depends(get_db)):
+    _require_admin_key(request)
+    proxy = ProxyServer(
+        proxy_url=body.proxy_url,
+        proxy_type=body.proxy_type,
+        country=body.country,
+        label=body.label,
+        is_active=body.is_active,
+    )
+    db.add(proxy)
+    db.commit()
+    db.refresh(proxy)
+
+    # Invalidate proxy manager cache
+    from app.modules.face_index.proxy_manager import get_proxy_manager
+    get_proxy_manager().invalidate_cache()
+
+    return ProxyOut.model_validate(proxy)
+
+
+@router.delete("/proxies/{proxy_id}")
+def delete_proxy(proxy_id: int, request: Request, db: Session = Depends(get_db)):
+    _require_admin_key(request)
+    proxy = db.query(ProxyServer).filter(ProxyServer.id == proxy_id).first()
+    if not proxy:
+        raise HTTPException(status_code=404, detail="Proxy not found")
+    db.delete(proxy)
+    db.commit()
+
+    from app.modules.face_index.proxy_manager import get_proxy_manager
+    get_proxy_manager().invalidate_cache()
+
+    return {"status": "deleted", "proxy_id": proxy_id}
+
+
+@router.post("/proxies/test")
+async def test_proxies(request: Request, db: Session = Depends(get_db)):
+    _require_admin_key(request)
+    from app.modules.face_index.proxy_manager import health_check_all
+    result = await health_check_all(db)
+    return {"status": "completed", **result}
+
+
+@router.post("/proxies/import")
+def import_proxies(request: Request, body: ProxyImport, db: Session = Depends(get_db)):
+    _require_admin_key(request)
+    lines = [line.strip() for line in body.proxies.strip().split("\n") if line.strip()]
+    added = 0
+    skipped = 0
+    for line in lines:
+        # Skip duplicates
+        existing = db.query(ProxyServer).filter(ProxyServer.proxy_url == line).first()
+        if existing:
+            skipped += 1
+            continue
+        proxy = ProxyServer(
+            proxy_url=line,
+            proxy_type=body.proxy_type,
+            is_active=True,
+        )
+        db.add(proxy)
+        added += 1
+    db.commit()
+
+    from app.modules.face_index.proxy_manager import get_proxy_manager
+    get_proxy_manager().invalidate_cache()
+
+    return {"status": "imported", "added": added, "skipped": skipped, "total_lines": len(lines)}

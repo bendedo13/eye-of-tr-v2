@@ -403,9 +403,9 @@
     "advancedSearch": "ADVANCED SEARCH",
     "advancedCredits": "2 CREDITS",
     "creditInfo": "Standard Search: 1 Credit - Advanced Search: 2 Credits",
-    "disclaimer": "I ACCEPT THE DISCLAIMER",
+    "disclaimer": "THE PHOTO I UPLOAD BELONGS TO ME AND I ACCEPT THE DISCLAIMER",
     "readDisclaimer": "READ DISCLAIMER",
-    "legalConfirm": "I confirm this search is for lawful purposes only",
+    "legalConfirm": "I confirm this search is for lawful purposes only (such as fraud/fake account detection), the photo belongs to me, and I accept full responsibility",
     "resultsTitle": "SCAN",
     "resultsGray": "RESULTS",
     "matchesFound": "POTENTIAL MATCHES FOUND",
@@ -440,6 +440,7 @@
       "overview": "OVERVIEW",
       "sources": "SOURCES",
       "jobs": "JOBS",
+      "proxies": "PROXIES",
       "config": "CONFIGURATION"
     },
     "stats": {
@@ -473,6 +474,26 @@
       "faces": "Faces",
       "errors": "Errors",
       "cancel": "CANCEL"
+    },
+    "proxies": {
+      "addProxy": "ADD PROXY",
+      "importProxies": "IMPORT PROXIES",
+      "testAll": "TEST ALL",
+      "proxyUrl": "Proxy URL",
+      "proxyType": "Type",
+      "country": "Country",
+      "label": "Label",
+      "active": "Active",
+      "successCount": "Success",
+      "failCount": "Fails",
+      "avgMs": "Avg (ms)",
+      "lastCheck": "Last Check",
+      "noProxies": "No proxies configured. Add proxies to enable social media crawling.",
+      "importPlaceholder": "Paste proxy URLs (one per line)\nhttp://user:pass@host:port\nsocks5://host:port",
+      "import": "IMPORT",
+      "delete": "DELETE",
+      "testing": "Testing proxies...",
+      "testResult": "Test complete: {ok} OK, {failed} failed"
     },
     "config": {
       "searchSettings": "SEARCH SETTINGS",

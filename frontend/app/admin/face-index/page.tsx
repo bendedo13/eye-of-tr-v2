@@ -12,9 +12,29 @@ import {
   adminFaceIndexCancelJob,
   adminFaceIndexGetConfig,
   adminFaceIndexReindex,
+  adminFaceIndexListProxies,
+  adminFaceIndexCreateProxy,
+  adminFaceIndexDeleteProxy,
+  adminFaceIndexTestProxies,
+  adminFaceIndexImportProxies,
 } from "@/lib/adminApi";
 
-type Tab = "overview" | "sources" | "jobs" | "config";
+type Tab = "overview" | "sources" | "jobs" | "proxies" | "config";
+
+interface ProxyData {
+  id: number;
+  proxy_url: string;
+  proxy_type: string;
+  country: string | null;
+  label: string | null;
+  is_active: boolean;
+  last_check_at: string | null;
+  last_check_ok: boolean | null;
+  success_count: number;
+  fail_count: number;
+  avg_response_ms: number | null;
+  created_at: string;
+}
 
 interface StatusData {
   total_faces: number;
@@ -96,8 +116,16 @@ export default function FaceIndexPage() {
   const [sources, setSources] = useState<Source[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [config, setConfig] = useState<ConfigData | null>(null);
+  const [proxies, setProxies] = useState<ProxyData[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+
+  // Proxy form
+  const [showNewProxy, setShowNewProxy] = useState(false);
+  const [showImportProxy, setShowImportProxy] = useState(false);
+  const [newProxy, setNewProxy] = useState({ proxy_url: "", proxy_type: "http", country: "", label: "" });
+  const [importText, setImportText] = useState("");
+  const [importType, setImportType] = useState("http");
 
   // New source form
   const [showNewSource, setShowNewSource] = useState(false);
@@ -117,16 +145,18 @@ export default function FaceIndexPage() {
     const key = getAdminKey();
     if (!key) return;
     try {
-      const [st, src, jb, cfg] = await Promise.all([
+      const [st, src, jb, cfg, prx] = await Promise.all([
         adminFaceIndexStatus(key),
         adminFaceIndexListSources(key),
         adminFaceIndexListJobs(key, { limit: 50 }),
         adminFaceIndexGetConfig(key),
+        adminFaceIndexListProxies(key),
       ]);
       setStatusData(st);
       setSources(src || []);
       setJobs(jb || []);
       setConfig(cfg);
+      setProxies(prx || []);
       setError(null);
     } catch (e: any) {
       setError(e.message || "Failed to load data");
@@ -217,6 +247,66 @@ export default function FaceIndexPage() {
     }
   };
 
+  const handleCreateProxy = async () => {
+    setActionLoading("create-proxy");
+    try {
+      await adminFaceIndexCreateProxy(getAdminKey(), {
+        proxy_url: newProxy.proxy_url,
+        proxy_type: newProxy.proxy_type,
+        country: newProxy.country || null,
+        label: newProxy.label || null,
+      });
+      setShowNewProxy(false);
+      setNewProxy({ proxy_url: "", proxy_type: "http", country: "", label: "" });
+      await fetchAll();
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleDeleteProxy = async (id: number) => {
+    setActionLoading(`del-proxy-${id}`);
+    try {
+      await adminFaceIndexDeleteProxy(getAdminKey(), id);
+      await fetchAll();
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleTestProxies = async () => {
+    setActionLoading("test-proxies");
+    try {
+      const result = await adminFaceIndexTestProxies(getAdminKey());
+      alert(`Test tamamlandi: ${result.ok} basarili, ${result.failed} basarisiz`);
+      await fetchAll();
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleImportProxies = async () => {
+    if (!importText.trim()) return;
+    setActionLoading("import-proxies");
+    try {
+      const result = await adminFaceIndexImportProxies(getAdminKey(), { proxies: importText, proxy_type: importType });
+      alert(`Import: ${result.added} eklendi, ${result.skipped} atlandı`);
+      setShowImportProxy(false);
+      setImportText("");
+      await fetchAll();
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -229,6 +319,7 @@ export default function FaceIndexPage() {
     { key: "overview", label: "GENEL BAKIS" },
     { key: "sources", label: "KAYNAKLAR" },
     { key: "jobs", label: "ISLER" },
+    { key: "proxies", label: "PROXY'LER" },
     { key: "config", label: "KONFIGURASYON" },
   ];
 
@@ -370,7 +461,9 @@ export default function FaceIndexPage() {
                     className="w-full bg-black/60 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-primary/50"
                   >
                     <option value="website">Website</option>
-                    <option value="google_images">Google Images</option>
+                    <option value="instagram">Instagram</option>
+                    <option value="twitter">Twitter / X</option>
+                    <option value="facebook">Facebook</option>
                     <option value="open_dataset">Open Dataset</option>
                     <option value="news">News</option>
                     <option value="archive">Archive</option>
@@ -589,6 +682,220 @@ export default function FaceIndexPage() {
                   })}
                 </tbody>
               </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {tab === "proxies" && (
+        <div className="space-y-4">
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={handleTestProxies}
+              disabled={actionLoading === "test-proxies" || proxies.length === 0}
+              className="px-5 py-2.5 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-xl text-xs font-black tracking-wider transition-all disabled:opacity-50"
+            >
+              {actionLoading === "test-proxies" ? "TEST EDILIYOR..." : "TUMUNU TEST ET"}
+            </button>
+            <button
+              onClick={() => { setShowImportProxy(!showImportProxy); setShowNewProxy(false); }}
+              className="px-5 py-2.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-xl text-xs font-black tracking-wider transition-all"
+            >
+              {showImportProxy ? "IPTAL" : "TOPLU YUKLE"}
+            </button>
+            <button
+              onClick={() => { setShowNewProxy(!showNewProxy); setShowImportProxy(false); }}
+              className="px-5 py-2.5 bg-primary hover:bg-primary/80 text-white rounded-xl text-xs font-black tracking-wider transition-all"
+            >
+              {showNewProxy ? "IPTAL" : "+ PROXY EKLE"}
+            </button>
+          </div>
+
+          {/* Import Form */}
+          {showImportProxy && (
+            <div className="bg-black/40 border border-blue-500/30 rounded-2xl p-6 space-y-4">
+              <div className="text-[9px] font-black text-blue-400 uppercase tracking-widest">TOPLU PROXY YUKLE</div>
+              <div className="grid grid-cols-4 gap-4">
+                <div className="col-span-3">
+                  <textarea
+                    value={importText}
+                    onChange={(e) => setImportText(e.target.value)}
+                    rows={6}
+                    className="w-full bg-black/60 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500/50 font-mono"
+                    placeholder={"http://user:pass@host:port\nsocks5://host:port\nhttp://host:port"}
+                  />
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-[10px] font-bold text-zinc-500 uppercase mb-1 block">Tur</label>
+                    <select
+                      value={importType}
+                      onChange={(e) => setImportType(e.target.value)}
+                      className="w-full bg-black/60 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none"
+                    >
+                      <option value="http">HTTP</option>
+                      <option value="https">HTTPS</option>
+                      <option value="socks5">SOCKS5</option>
+                    </select>
+                  </div>
+                  <button
+                    onClick={handleImportProxies}
+                    disabled={!importText.trim() || actionLoading === "import-proxies"}
+                    className="w-full px-4 py-2.5 bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white rounded-xl text-xs font-black tracking-wider transition-all"
+                  >
+                    {actionLoading === "import-proxies" ? "YUKLENIYOR..." : "YUKLE"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* New Proxy Form */}
+          {showNewProxy && (
+            <div className="bg-black/40 border border-primary/30 rounded-2xl p-6 space-y-4">
+              <div className="text-[9px] font-black text-primary uppercase tracking-widest">YENI PROXY</div>
+              <div className="grid grid-cols-4 gap-4">
+                <div className="col-span-2">
+                  <label className="text-[10px] font-bold text-zinc-500 uppercase mb-1 block">Proxy URL</label>
+                  <input
+                    type="text"
+                    value={newProxy.proxy_url}
+                    onChange={(e) => setNewProxy({ ...newProxy, proxy_url: e.target.value })}
+                    className="w-full bg-black/60 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-primary/50 font-mono"
+                    placeholder="http://user:pass@host:port"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-zinc-500 uppercase mb-1 block">Tur</label>
+                  <select
+                    value={newProxy.proxy_type}
+                    onChange={(e) => setNewProxy({ ...newProxy, proxy_type: e.target.value })}
+                    className="w-full bg-black/60 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none"
+                  >
+                    <option value="http">HTTP</option>
+                    <option value="https">HTTPS</option>
+                    <option value="socks5">SOCKS5</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-zinc-500 uppercase mb-1 block">Ulke</label>
+                  <input
+                    type="text"
+                    value={newProxy.country}
+                    onChange={(e) => setNewProxy({ ...newProxy, country: e.target.value })}
+                    className="w-full bg-black/60 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none"
+                    placeholder="US"
+                  />
+                </div>
+                <div className="col-span-2">
+                  <label className="text-[10px] font-bold text-zinc-500 uppercase mb-1 block">Etiket</label>
+                  <input
+                    type="text"
+                    value={newProxy.label}
+                    onChange={(e) => setNewProxy({ ...newProxy, label: e.target.value })}
+                    className="w-full bg-black/60 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none"
+                    placeholder="Residential US #1"
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <button
+                  onClick={handleCreateProxy}
+                  disabled={!newProxy.proxy_url || actionLoading === "create-proxy"}
+                  className="px-6 py-2.5 bg-primary hover:bg-primary/80 disabled:opacity-50 text-white rounded-xl text-xs font-black tracking-wider transition-all"
+                >
+                  {actionLoading === "create-proxy" ? "KAYDEDILIYOR..." : "PROXY EKLE"}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Proxy Table */}
+          {proxies.length === 0 ? (
+            <div className="bg-black/40 border border-white/5 rounded-2xl p-12 text-center">
+              <p className="text-zinc-600">Proxy yapilandirilmadi. Sosyal medya taramasi icin proxy ekleyin.</p>
+            </div>
+          ) : (
+            <div className="bg-black/40 border border-white/5 rounded-2xl overflow-hidden">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-white/5">
+                    <th className="px-4 py-3 text-left text-[9px] font-black text-zinc-600 uppercase tracking-widest">PROXY</th>
+                    <th className="px-4 py-3 text-left text-[9px] font-black text-zinc-600 uppercase tracking-widest">TUR</th>
+                    <th className="px-4 py-3 text-left text-[9px] font-black text-zinc-600 uppercase tracking-widest">ULKE</th>
+                    <th className="px-4 py-3 text-left text-[9px] font-black text-zinc-600 uppercase tracking-widest">DURUM</th>
+                    <th className="px-4 py-3 text-right text-[9px] font-black text-zinc-600 uppercase tracking-widest">BASARILI</th>
+                    <th className="px-4 py-3 text-right text-[9px] font-black text-zinc-600 uppercase tracking-widest">BASARISIZ</th>
+                    <th className="px-4 py-3 text-right text-[9px] font-black text-zinc-600 uppercase tracking-widest">ORT (ms)</th>
+                    <th className="px-4 py-3 text-right text-[9px] font-black text-zinc-600 uppercase tracking-widest">ISLEM</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {proxies.map((p) => (
+                    <tr key={p.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                      <td className="px-4 py-3">
+                        <div className="text-xs font-mono text-white truncate max-w-[250px]">{p.proxy_url}</div>
+                        {p.label && <div className="text-[10px] text-zinc-600">{p.label}</div>}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="text-[10px] font-bold text-zinc-400 uppercase">{p.proxy_type}</span>
+                      </td>
+                      <td className="px-4 py-3 text-xs text-zinc-400">{p.country || "-"}</td>
+                      <td className="px-4 py-3">
+                        <span className={`w-2 h-2 rounded-full inline-block mr-2 ${
+                          p.is_active
+                            ? p.last_check_ok === true ? "bg-emerald-500" : p.last_check_ok === false ? "bg-yellow-500" : "bg-blue-500"
+                            : "bg-red-500"
+                        }`}></span>
+                        <span className="text-xs text-zinc-400">
+                          {p.is_active ? (p.last_check_ok === true ? "OK" : p.last_check_ok === false ? "Uyari" : "Bekliyor") : "Deaktif"}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-right text-xs text-emerald-400 font-bold">{p.success_count}</td>
+                      <td className="px-4 py-3 text-right text-xs text-red-400 font-bold">{p.fail_count > 0 ? p.fail_count : "-"}</td>
+                      <td className="px-4 py-3 text-right text-xs text-zinc-300">{p.avg_response_ms ?? "-"}</td>
+                      <td className="px-4 py-3 text-right">
+                        <button
+                          onClick={() => handleDeleteProxy(p.id)}
+                          disabled={actionLoading === `del-proxy-${p.id}`}
+                          className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-lg text-[10px] font-bold transition-all disabled:opacity-50"
+                        >
+                          SIL
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Proxy Stats */}
+          {proxies.length > 0 && (
+            <div className="bg-black/40 border border-white/5 rounded-2xl p-6">
+              <div className="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-3">PROXY ISTATISTIKLERI</div>
+              <div className="grid grid-cols-4 gap-4 text-sm">
+                <div>
+                  <span className="text-zinc-500">Toplam:</span>
+                  <span className="text-white font-bold ml-2">{proxies.length}</span>
+                </div>
+                <div>
+                  <span className="text-zinc-500">Aktif:</span>
+                  <span className="text-emerald-400 font-bold ml-2">{proxies.filter(p => p.is_active).length}</span>
+                </div>
+                <div>
+                  <span className="text-zinc-500">Deaktif:</span>
+                  <span className="text-red-400 font-bold ml-2">{proxies.filter(p => !p.is_active).length}</span>
+                </div>
+                <div>
+                  <span className="text-zinc-500">Ort. Yanit:</span>
+                  <span className="text-white font-bold ml-2">
+                    {proxies.filter(p => p.avg_response_ms).length > 0
+                      ? Math.round(proxies.filter(p => p.avg_response_ms).reduce((a, b) => a + (b.avg_response_ms || 0), 0) / proxies.filter(p => p.avg_response_ms).length)
+                      : "-"} ms
+                  </span>
+                </div>
+              </div>
             </div>
           )}
         </div>

@@ -154,8 +154,12 @@ class Settings(BaseSettings):
     FACE_INDEX_EMBEDDING_VERSION: int = 1
     FACE_INDEX_WORKER_BATCH_SIZE: int = 50
     FACE_INDEX_MAX_FACES_PER_IMAGE: int = 10
-    GOOGLE_CUSTOM_SEARCH_API_KEY: Optional[str] = None
-    GOOGLE_CUSTOM_SEARCH_CX: Optional[str] = None
+    # Proxy System
+    FACE_INDEX_PROXY_ENABLED: bool = True
+    FACE_INDEX_PROXY_ROTATION: str = "round_robin"  # round_robin | random | least_fail
+    FACE_INDEX_PROXY_TIMEOUT: int = 15
+    FACE_INDEX_PROXY_MAX_FAILS: int = 10
+    FACE_INDEX_PROXY_HEALTH_INTERVAL: int = 300
 
     # Google Cloud Vision
     GOOGLE_CLOUD_VISION_API_KEY: Optional[str] = None
