@@ -919,3 +919,79 @@ def admin_create_notification(request: Request, payload: dict[str, Any], db: Ses
     db.commit()
     db.refresh(n)
     return {"id": n.id, "status": "sent"}
+
+
+# --- Blog Auto-Generation ---
+
+@router.post("/blog/auto-generate")
+async def admin_blog_auto_generate(request: Request, db: Session = Depends(get_db)):
+    """Manually trigger blog auto-generation."""
+    _require_admin_key(request)
+    payload = await request.json()
+    locale = str(payload.get("locale", "tr")).strip()[:5]
+    count = min(int(payload.get("count", 5)), 20)
+
+    from app.services.blog_generator import get_blog_generator
+    generator = get_blog_generator()
+    result = await generator.run_generation_cycle(db, locale=locale, count=count)
+
+    _audit(db=db, request=request, action="blog.auto_generate", resource_type="blog", resource_id="auto",
+           meta={"locale": locale, "count": count, "result": result})
+
+    return {"status": "ok", **result}
+
+
+@router.get("/blog/auto-status")
+def admin_blog_auto_status(request: Request, db: Session = Depends(get_db)):
+    """Get blog auto-generation status."""
+    _require_admin_key(request)
+    from app.core.config import settings as cfg
+
+    today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+    today_count = db.query(BlogPost).filter(
+        BlogPost.author_name == "FaceSeek AI",
+        BlogPost.created_at >= today_start,
+    ).count()
+
+    total_ai = db.query(BlogPost).filter(BlogPost.author_name == "FaceSeek AI").count()
+    total_all = db.query(BlogPost).count()
+
+    return {
+        "enabled": bool(getattr(cfg, "BLOG_AUTO_ENABLED", True)),
+        "daily_count": int(getattr(cfg, "BLOG_AUTO_COUNT", 5)),
+        "schedule": str(getattr(cfg, "BLOG_AUTO_SCHEDULE", "03:00")),
+        "locales": str(getattr(cfg, "BLOG_AUTO_LOCALES", "tr,en")),
+        "today_generated": today_count,
+        "total_ai_posts": total_ai,
+        "total_posts": total_all,
+    }
+
+
+@router.get("/blog/seo-keywords")
+def admin_get_seo_keywords(request: Request, locale: str = "tr", db: Session = Depends(get_db)):
+    """Get SEO keywords for blog generation."""
+    _require_admin_key(request)
+    from app.services.blog_generator import get_blog_generator
+    generator = get_blog_generator()
+    keywords = generator.get_seo_keywords(db, locale)
+    return {"locale": locale, "keywords": keywords}
+
+
+@router.put("/blog/seo-keywords")
+async def admin_update_seo_keywords(request: Request, db: Session = Depends(get_db)):
+    """Update SEO keywords for blog generation."""
+    _require_admin_key(request)
+    payload = await request.json()
+    locale = str(payload.get("locale", "tr")).strip()[:5]
+    keywords = payload.get("keywords", [])
+    if not isinstance(keywords, list):
+        raise HTTPException(status_code=400, detail="keywords must be a list")
+
+    from app.services.blog_generator import get_blog_generator
+    generator = get_blog_generator()
+    generator.save_seo_keywords(db, locale, keywords)
+
+    _audit(db=db, request=request, action="blog.seo_keywords.update", resource_type="blog",
+           resource_id=locale, meta={"count": len(keywords)})
+
+    return {"status": "ok", "locale": locale, "count": len(keywords)}

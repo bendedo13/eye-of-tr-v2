@@ -52,16 +52,15 @@ class ReferralService:
         
         logger.info(f"Referral processed: {referrer.email} referred {new_user.email}")
         
-        # 3 referral = 1 kredi kontrolü
+        # 3 referral = 1 detaylı + 2 normal arama = 4 kredi
         if referrer.referral_count % 3 == 0:
-            CreditService.add_credits(referrer, db, 1, "referral_reward")
-            
-            # Referral log'u güncelle
+            CreditService.add_credits(referrer, db, 4, "referral_reward")
+
             referral_log.reward_given = True
-            referral_log.credits_awarded = 1
+            referral_log.credits_awarded = 4
             db.commit()
-            
-            logger.info(f"Referral reward: {referrer.email} earned 1 credit (total referrals: {referrer.referral_count})")
+
+            logger.info(f"Referral reward: {referrer.email} earned 4 credits (total referrals: {referrer.referral_count})")
         
         return True
     

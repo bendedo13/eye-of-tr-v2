@@ -81,24 +81,36 @@ async def lemonsqueezy_webhook(
         # Update User Tier and Credits
         plan = next((p for p in PRICING_PLANS if p["id"] == plan_id), None)
         if plan:
-            if plan["id"] == "unlimited":
+            tier = plan.get("tier", "free")
+            if plan["id"].startswith("unlimited") or tier == "unlimited":
                 user.tier = "unlimited"
                 user.credits = 999999
-            else:
-                user.tier = "premium"
+            elif plan["id"].startswith("pro") or tier == "pro":
+                user.tier = "pro"
                 user.credits += plan.get("credits", 0)
-        
+            elif plan["id"].startswith("basic") or tier == "basic":
+                user.tier = "basic"
+                user.credits += plan.get("credits", 0)
+            else:
+                user.credits += plan.get("credits", 0)
+
+            plan_name_val = plan.get("name", plan_id)
+            if isinstance(plan_name_val, dict):
+                plan_name_val = plan_name_val.get("tr", plan_name_val.get("en", plan_id))
+        else:
+            plan_name_val = plan_id
+
         # Log to Subscription table
         subscription = Subscription(
             user_id=user.id,
-            plan_name=plan["name"] if plan else plan_id,
+            plan_name=str(plan_name_val),
             plan_price=payment.amount,
             is_active=True,
             start_date=datetime.utcnow()
         )
         db.add(subscription)
-        
+
         db.commit()
-        logger.info(f"✅ Webhook processed: Payment {payment.id} completed. User {user.email} updated to {user.tier}.")
+        logger.info(f"Webhook processed: Payment {payment.id} completed. User {user.email} -> {user.tier}.")
     
     return {"status": "success"}

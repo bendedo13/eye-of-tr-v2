@@ -14,7 +14,7 @@ class CreditService:
     @staticmethod
     def has_credits(user: User) -> bool:
         """Kullanıcının kredisi var mı?"""
-        return user.credits > 0 or user.tier in ["premium", "unlimited"]
+        return user.credits > 0 or user.tier in ["basic", "pro", "premium", "unlimited"]
     
     @staticmethod
     def consume_credit(user: User, db: Session, amount: int = 1) -> bool:
@@ -52,15 +52,12 @@ class CreditService:
     @staticmethod
     def award_referral_credit(user: User, db: Session) -> bool:
         """
-        3 referral = 1 ücretsiz kredi
+        3 referral = 1 detaylı + 2 normal arama = 4 kredi
         Returns: True if credit awarded
         """
-        # Her 3 referral için 1 kredi ver
-        credits_to_award = user.referral_count // 3
-        
+        credits_to_award = (user.referral_count // 3) * 4
+
         if credits_to_award > 0:
-            # Daha önce verilmemiş kredileri ver
-            # Not: Gerçek üretimde, awarded_referral_credits alanı eklenebilir
             CreditService.add_credits(user, db, credits_to_award, "referral_reward")
             logger.info(f"User {user.email} - awarded {credits_to_award} credit(s) for {user.referral_count} referrals")
             return True

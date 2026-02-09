@@ -166,6 +166,14 @@ class Settings(BaseSettings):
     GOOGLE_CLOUD_VISION_ENDPOINT: str = "https://vision.googleapis.com/v1/images:annotate"
     GOOGLE_CLOUD_VISION_TIMEOUT: int = 20
     GOOGLE_CLOUD_VISION_MAX_RESULTS: int = 5
+
+    # Blog Auto-Generation
+    BLOG_AUTO_ENABLED: bool = True
+    BLOG_AUTO_COUNT: int = 5
+    BLOG_AUTO_SCHEDULE: str = "03:00"
+    BLOG_AUTO_MIN_WORDS: int = 300
+    BLOG_AUTO_LOCALES: str = "tr,en"
+    UNSPLASH_ACCESS_KEY: Optional[str] = None
     
     @property
     def cors_origins_list(self):

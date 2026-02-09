@@ -364,3 +364,21 @@ export function adminFaceIndexTestProxies(adminKey: string) {
 export function adminFaceIndexImportProxies(adminKey: string, payload: { proxies: string; proxy_type: string }) {
   return adminFetch<any>("/admin/face-index/proxies/import", { method: "POST", body: JSON.stringify(payload), adminKey });
 }
+
+// --- Blog Auto-Generation ---
+
+export function adminTriggerBlogGeneration(adminKey: string, payload: { locale: string; count: number }) {
+  return adminFetch<any>("/admin/blog/auto-generate", { method: "POST", body: JSON.stringify(payload), adminKey });
+}
+
+export function adminGetBlogAutoStatus(adminKey: string) {
+  return adminFetch<any>("/admin/blog/auto-status", { method: "GET", adminKey });
+}
+
+export function adminGetSeoKeywords(adminKey: string, locale: string = "tr") {
+  return adminFetch<any>(`/admin/blog/seo-keywords?locale=${locale}`, { method: "GET", adminKey });
+}
+
+export function adminUpdateSeoKeywords(adminKey: string, payload: { locale: string; keywords: string[] }) {
+  return adminFetch<any>("/admin/blog/seo-keywords", { method: "PUT", body: JSON.stringify(payload), adminKey });
+}

@@ -188,13 +188,17 @@ export async function getLiveStats() {
   return { total_searches: 0, active_users: 0 };
 }
 
-export async function getPricingPlans() {
-  const data = await api.get<any>("/pricing/plans");
+export async function getPricingPlans(locale: string = "tr", currency: string = "TRY") {
+  const data = await api.get<any>("/pricing/plans", { params: { locale, currency } });
   return data.plans;
 }
 
-export async function subscribe(token: string, planId: string) {
-  return api.post<any>("/pricing/subscribe", { plan_id: planId }, { token });
+export async function getPricingPlansGrouped(locale: string = "tr", currency: string = "TRY") {
+  return api.get<any>("/pricing/plans-grouped", { params: { locale, currency } });
+}
+
+export async function subscribe(token: string, planId: string, currency: string = "TRY") {
+  return api.post<any>("/pricing/subscribe", { plan_id: planId, currency }, { token });
 }
 
 export async function requestBankTransfer(
