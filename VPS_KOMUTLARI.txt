@@ -1,0 +1,54 @@
+==============================================
+VPS DEPLOYMENT KOMUTLARI
+==============================================
+
+1. VPS'E BAĞLAN:
+   ssh root@46.4.123.77
+   Şifre: Benalan.1
+
+2. PROJE DİZİNİNE GİT:
+   cd /opt/faceseek/frontend
+
+3. GIT GÜNCELLEMELERİNİ ÇEK:
+   git fetch origin
+   git pull origin main
+
+4. ESKİ BUILD'İ TEMİZLE:
+   rm -rf .next
+
+5. YENİ BUILD OLUŞTUR:
+   npm run build
+
+6. FRONTEND SERVİSİNİ YENİDEN BAŞLAT:
+   systemctl restart faceseek-frontend
+
+7. SERVİS DURUMUNU KONTROL ET:
+   systemctl status faceseek-frontend --no-pager -n 10
+
+8. LOGLARI KONTROL ET (opsiyonel):
+   journalctl -u faceseek-frontend -n 50 --no-pager
+
+==============================================
+TEST URL'LERİ
+==============================================
+
+Login:      https://face-seek.com/tr/admin/login
+Dashboard:  https://face-seek.com/tr/admin
+Users:      https://face-seek.com/tr/admin/users
+Payments:   https://face-seek.com/tr/admin/payments
+
+==============================================
+BEKLENTİLER
+==============================================
+
+Build çıktısında şunları görmelisiniz:
+  ● /[locale]/admin
+  ● /[locale]/admin/login
+  ● /[locale]/admin/users
+
+EĞER şunları görüyorsanız SORUN VAR:
+  ○ /admin
+  ○ /admin/login
+  ○ /admin/users
+
+==============================================
