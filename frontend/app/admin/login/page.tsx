@@ -21,7 +21,7 @@ export default function AdminLoginPage() {
 
     try {
       await adminPing(password);
-      localStorage.setItem("admin", JSON.stringify({ email, name: "Admin" }));
+      localStorage.setItem("admin", JSON.stringify({ email, key: password, name: "Admin" }));
       localStorage.setItem("adminKey", password);
       router.push("/admin");
     } catch (err: any) {
