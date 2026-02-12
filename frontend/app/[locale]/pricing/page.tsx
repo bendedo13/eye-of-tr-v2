@@ -284,12 +284,14 @@ export default function PricingPage({ params }: PricingPageProps) {
   };
 
   const getPrice = (plan: PricingPlan): number => {
-    return isTR ? plan.price_try : plan.price_usd;
+    if (!plan) return 0;
+    const price = isTR ? plan.price_try : plan.price_usd;
+    return typeof price === "number" && !isNaN(price) ? price : 0;
   };
 
   const formatPrice = (plan: PricingPlan): string => {
     const price = getPrice(plan);
-    if (price === 0) return isTR ? "0 TL" : "$0";
+    if (!price || price === 0) return isTR ? "0 TL" : "$0";
     if (isTR) return `${price.toLocaleString("tr-TR")} TL`;
     return `$${price.toLocaleString("en-US")}`;
   };
