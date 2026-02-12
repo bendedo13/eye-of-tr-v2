@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import { createGuestBankInquiry, getPricingPlansGrouped, requestBankTransfer, subscribe } from "@/lib/api";
 import Navbar from "@/components/Navbar";
 import ClientOnly from "@/components/ClientOnly";
-import { use } from "react";
 
 interface PricingPlan {
   id: string;
@@ -26,12 +25,12 @@ interface PricingPlan {
   tier?: string;
 }
 
-export default function PricingPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = use(params) as { locale: string };
+interface PricingPageProps {
+  params: { locale: string };
+}
+
+export default function PricingPage({ params }: PricingPageProps) {
+  const locale = params.locale || "tr";
   const { user, token } = useAuth();
   const router = useRouter();
 
