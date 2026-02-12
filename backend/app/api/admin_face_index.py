@@ -334,3 +334,29 @@ def import_proxies(request: Request, body: ProxyImport, db: Session = Depends(ge
     get_proxy_manager().invalidate_cache()
 
     return {"status": "imported", "added": added, "skipped": skipped, "total_lines": len(lines)}
+
+
+@router.post("/proxies/reactivate")
+def reactivate_proxies(request: Request, db: Session = Depends(get_db)):
+    _require_admin_key(request)
+    from app.modules.face_index.proxy_manager import get_proxy_manager
+    pm = get_proxy_manager()
+    count = pm.reactivate_all(db)
+    return {"status": "reactivated", "count": count}
+
+
+@router.patch("/proxies/{proxy_id}/toggle")
+def toggle_proxy(proxy_id: int, request: Request, db: Session = Depends(get_db)):
+    _require_admin_key(request)
+    proxy = db.query(ProxyServer).filter(ProxyServer.id == proxy_id).first()
+    if not proxy:
+        raise HTTPException(status_code=404, detail="Proxy not found")
+    proxy.is_active = not proxy.is_active
+    if proxy.is_active:
+        proxy.fail_count = 0
+    db.commit()
+
+    from app.modules.face_index.proxy_manager import get_proxy_manager
+    get_proxy_manager().invalidate_cache()
+
+    return {"status": "toggled", "proxy_id": proxy_id, "is_active": proxy.is_active}

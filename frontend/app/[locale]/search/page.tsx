@@ -72,7 +72,8 @@ export default function SearchPage({
 }: {
   params: Promise<{ locale: string }>;
 }) {
-  const { locale } = use(params);
+  const { locale } = use(params) as { locale: string };
+  const isTR = locale === "tr";
   const { user, token, mounted, loading } = useAuth();
   const router = useRouter();
   const tSearch = useTranslations("search");
@@ -273,11 +274,10 @@ export default function SearchPage({
                   onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                   onDragLeave={() => setDragOver(false)}
                   onDrop={handleDrop}
-                  className={`flex flex-col items-center justify-center border-2 border-dashed rounded-[40px] p-20 transition-all cursor-pointer group ${
-                    dragOver
-                      ? "border-primary/60 bg-primary/10"
-                      : "border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-primary/40"
-                  }`}
+                  className={`flex flex-col items-center justify-center border-2 border-dashed rounded-[40px] p-20 transition-all cursor-pointer group ${dragOver
+                    ? "border-primary/60 bg-primary/10"
+                    : "border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-primary/40"
+                    }`}
                 >
                   <div className="w-20 h-20 bg-primary/20 rounded-[28px] flex items-center justify-center text-primary mb-6 shadow-2xl shadow-primary/20 transform group-hover:scale-110 group-hover:rotate-6 transition-transform">
                     <Upload size={36} />
@@ -458,13 +458,15 @@ export default function SearchPage({
                           <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-zinc-500 group-hover:text-primary transition-colors">
                             {match.platform === "google" ? (
                               <Globe size={24} />
+                            ) : match.platform === "local_crew" ? (
+                              <Target size={24} className="text-primary" />
                             ) : (
                               <Search size={24} />
                             )}
                           </div>
                           <div className="text-right">
                             <div className="text-2xl font-black text-white tracking-tighter">
-                              {Math.round(match.confidence || 0)}%
+                              {Math.round(match.confidence * 100 || 0)}%
                             </div>
                             <div className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">
                               {tSearch("confidence")}
@@ -492,9 +494,11 @@ export default function SearchPage({
                             </h3>
                             <p className="text-primary text-[10px] font-black uppercase tracking-widest mt-1">
                               {tSearch("source")}:{" "}
-                              {match.platform
-                                ? match.platform.toUpperCase()
-                                : "WEB"}
+                              {match.platform === "local_crew"
+                                ? isTR ? "YEREL VERI" : "LOCAL CREW"
+                                : match.platform
+                                  ? match.platform.toUpperCase()
+                                  : "WEB"}
                             </p>
                             {match.metadata?.description && (
                               <p className="text-zinc-400 text-xs mt-2 line-clamp-3">

@@ -23,6 +23,7 @@ interface PricingPlan {
   is_one_time?: boolean;
   billing_period?: string;
   discount_pct?: number;
+  tier?: string;
 }
 
 export default function PricingPage({
@@ -30,7 +31,7 @@ export default function PricingPage({
 }: {
   params: Promise<{ locale: string }>;
 }) {
-  const { locale } = use(params);
+  const { locale } = use(params) as { locale: string };
   const { user, token } = useAuth();
   const router = useRouter();
 
@@ -39,123 +40,123 @@ export default function PricingPage({
 
   const t: Record<string, string> = isTR
     ? {
-        title: "Fiyatlandirma",
-        subtitle: "Ihtiyaciniza uygun plani secin",
-        monthly: "Aylik",
-        yearly: "Yillik",
-        yearlySave: "%19 indirim - sinirli sure",
-        perMonth: "/ay",
-        perYear: "/yil",
-        popular: "En Populer",
-        getStarted: "Baslayın",
-        subscribe: "Abone Ol",
-        currentPlan: "Mevcut Plan",
-        creditPack: "Kredi Paketi",
-        creditPackDesc: "Abonelik olmadan tek seferlik satin alin",
-        buyCredits: "Kredi Satin Al",
-        normalSearch: "Normal Arama",
-        detailedSearch: "Detayli Arama",
-        locationSearch: "Konum Tespiti",
-        dailyLimit: "Gunluk Limit",
-        support: "Destek",
-        apiAccess: "API Erisimi",
-        commercialUse: "Ticari Kullanim",
-        noBlur: "Blur Yok",
-        bankTransfer: "Havale / EFT / FAST",
-        cardPayment: "Kredi Karti",
-        referralBanner: "3 kisi davet et, 1 detayli + 2 normal arama kazan!",
-        free: "Ucretsiz Deneme",
-        freeDesc: "1 ucretsiz arama hakki",
-        processing: "Isleniyor...",
-        loginRequired: "Giris Yap",
-        bankInfo: "Banka Bilgileri",
-        bankDesc: "Odemeyi yaptiktan sonra asagidaki formdan talep gonderin.",
-        sendTransfer: "Gonderdim",
-        hideForm: "Formu Gizle",
-        purchaseType: "Satin Alma Turu",
-        plan: "Plan",
-        credit: "Kredi",
-        selectPlan: "Plan seciniz",
-        creditAmount: "Kredi Miktari",
-        paymentAmount: "Odeme Tutari (TRY)",
-        note: "Aciklama (Opsiyonel)",
-        send: "GONDER",
-        sending: "Gonderiliyor...",
-        guestTitle: "Havale / EFT Bilgileri",
-        guestDesc: "Bilgileri gormek icin kayit olmaniz gerekir.",
-        contact: "Iletisim",
-        name: "Ad Soyad",
-        email: "E-posta",
-        phone: "Telefon",
-        desiredPlan: "Istenen Paket",
-        message: "Mesaj",
-        unlimited: "Sinirsiz",
-        perDay: "/gun",
-        contactUs: "Bize Ulasin",
-        questions: "Sorulariniz mi var?",
-        copyIban: "IBAN Kopyala",
-        copied: "Kopyalandi",
-        noSubscription: "Abonelik gerektirmez",
-      }
+      title: "Fiyatlandirma",
+      subtitle: "Ihtiyaciniza uygun plani secin",
+      monthly: "Aylik",
+      yearly: "Yillik",
+      yearlySave: "%19 indirim - sinirli sure",
+      perMonth: "/ay",
+      perYear: "/yil",
+      popular: "En Populer",
+      getStarted: "Baslayın",
+      subscribe: "Abone Ol",
+      currentPlan: "Mevcut Plan",
+      creditPack: "Kredi Paketi",
+      creditPackDesc: "Abonelik olmadan tek seferlik satin alin",
+      buyCredits: "Kredi Satin Al",
+      normalSearch: "Normal Arama",
+      detailedSearch: "Detayli Arama",
+      locationSearch: "Konum Tespiti",
+      dailyLimit: "Gunluk Limit",
+      support: "Destek",
+      apiAccess: "API Erisimi",
+      commercialUse: "Ticari Kullanim",
+      noBlur: "Blur Yok",
+      bankTransfer: "Havale / EFT / FAST",
+      cardPayment: "Kredi Karti",
+      referralBanner: "3 kisi davet et, 1 detayli + 2 normal arama kazan!",
+      free: "Ucretsiz Deneme",
+      freeDesc: "1 ucretsiz arama hakki",
+      processing: "Isleniyor...",
+      loginRequired: "Giris Yap",
+      bankInfo: "Banka Bilgileri",
+      bankDesc: "Odemeyi yaptiktan sonra asagidaki formdan talep gonderin.",
+      sendTransfer: "Gonderdim",
+      hideForm: "Formu Gizle",
+      purchaseType: "Satin Alma Turu",
+      plan: "Plan",
+      credit: "Kredi",
+      selectPlan: "Plan seciniz",
+      creditAmount: "Kredi Miktari",
+      paymentAmount: "Odeme Tutari (TRY)",
+      note: "Aciklama (Opsiyonel)",
+      send: "GONDER",
+      sending: "Gonderiliyor...",
+      guestTitle: "Havale / EFT Bilgileri",
+      guestDesc: "Bilgileri gormek icin kayit olmaniz gerekir.",
+      contact: "Iletisim",
+      name: "Ad Soyad",
+      email: "E-posta",
+      phone: "Telefon",
+      desiredPlan: "Istenen Paket",
+      message: "Mesaj",
+      unlimited: "Sinirsiz",
+      perDay: "/gun",
+      contactUs: "Bize Ulasin",
+      questions: "Sorulariniz mi var?",
+      copyIban: "IBAN Kopyala",
+      copied: "Kopyalandi",
+      noSubscription: "Abonelik gerektirmez",
+    }
     : {
-        title: "Pricing",
-        subtitle: "Choose the plan that fits your needs",
-        monthly: "Monthly",
-        yearly: "Yearly",
-        yearlySave: "19% off - limited time",
-        perMonth: "/mo",
-        perYear: "/yr",
-        popular: "Most Popular",
-        getStarted: "Get Started",
-        subscribe: "Subscribe",
-        currentPlan: "Current Plan",
-        creditPack: "Credit Pack",
-        creditPackDesc: "One-time purchase, no subscription needed",
-        buyCredits: "Buy Credits",
-        normalSearch: "Normal Search",
-        detailedSearch: "Detailed Search",
-        locationSearch: "Location Intel",
-        dailyLimit: "Daily Limit",
-        support: "Support",
-        apiAccess: "API Access",
-        commercialUse: "Commercial Use",
-        noBlur: "No Blur",
-        bankTransfer: "Bank Transfer",
-        cardPayment: "Credit Card",
-        referralBanner: "Invite 3 friends, earn 1 detailed + 2 normal searches!",
-        free: "Free Trial",
-        freeDesc: "1 free search included",
-        processing: "Processing...",
-        loginRequired: "Login",
-        bankInfo: "Bank Details",
-        bankDesc: "After making the payment, submit a request via the form below.",
-        sendTransfer: "I Sent It",
-        hideForm: "Hide Form",
-        purchaseType: "Purchase Type",
-        plan: "Plan",
-        credit: "Credit",
-        selectPlan: "Select a plan",
-        creditAmount: "Credit Amount",
-        paymentAmount: "Payment Amount (TRY)",
-        note: "Note (Optional)",
-        send: "SEND",
-        sending: "Sending...",
-        guestTitle: "Bank Transfer Info",
-        guestDesc: "Please register to see bank details.",
-        contact: "Contact",
-        name: "Full Name",
-        email: "Email",
-        phone: "Phone",
-        desiredPlan: "Desired Plan",
-        message: "Message",
-        unlimited: "Unlimited",
-        perDay: "/day",
-        contactUs: "Contact Us",
-        questions: "Have questions?",
-        copyIban: "Copy IBAN",
-        copied: "Copied",
-        noSubscription: "No subscription needed",
-      };
+      title: "Pricing",
+      subtitle: "Choose the plan that fits your needs",
+      monthly: "Monthly",
+      yearly: "Yearly",
+      yearlySave: "19% off - limited time",
+      perMonth: "/mo",
+      perYear: "/yr",
+      popular: "Most Popular",
+      getStarted: "Get Started",
+      subscribe: "Subscribe",
+      currentPlan: "Current Plan",
+      creditPack: "Credit Pack",
+      creditPackDesc: "One-time purchase, no subscription needed",
+      buyCredits: "Buy Credits",
+      normalSearch: "Normal Search",
+      detailedSearch: "Detailed Search",
+      locationSearch: "Location Intel",
+      dailyLimit: "Daily Limit",
+      support: "Support",
+      apiAccess: "API Access",
+      commercialUse: "Commercial Use",
+      noBlur: "No Blur",
+      bankTransfer: "Bank Transfer",
+      cardPayment: "Credit Card",
+      referralBanner: "Invite 3 friends, earn 1 detailed + 2 normal searches!",
+      free: "Free Trial",
+      freeDesc: "1 free search included",
+      processing: "Processing...",
+      loginRequired: "Login",
+      bankInfo: "Bank Details",
+      bankDesc: "After making the payment, submit a request via the form below.",
+      sendTransfer: "I Sent It",
+      hideForm: "Hide Form",
+      purchaseType: "Purchase Type",
+      plan: "Plan",
+      credit: "Credit",
+      selectPlan: "Select a plan",
+      creditAmount: "Credit Amount",
+      paymentAmount: "Payment Amount (TRY)",
+      note: "Note (Optional)",
+      send: "SEND",
+      sending: "Sending...",
+      guestTitle: "Bank Transfer Info",
+      guestDesc: "Please register to see bank details.",
+      contact: "Contact",
+      name: "Full Name",
+      email: "Email",
+      phone: "Phone",
+      desiredPlan: "Desired Plan",
+      message: "Message",
+      unlimited: "Unlimited",
+      perDay: "/day",
+      contactUs: "Contact Us",
+      questions: "Have questions?",
+      copyIban: "Copy IBAN",
+      copied: "Copied",
+      noSubscription: "No subscription needed",
+    };
 
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">("monthly");
   const [monthlyPlans, setMonthlyPlans] = useState<PricingPlan[]>([]);
@@ -197,19 +198,23 @@ export default function PricingPage({
   const fetchPlans = async () => {
     try {
       const data: any = await getPricingPlansGrouped(locale, currency);
-      setMonthlyPlans(
-        (data.monthly || []).filter((p: PricingPlan) => p.id !== "free")
-      );
-      setYearlyPlans(data.yearly || []);
-      if (data.one_time && data.one_time.length > 0) {
-        setCreditPack(data.one_time[0]);
+      if (data) {
+        setMonthlyPlans(
+          (data.monthly || []).filter((p: PricingPlan) => p && p.id !== "free")
+        );
+        setYearlyPlans(data.yearly || []);
+        if (data.one_time && data.one_time.length > 0) {
+          setCreditPack(data.one_time[0]);
+        }
       }
-    } catch {
+    } catch (err) {
+      console.error("Fetch plans failed:", err);
       // Fallback plans
-      setMonthlyPlans([
+      const fallbacks: PricingPlan[] = [
         {
           id: "basic_monthly",
           name: { tr: "Basic Aylik", en: "Basic Monthly" },
+          tier: "basic",
           price_try: 139,
           price_usd: 9.99,
           credits: 11,
@@ -225,6 +230,7 @@ export default function PricingPage({
         {
           id: "pro_monthly",
           name: { tr: "Pro Aylik", en: "Pro Monthly" },
+          tier: "pro",
           price_try: 399,
           price_usd: 24.99,
           credits: 55,
@@ -241,6 +247,7 @@ export default function PricingPage({
         {
           id: "unlimited_monthly",
           name: { tr: "Sinirsiz Aylik", en: "Unlimited Monthly" },
+          tier: "unlimited",
           price_try: 3999,
           price_usd: 199,
           credits: 999999,
@@ -253,13 +260,15 @@ export default function PricingPage({
             en: ["Unlimited searches", "20 searches/day", "24/7 VIP support", "API access"],
           },
         },
-      ]);
+      ];
+      setMonthlyPlans(fallbacks);
     } finally {
       setLoadingPlans(false);
     }
   };
 
   const getPlanName = (name: any): string => {
+    if (!name) return "Plan";
     if (typeof name === "string") return name;
     if (name?.[locale]) return name[locale];
     if (name?.tr) return name.tr;
@@ -432,21 +441,19 @@ export default function PricingPage({
             <div className="flex flex-col sm:flex-row gap-4 bg-slate-800/60 border border-slate-700 rounded-2xl p-2">
               <button
                 onClick={() => setPaymentMethod("card")}
-                className={`flex-1 py-3 rounded-xl font-bold transition-all ${
-                  paymentMethod === "card"
-                    ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white"
-                    : "bg-slate-700 text-slate-200 hover:bg-slate-600"
-                }`}
+                className={`flex-1 py-3 rounded-xl font-bold transition-all ${paymentMethod === "card"
+                  ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white"
+                  : "bg-slate-700 text-slate-200 hover:bg-slate-600"
+                  }`}
               >
                 {t.cardPayment}
               </button>
               <button
                 onClick={() => setPaymentMethod("bank")}
-                className={`flex-1 py-3 rounded-xl font-bold transition-all ${
-                  paymentMethod === "bank"
-                    ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white"
-                    : "bg-slate-700 text-slate-200 hover:bg-slate-600"
-                }`}
+                className={`flex-1 py-3 rounded-xl font-bold transition-all ${paymentMethod === "bank"
+                  ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white"
+                  : "bg-slate-700 text-slate-200 hover:bg-slate-600"
+                  }`}
               >
                 {t.bankTransfer}
               </button>
@@ -504,17 +511,15 @@ export default function PricingPage({
                         <div className="flex gap-3">
                           <button
                             onClick={() => setBankPurchaseType("plan")}
-                            className={`flex-1 py-2 rounded-lg font-bold ${
-                              bankPurchaseType === "plan" ? "bg-indigo-600 text-white" : "bg-slate-700 text-slate-200"
-                            }`}
+                            className={`flex-1 py-2 rounded-lg font-bold ${bankPurchaseType === "plan" ? "bg-indigo-600 text-white" : "bg-slate-700 text-slate-200"
+                              }`}
                           >
                             {t.plan}
                           </button>
                           <button
                             onClick={() => setBankPurchaseType("credits")}
-                            className={`flex-1 py-2 rounded-lg font-bold ${
-                              bankPurchaseType === "credits" ? "bg-indigo-600 text-white" : "bg-slate-700 text-slate-200"
-                            }`}
+                            className={`flex-1 py-2 rounded-lg font-bold ${bankPurchaseType === "credits" ? "bg-indigo-600 text-white" : "bg-slate-700 text-slate-200"
+                              }`}
                           >
                             {t.credit}
                           </button>
@@ -671,21 +676,19 @@ export default function PricingPage({
                 <div className="bg-slate-800/60 border border-slate-700 rounded-2xl p-1.5 flex gap-1 items-center">
                   <button
                     onClick={() => setBillingPeriod("monthly")}
-                    className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all ${
-                      billingPeriod === "monthly"
-                        ? "bg-indigo-600 text-white shadow-lg"
-                        : "text-slate-400 hover:text-white"
-                    }`}
+                    className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all ${billingPeriod === "monthly"
+                      ? "bg-indigo-600 text-white shadow-lg"
+                      : "text-slate-400 hover:text-white"
+                      }`}
                   >
                     {t.monthly}
                   </button>
                   <button
                     onClick={() => setBillingPeriod("yearly")}
-                    className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${
-                      billingPeriod === "yearly"
-                        ? "bg-indigo-600 text-white shadow-lg"
-                        : "text-slate-400 hover:text-white"
-                    }`}
+                    className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${billingPeriod === "yearly"
+                      ? "bg-indigo-600 text-white shadow-lg"
+                      : "text-slate-400 hover:text-white"
+                      }`}
                   >
                     {t.yearly}
                     <span className="bg-emerald-500/20 text-emerald-400 text-xs px-2 py-0.5 rounded-full">
@@ -722,11 +725,10 @@ export default function PricingPage({
                   return (
                     <div
                       key={plan.id}
-                      className={`relative bg-slate-800 rounded-2xl p-6 border transition-all hover:scale-[1.02] ${
-                        isPro
-                          ? "border-indigo-500 shadow-lg shadow-indigo-500/20 ring-1 ring-indigo-500/30"
-                          : "border-slate-700"
-                      }`}
+                      className={`relative bg-slate-800 rounded-2xl p-6 border transition-all hover:scale-[1.02] ${isPro
+                        ? "border-indigo-500 shadow-lg shadow-indigo-500/20 ring-1 ring-indigo-500/30"
+                        : "border-slate-700"
+                        }`}
                     >
                       {isPro && (
                         <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-xs font-bold px-4 py-1 rounded-full">
@@ -793,11 +795,10 @@ export default function PricingPage({
                       <button
                         onClick={() => handleSubscribe(plan.id)}
                         disabled={processingPlan === plan.id}
-                        className={`w-full py-3 rounded-xl font-bold transition-all disabled:opacity-50 ${
-                          isPro
-                            ? "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white"
-                            : "bg-slate-700 hover:bg-slate-600 text-white"
-                        }`}
+                        className={`w-full py-3 rounded-xl font-bold transition-all disabled:opacity-50 ${isPro
+                          ? "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white"
+                          : "bg-slate-700 hover:bg-slate-600 text-white"
+                          }`}
                       >
                         {processingPlan === plan.id ? t.processing : t.subscribe}
                       </button>

@@ -365,6 +365,14 @@ export function adminFaceIndexImportProxies(adminKey: string, payload: { proxies
   return adminFetch<any>("/admin/face-index/proxies/import", { method: "POST", body: JSON.stringify(payload), adminKey });
 }
 
+export function adminFaceIndexReactivateProxies(adminKey: string) {
+  return adminFetch<any>("/admin/face-index/proxies/reactivate", { method: "POST", adminKey });
+}
+
+export function adminFaceIndexToggleProxy(adminKey: string, proxyId: number) {
+  return adminFetch<any>(`/admin/face-index/proxies/${proxyId}/toggle`, { method: "PATCH", adminKey });
+}
+
 // --- Blog Auto-Generation ---
 
 export function adminTriggerBlogGeneration(adminKey: string, payload: { locale: string; count: number }) {

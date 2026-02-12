@@ -114,6 +114,19 @@ class ProxyManager:
         self._last_load = 0.0
         self._proxies = []
 
+    def reactivate_all(self, db: Session) -> int:
+        """Reactivate all inactive proxies."""
+        rows = db.query(ProxyServer).filter(ProxyServer.is_active == False).all()
+        count = 0
+        for row in rows:
+            row.is_active = True
+            row.fail_count = 0
+            row.last_check_ok = None
+            count += 1
+        db.commit()
+        self.invalidate_cache()
+        return count
+
 
 async def health_check_all(db: Session) -> Dict[str, int]:
     """Test all active proxies and update their status."""
@@ -154,6 +167,13 @@ async def health_check_all(db: Session) -> Dict[str, int]:
 
     db.commit()
     return {"ok": ok_count, "failed": fail_count, "total": ok_count + fail_count}
+
+
+async def reactivate_all_proxies(db: Session) -> Dict[str, int]:
+    """Reactivate all inactive proxies."""
+    manager = get_proxy_manager()
+    count = manager.reactivate_all(db)
+    return {"reactivated": count}
 
 
 # Singleton

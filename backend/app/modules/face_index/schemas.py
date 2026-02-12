@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 # ---------- Source ----------
 class SourceCreate(BaseModel):
     name: str = Field(..., max_length=200)
-    kind: str = Field(..., pattern="^(website|open_dataset|news|archive|upload|instagram|twitter|facebook)$")
+    kind: str = Field(..., pattern="^(website|open_dataset|news|archive|upload|instagram|twitter|facebook|tiktok)$")
     base_url: str = Field(..., max_length=2048)
     is_enabled: bool = True
     crawl_config_json: str = "{}"

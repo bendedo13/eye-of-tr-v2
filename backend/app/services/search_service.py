@@ -14,6 +14,7 @@ from app.adapters.facecheck_adapter import get_facecheck_adapter
 from app.adapters.yandex_reverse_adapter import get_yandex_reverse_adapter
 from app.adapters.serpapi_lens_adapter import get_serpapi_lens_adapter
 from app.adapters.rapidapi_lens_adapter import get_rapidapi_lens_adapter
+from app.adapters.face_index_adapter import get_face_index_adapter
 from app.core.config import settings
 from app.services.provider_metrics_service import provider_metrics_service
 from app.services.runtime_metrics import runtime_metrics
@@ -22,14 +23,25 @@ logger = logging.getLogger(__name__)
 
 
 class SearchService:
-    """Multi-provider yüz arama servisi - Bing, Yandex, Facecheck, EyeOfWeb"""
+    """Multi-provider yüz arama servisi - Bing, Yandex, Facecheck, EyeOfWeb, Local FaceIndex"""
     
     def __init__(self):
         self.adapters = {}
         self._result_cache: Dict[str, Dict[str, Any]] = {}
         self._result_cache_exp: Dict[str, float] = {}
-        self._reverse_image_providers = {"facecheck", "eyeofweb", "bing_visual", "yandex_reverse", "serpapi"}
+        self._reverse_image_providers = {"facecheck", "eyeofweb", "bing_visual", "yandex_reverse", "serpapi", "face_index"}
         
+        # Local FaceIndex adapter (Crew data)
+        try:
+            face_index_config = {
+                "threshold": getattr(settings, "FACE_INDEX_SIMILARITY_THRESHOLD", 0.65),
+                "top_k": getattr(settings, "FACE_INDEX_TOP_K_DEFAULT", 20)
+            }
+            self.adapters["face_index"] = get_face_index_adapter(face_index_config)
+            logger.info("✅ Local FaceIndex adapter yüklendi")
+        except Exception as e:
+            logger.warning(f"Local FaceIndex adapter yüklenemedi: {e}")
+
         # Bing adapter
         if settings.BING_API_KEY:
             if getattr(settings, "BING_VISUAL_SEARCH_ENABLED", True):
@@ -411,11 +423,11 @@ class SearchService:
         return final_result
 
     def _provider_order_for_tier(self, user_tier: str) -> List[str]:
-        # RapidAPI Lens is premium/expensive, put it towards the end or middle
-        base = ["serpapi", "eyeofweb", "facecheck", "bing_visual", "yandex_reverse", "bing", "yandex", "rapidapi_lens"]
+        # face_index (local) should always be first as it's our own data and free/fast
+        base = ["face_index", "serpapi", "eyeofweb", "facecheck", "bing_visual", "yandex_reverse", "bing", "yandex", "rapidapi_lens"]
         if str(user_tier).lower() in ("free", "basic"):
             # Free users get cheaper providers first
-            return ["serpapi", "eyeofweb", "bing_visual", "yandex_reverse", "bing", "yandex", "facecheck", "rapidapi_lens"]
+            return ["face_index", "serpapi", "eyeofweb", "bing_visual", "yandex_reverse", "bing", "yandex", "facecheck", "rapidapi_lens"]
         return base
     
     def get_available_providers(self) -> List[str]:

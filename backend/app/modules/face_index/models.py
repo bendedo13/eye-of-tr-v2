@@ -11,7 +11,7 @@ class FaceSource(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(200), nullable=False)
-    kind = Column(String(30), nullable=False)  # website|open_dataset|news|archive|upload|instagram|twitter|facebook
+    kind = Column(String(30), nullable=False)  # website|open_dataset|news|archive|upload|instagram|twitter|facebook|tiktok
     base_url = Column(String(2048), nullable=False)
     is_enabled = Column(Boolean, default=True, nullable=False)
 

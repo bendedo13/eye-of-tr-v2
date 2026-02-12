@@ -25,7 +25,7 @@ logging.basicConfig(
 logger = logging.getLogger("face_index.worker")
 
 QUEUE_KEY = "fi:job_queue"
-CONCURRENT_WORKERS = 3  # Max parallel jobs
+CONCURRENT_WORKERS = 10  # Max parallel jobs
 MAX_RETRIES = 3  # Auto-retry failed jobs
 
 
