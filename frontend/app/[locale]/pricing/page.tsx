@@ -208,11 +208,11 @@ export default function PricingPage({ params }: PricingPageProps) {
       }
     } catch (err) {
       console.error("Fetch plans failed:", err);
-      // Fallback plans
+      // Fallback plans with full search type breakdown
       const fallbacks: PricingPlan[] = [
         {
           id: "basic_monthly",
-          name: { tr: "Basic Aylik", en: "Basic Monthly" },
+          name: { tr: "Basic", en: "Basic" },
           tier: "basic",
           price_try: 139,
           price_usd: 9.99,
@@ -222,13 +222,13 @@ export default function PricingPage({ params }: PricingPageProps) {
           search_location: 0,
           daily_limit: 5,
           features: {
-            tr: ["10 normal arama", "1 detayli arama", "E-posta destek"],
+            tr: ["10 normal arama", "1 detaylı arama", "E-posta destek"],
             en: ["10 normal searches", "1 detailed search", "Email support"],
           },
         },
         {
           id: "pro_monthly",
-          name: { tr: "Pro Aylik", en: "Pro Monthly" },
+          name: { tr: "Pro", en: "Pro" },
           tier: "pro",
           price_try: 399,
           price_usd: 24.99,
@@ -239,13 +239,13 @@ export default function PricingPage({ params }: PricingPageProps) {
           daily_limit: 15,
           recommended: true,
           features: {
-            tr: ["50 normal arama", "5 detayli arama", "10 konum tespiti", "Oncelikli destek", "Blur yok"],
+            tr: ["50 normal arama", "5 detaylı arama", "10 konum tespiti", "Öncelikli destek", "Blur yok"],
             en: ["50 normal searches", "5 detailed searches", "10 location intel", "Priority support", "No blur"],
           },
         },
         {
           id: "unlimited_monthly",
-          name: { tr: "Sinirsiz Aylik", en: "Unlimited Monthly" },
+          name: { tr: "Sınırsız", en: "Unlimited" },
           tier: "unlimited",
           price_try: 3999,
           price_usd: 199,
@@ -255,7 +255,7 @@ export default function PricingPage({ params }: PricingPageProps) {
           search_location: 999999,
           daily_limit: 20,
           features: {
-            tr: ["Sinirsiz arama", "Gunluk 20 arama", "7/24 ozel destek", "API erisimi"],
+            tr: ["Sınırsız arama", "Günlük 20 arama", "7/24 özel destek", "API erişimi"],
             en: ["Unlimited searches", "20 searches/day", "24/7 VIP support", "API access"],
           },
         },
@@ -291,7 +291,7 @@ export default function PricingPage({ params }: PricingPageProps) {
     const price = getPrice(plan);
     if (price === 0) return isTR ? "0 TL" : "$0";
     if (isTR) return `${price.toLocaleString("tr-TR")} TL`;
-    return `$${price}`;
+    return `$${price.toLocaleString("en-US")}`;
   };
 
   const activePlans = billingPeriod === "monthly" ? monthlyPlans : yearlyPlans;
