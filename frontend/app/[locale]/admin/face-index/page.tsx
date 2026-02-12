@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { use } from "react";
 import {
     adminFaceIndexStatus,
     adminFaceIndexListSources,
@@ -111,8 +110,8 @@ function StatusBadge({ status }: { status: string }) {
     );
 }
 
-export default function FaceIndexPage({ params }: { params: Promise<{ locale: string }> }) {
-    const { locale } = use(params) as { locale: string };
+export default function FaceIndexPage({ params }: { params: { locale: string } }) {
+    const locale = params.locale;
     const router = useRouter();
     const [tab, setTab] = useState<Tab>("overview");
     const [loading, setLoading] = useState(true);
@@ -173,12 +172,17 @@ export default function FaceIndexPage({ params }: { params: Promise<{ locale: st
     }, [adminKey]);
 
     useEffect(() => {
-        const stored = localStorage.getItem("admin");
-        if (stored) {
-            const parsed = JSON.parse(stored);
-            setAdminKey(parsed.key);
-            fetchAll(parsed.key);
-        } else {
+        try {
+            const stored = localStorage.getItem("admin");
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                setAdminKey(parsed.key);
+                fetchAll(parsed.key);
+            } else {
+                router.push(`/${locale}/admin/login`);
+            }
+        } catch (e) {
+            console.error("Admin auth error:", e);
             router.push(`/${locale}/admin/login`);
         }
     }, []);

@@ -12,7 +12,7 @@ export class AdminAPIError extends Error {
   }
 }
 
-async function adminFetch<T>(path: string, options: RequestInit & { adminKey: string }): Promise<T> {
+async function adminFetch<T>(path: string, options: RequestInit & { adminKey: string; next?: { revalidate?: number } }): Promise<T> {
   const { adminKey, ...init } = options;
   const adminEmail =
     typeof window !== "undefined"
