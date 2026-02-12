@@ -3,6 +3,7 @@
 import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 import {
   BarChart3,
   Users,
@@ -33,10 +34,11 @@ export default function AdminLayout({
   const [checking, setChecking] = useState(true);
   const pathname = usePathname();
   const router = useRouter();
+  const locale = useLocale();
   const redirectingRef = useRef(false);
 
   useEffect(() => {
-    const isLoginRoute = pathname === "/admin/login" || pathname.startsWith("/admin/login/");
+    const isLoginRoute = pathname === `/${locale}/admin/login` || pathname.startsWith(`/${locale}/admin/login/`);
     if (isLoginRoute) {
       redirectingRef.current = false;
       setChecking(false);
@@ -49,7 +51,7 @@ export default function AdminLayout({
       setChecking(false);
       if (!redirectingRef.current) {
         redirectingRef.current = true;
-        router.replace("/admin/login");
+        router.replace(`/${locale}/admin/login`);
       }
       return;
     }
@@ -63,13 +65,13 @@ export default function AdminLayout({
         setIsAdmin(false);
         if (!redirectingRef.current) {
           redirectingRef.current = true;
-          router.replace("/admin/login");
+          router.replace(`/${locale}/admin/login`);
         }
       })
       .finally(() => setChecking(false));
-  }, [pathname, router]);
+  }, [pathname, router, locale]);
 
-  if (pathname === "/admin/login" || pathname.startsWith("/admin/login/")) {
+  if (pathname === `/${locale}/admin/login` || pathname.startsWith(`/${locale}/admin/login/`)) {
     return <>{children}</>;
   }
 
@@ -77,27 +79,27 @@ export default function AdminLayout({
   if (!isAdmin) return null;
 
   const menuItems = [
-    { label: "Dashboard", icon: <BarChart3 size={20} />, href: "/admin" },
-    { label: "Kullanıcılar", icon: <Users size={20} />, href: "/admin/users" },
-    { label: "Ödemeler", icon: <CreditCard size={20} />, href: "/admin/payments" },
-    { label: "Banka Transferleri", icon: <CreditCard size={20} />, href: "/admin/bank-transfers" },
-    { label: "Misafir Talepleri", icon: <FileText size={20} />, href: "/admin/guest-bank-inquiries" },
-    { label: "Ana Sayfa Medya", icon: <ImageIcon size={20} />, href: "/admin/home-media" },
-    { label: "Referanslar", icon: <Gift size={20} />, href: "/admin/referrals" },
-    { label: "Blog", icon: <FileText size={20} />, href: "/admin/blog" },
-    { label: "Yasal", icon: <FileText size={20} />, href: "/admin/legal" },
-    { label: "Medya", icon: <ImageIcon size={20} />, href: "/admin/media" },
-    { label: "Fiyatlandırma", icon: <CreditCard size={20} />, href: "/admin/pricing" },
-    { label: "Face Index", icon: <Cpu size={20} />, href: "/admin/face-index" },
-    { label: "Sistem Ayarları", icon: <Settings size={20} />, href: "/admin/settings" },
-    { label: "Audit Log", icon: <ClipboardList size={20} />, href: "/admin/audit" },
-    { label: "İletişim", icon: <Bell size={20} />, href: "/admin/communication" },
+    { label: "Dashboard", icon: <BarChart3 size={20} />, href: `/${locale}/admin` },
+    { label: "Kullanıcılar", icon: <Users size={20} />, href: `/${locale}/admin/users` },
+    { label: "Ödemeler", icon: <CreditCard size={20} />, href: `/${locale}/admin/payments` },
+    { label: "Banka Transferleri", icon: <CreditCard size={20} />, href: `/${locale}/admin/bank-transfers` },
+    { label: "Misafir Talepleri", icon: <FileText size={20} />, href: `/${locale}/admin/guest-bank-inquiries` },
+    { label: "Ana Sayfa Medya", icon: <ImageIcon size={20} />, href: `/${locale}/admin/home-media` },
+    { label: "Referanslar", icon: <Gift size={20} />, href: `/${locale}/admin/referrals` },
+    { label: "Blog", icon: <FileText size={20} />, href: `/${locale}/admin/blog` },
+    { label: "Yasal", icon: <FileText size={20} />, href: `/${locale}/admin/legal` },
+    { label: "Medya", icon: <ImageIcon size={20} />, href: `/${locale}/admin/media` },
+    { label: "Fiyatlandırma", icon: <CreditCard size={20} />, href: `/${locale}/admin/pricing` },
+    { label: "Face Index", icon: <Cpu size={20} />, href: `/${locale}/admin/face-index` },
+    { label: "Sistem Ayarları", icon: <Settings size={20} />, href: `/${locale}/admin/settings` },
+    { label: "Audit Log", icon: <ClipboardList size={20} />, href: `/${locale}/admin/audit` },
+    { label: "İletişim", icon: <Bell size={20} />, href: `/${locale}/admin/communication` },
   ];
 
   const handleLogout = () => {
     localStorage.removeItem("admin");
     localStorage.removeItem("adminKey");
-    router.push("/admin/login");
+    router.push(`/${locale}/admin/login`);
   };
 
   return (
