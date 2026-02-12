@@ -365,10 +365,18 @@ async def subscribe_to_plan(
             )
 
             if resp.status_code != 201:
+                # API key eksikse özel mesaj
+                if settings.LEMONSQUEEZY_API_KEY is None:
+                    logger.error("LemonSqueezy API key not configured")
+                    raise HTTPException(
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        detail="Payment service not configured. Please contact admin."
+                    )
+
                 logger.error(f"LemonSqueezy API error ({resp.status_code}): {resp.text}")
                 raise HTTPException(
-                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail=f"Payment service error: {resp.text}"
+                    status_code=resp.status_code if resp.status_code >= 400 else status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="Payment service error. Please try again."
                 )
 
             checkout_data = resp.json()
