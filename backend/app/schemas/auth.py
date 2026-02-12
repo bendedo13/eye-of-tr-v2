@@ -24,7 +24,8 @@ class Token(BaseModel):
 
 
 class RegisterResponse(BaseModel):
-    verification_required: bool = True
+    verification_required: bool = False
+    access_token: Optional[str] = None
     debug_code: Optional[str] = None
 
 

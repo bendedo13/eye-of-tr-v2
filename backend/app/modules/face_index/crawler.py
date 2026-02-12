@@ -240,8 +240,28 @@ async def _download_and_process_images(
                 db.commit()
 
 
+def _load_crawl_state(source: FaceSource) -> dict:
+    """Load persisted crawl state from source."""
+    try:
+        return json.loads(source.crawl_state_json or "{}")
+    except Exception:
+        return {}
+
+
+def _save_crawl_state(source: FaceSource, state: dict, db: Session):
+    """Save crawl state to source for resume support."""
+    source.crawl_state_json = json.dumps(state, default=str)
+    db.commit()
+
+
+# Social media profile photo min size is smaller (profile pics can be 3-5KB)
+SOCIAL_MIN_IMAGE_SIZE = 3072  # 3KB for profile photos
+
+
 async def run_crawl_job(job_id: int, db: Session):
-    """Execute a full crawl job: fetch pages, download images, process faces."""
+    """Execute a full crawl job: fetch pages, download images, process faces.
+    Supports stateful resume from last position via crawl_state_json.
+    """
     job = db.query(FaceCrawlJob).filter(FaceCrawlJob.id == job_id).first()
     if not job:
         logger.error(f"Job {job_id} not found")
@@ -265,6 +285,9 @@ async def run_crawl_job(job_id: int, db: Session):
     except Exception:
         config = {}
 
+    # Load crawl state for resume
+    crawl_state = _load_crawl_state(source)
+
     # Get proxy URL
     from app.modules.face_index.proxy_manager import get_proxy_manager
     pm = get_proxy_manager()
@@ -275,18 +298,25 @@ async def run_crawl_job(job_id: int, db: Session):
         if source.kind in SOCIAL_KINDS:
             from app.modules.face_index.social_crawlers import get_social_crawler
             social = get_social_crawler(source.kind, pm, _rate_limiter)
+
+            logger.info(f"Job {job_id}: Starting social crawl for {source.kind} - {source.base_url}")
             crawled_images = await social.crawl_profile(source.base_url, db)
 
             job.pages_crawled = 1
             job.images_found = len(crawled_images)
             db.commit()
 
-            all_image_urls = [(ci.url, ci.page_url) for ci in crawled_images]
+            # Filter already-crawled URLs from state
+            previously_crawled = set(crawl_state.get("crawled_urls", []))
+            new_images = [ci for ci in crawled_images if ci.url not in previously_crawled]
 
-            logger.info(f"Job {job_id}: Social crawl found {len(all_image_urls)} image URLs")
+            logger.info(
+                f"Job {job_id}: Social crawl found {len(crawled_images)} total, "
+                f"{len(new_images)} new (skipping {len(previously_crawled)} from state)"
+            )
 
             # Download images using social crawler's fetch (with proxy)
-            for ci in crawled_images:
+            for ci in new_images:
                 db.refresh(job)
                 if job.status == "cancelled":
                     break
@@ -295,24 +325,33 @@ async def run_crawl_job(job_id: int, db: Session):
                 if db.query(FaceImage).filter(FaceImage.url_hash == url_hash).first():
                     job.images_skipped += 1
                     db.commit()
+                    previously_crawled.add(ci.url)
                     continue
 
+                logger.debug(f"Job {job_id}: Downloading social image: {ci.url[:80]}...")
                 data = await social.fetch_image_bytes(ci.url, db)
                 if not data:
+                    logger.warning(f"Job {job_id}: Failed to download: {ci.url[:80]}")
                     job.errors_count += 1
                     db.commit()
                     continue
 
-                min_size = int(getattr(settings, "FACE_INDEX_MIN_IMAGE_SIZE", 10240))
+                # Use smaller min size for social profile photos
+                min_size = SOCIAL_MIN_IMAGE_SIZE if ci.context == "profile_photo" else int(
+                    getattr(settings, "FACE_INDEX_MIN_IMAGE_SIZE", 10240)
+                )
                 if len(data) < min_size:
+                    logger.debug(f"Job {job_id}: Image too small ({len(data)} bytes): {ci.url[:80]}")
                     job.images_skipped += 1
                     db.commit()
+                    previously_crawled.add(ci.url)
                     continue
 
                 ct = "image/jpeg"
-                if ci.url.lower().endswith(".png"):
+                lower_url = ci.url.lower().split("?")[0]
+                if lower_url.endswith(".png"):
                     ct = "image/png"
-                elif ci.url.lower().endswith(".webp"):
+                elif lower_url.endswith(".webp"):
                     ct = "image/webp"
 
                 record = store_downloaded_image(
@@ -327,13 +366,23 @@ async def run_crawl_job(job_id: int, db: Session):
                 if record:
                     job.images_downloaded += 1
                     db.commit()
+                    logger.info(f"Job {job_id}: Stored image {record.id}, processing faces...")
                     n_faces = await process_image(record.id, db)
                     job.faces_detected += n_faces
                     job.faces_indexed += n_faces
                     db.commit()
+                    logger.info(f"Job {job_id}: Image {record.id} -> {n_faces} faces detected")
                 else:
                     job.images_skipped += 1
                     db.commit()
+
+                previously_crawled.add(ci.url)
+
+            # Save crawl state
+            _save_crawl_state(source, {
+                "crawled_urls": list(previously_crawled)[-500:],  # Keep last 500
+                "last_crawl_time": datetime.now(timezone.utc).isoformat(),
+            }, db)
 
         # ---- Website / Standard Sources ----
         else:
@@ -346,8 +395,15 @@ async def run_crawl_job(job_id: int, db: Session):
             source.robots_txt_fetched_at = datetime.now(timezone.utc)
             db.commit()
 
-            visited: Set[str] = set()
-            queue = [(source.base_url, 0)]
+            # Resume from state: load previously visited URLs
+            visited: Set[str] = set(crawl_state.get("visited_urls", []))
+            resume_queue = crawl_state.get("pending_queue", [])
+            if resume_queue:
+                queue = [(url, d) for url, d in resume_queue]
+                logger.info(f"Job {job_id}: Resuming from state with {len(visited)} visited, {len(queue)} pending")
+            else:
+                queue = [(source.base_url, 0)]
+
             all_image_urls: List[tuple] = []
 
             headers = {"User-Agent": user_agent}
@@ -359,7 +415,11 @@ async def run_crawl_job(job_id: int, db: Session):
                 while queue and len(visited) < max_pages:
                     db.refresh(job)
                     if job.status == "cancelled":
-                        logger.info(f"Job {job_id} cancelled")
+                        logger.info(f"Job {job_id} cancelled, saving state...")
+                        _save_crawl_state(source, {
+                            "visited_urls": list(visited)[-1000:],
+                            "pending_queue": queue[:200],
+                        }, db)
                         return
 
                     url, depth = queue.pop(0)
@@ -397,6 +457,14 @@ async def run_crawl_job(job_id: int, db: Session):
                             for link in links:
                                 if link not in visited:
                                     queue.append((link, depth + 1))
+
+                        # Save state periodically (every 10 pages)
+                        if len(visited) % 10 == 0:
+                            _save_crawl_state(source, {
+                                "visited_urls": list(visited)[-1000:],
+                                "pending_queue": queue[:200],
+                            }, db)
+
                     except Exception as e:
                         job.errors_count += 1
                         db.commit()
@@ -404,6 +472,13 @@ async def run_crawl_job(job_id: int, db: Session):
 
             logger.info(f"Job {job_id}: Found {len(all_image_urls)} image URLs, downloading...")
             await _download_and_process_images(all_image_urls, source, job, db, proxy_url)
+
+            # Save final state
+            _save_crawl_state(source, {
+                "visited_urls": list(visited)[-1000:],
+                "pending_queue": [],
+                "completed": True,
+            }, db)
 
         # Flush FAISS to disk
         from app.modules.face_index.vector_store import get_face_index_store

@@ -55,6 +55,16 @@ def schedule_source(source_id: int, cron_expr: str):
             source = db.query(FaceSource).filter(FaceSource.id == source_id, FaceSource.is_enabled == True).first()
             if not source:
                 return
+
+            # Check if last job failed and retry count
+            last_job = db.query(FaceCrawlJob).filter(
+                FaceCrawlJob.source_id == source_id
+            ).order_by(FaceCrawlJob.created_at.desc()).first()
+
+            if last_job and last_job.status == "running":
+                logger.info(f"Source {source_id} already has a running job, skipping")
+                return
+
             job = FaceCrawlJob(source_id=source.id, status="queued")
             db.add(job)
             db.commit()

@@ -161,6 +161,20 @@ class Settings(BaseSettings):
     FACE_INDEX_PROXY_MAX_FAILS: int = 10
     FACE_INDEX_PROXY_HEALTH_INTERVAL: int = 300
 
+    # Instagram Authenticated Crawling (for follower profile photo indexing)
+    IG_SESSION_ENABLED: bool = False
+    IG_SESSION_USERNAME: Optional[str] = None
+    IG_SESSION_PASSWORD: Optional[str] = None
+    IG_SESSION_MAX_FOLLOWERS: int = 500  # Max followers to crawl per source
+    IG_SESSION_RATE_LIMIT_SECONDS: float = 2.0  # Delay between follower fetches
+
+    # Face++ Integration
+    FACEPP_API_KEY: Optional[str] = None
+    FACEPP_API_SECRET: Optional[str] = None
+    FACEPP_ENABLED: bool = False
+    FACEPP_THRESHOLD: float = 0.65  # Fallback if internal score < this
+    FACEPP_API_URL: str = "https://api-us.faceplusplus.com/facepp/v3"
+
     # Google Cloud Vision
     GOOGLE_CLOUD_VISION_API_KEY: Optional[str] = None
     GOOGLE_CLOUD_VISION_ENDPOINT: str = "https://vision.googleapis.com/v1/images:annotate"

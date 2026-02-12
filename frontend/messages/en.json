@@ -387,6 +387,65 @@
       "secure": "256-BIT SECURE",
       "private": "PRIVACY FIRST",
       "compliant": "GDPR COMPLIANT"
+    },
+    "useCases": {
+      "title": "WHAT DO USERS USE THIS FOR?",
+      "subtitle": "Real use cases from different industries",
+      "case1": {
+        "title": "Old Photo Research",
+        "desc": "Search for a person from a photo. Find missing relatives, old friends, or acquaintances."
+      },
+      "case2": {
+        "title": "Fake Account Detection",
+        "desc": "Verify the authenticity of suspicious profiles. Detect catfish and fake accounts."
+      },
+      "case3": {
+        "title": "Monitor Yourself Online",
+        "desc": "Check if your photos are being used without permission. Manage your digital footprint."
+      },
+      "case4": {
+        "title": "Security & Investigation",
+        "desc": "Professional-grade face search for OSINT investigations. Preferred by security experts and journalists."
+      }
+    },
+    "freePreview": {
+      "title": "TRY IT FREE RIGHT NOW",
+      "subtitle": "Sign up and run your first search — result preview is free!",
+      "badge": "1 FREE SEARCH",
+      "desc": "You get 1 free search upon registration. See the first result as a blurred preview, use credits for full access.",
+      "blurNote": "Results shown with blur — credits required for full access",
+      "button": "SIGN UP FREE"
+    },
+    "trustCompliance": {
+      "title": "YOUR DATA IS SAFE WITH US",
+      "subtitle": "Fully KVKK & GDPR compliant platform",
+      "item1": {
+        "title": "No Image Storage",
+        "desc": "Uploaded images are automatically deleted after processing. We don't maintain a persistent biometric database."
+      },
+      "item2": {
+        "title": "KVKK & GDPR Compliant",
+        "desc": "All operations fully comply with Turkey's KVKK and EU GDPR regulations."
+      },
+      "item3": {
+        "title": "256-Bit Encryption",
+        "desc": "All data transfers and uploads are protected with industry-standard encryption."
+      },
+      "item4": {
+        "title": "Clear Usage Purpose",
+        "desc": "Platform can only be used for lawful purposes such as fraud detection and security research."
+      }
+    },
+    "legalAssurance": {
+      "title": "IS THIS LEGAL?",
+      "subtitle": "Yes, a fully legal and ethical platform",
+      "desc": "FaceSeek only searches publicly available data. All searches are conducted within legal frameworks. The platform fully complies with KVKK, GDPR, and international data protection laws.",
+      "points": {
+        "p1": "Only searches publicly available data",
+        "p2": "Full compliance with KVKK and GDPR",
+        "p3": "Users must confirm lawful purpose",
+        "p4": "Biometric data is never permanently stored"
+      }
     }
   },
   "search": {
@@ -432,6 +491,103 @@
     "scanning": "Scanning databases...",
     "analyzing": "Analyzing biometric data...",
     "matching": "Cross-referencing matches..."
+  },
+  "investigation": {
+    "sectionTitle": "PRIVATE INVESTIGATION",
+    "sectionSubtitle": "Find missing loved ones, detect fake accounts",
+    "sectionDesc": "Our professional OSINT team delivers detailed reports within 48 hours using your photo and location info",
+    "basicTitle": "Basic Search",
+    "basicDesc": "Instagram scan only",
+    "basicPrice": "$20",
+    "detailedTitle": "Detailed Search",
+    "detailedDesc": "Instagram + Facebook + Web scan",
+    "detailedPrice": "$50",
+    "currency": "USD",
+    "startInvestigation": "Start Investigation",
+    "uploadPhoto": "Upload Photo",
+    "uploadPhotoDesc": "Upload a clear face photo (JPG, PNG, WebP)",
+    "country": "Country",
+    "city": "City",
+    "additionalDetail": "Additional Detail (district, neighborhood, etc.)",
+    "searchType": "Search Type",
+    "deliveryTime": "Report within 48 hours",
+    "deliveryDesc": "Results delivered to your email and account as PDF/JSON",
+    "submitRequest": "Submit Request",
+    "name": "Full Name",
+    "email": "Email",
+    "phone": "Phone (optional)",
+    "guestInfo": "Contact Information",
+    "success": "Investigation request submitted successfully! Our team will contact you within 48 hours.",
+    "error": "Failed to submit request. Please try again.",
+    "features": {
+      "basic": [
+        "Instagram profile scan",
+        "Report within 48 hours",
+        "PDF report"
+      ],
+      "detailed": [
+        "Instagram + Facebook scan",
+        "Website scan",
+        "Social media URLs",
+        "Detailed report within 48 hours",
+        "PDF + JSON report"
+      ]
+    },
+    "badge1": "48H DELIVERY",
+    "badge2": "PROFESSIONAL OSINT",
+    "badge3": "CONFIDENTIAL"
+  },
+  "landingFaq": {
+    "title": "HAVE QUESTIONS?",
+    "subtitle": "Find answers to the most common questions about Face-Seek",
+    "q1": {
+      "question": "What is Face-Seek?",
+      "answer": "Face-Seek is an advanced AI-powered facial recognition search platform. It allows you to upload a photo and search across multiple engines and OSINT databases to find matching faces on the public internet."
+    },
+    "q2": {
+      "question": "How does it work?",
+      "answer": "Simply upload a face photo. Our AI engine extracts a 128-point biometric signature and simultaneously searches Google, Bing, Yandex, and specialized OSINT databases, returning results with confidence scores."
+    },
+    "q3": {
+      "question": "Is it legal?",
+      "answer": "Yes. Face-Seek only searches publicly available data and is fully compliant with GDPR and KVKK regulations. Users must agree to our acceptable-use policy and confirm their searches are for lawful purposes only."
+    },
+    "q4": {
+      "question": "Is my data safe?",
+      "answer": "Absolutely. All uploads are encrypted with 256-bit encryption and automatically deleted after processing. We do not maintain a persistent biometric database. Your search history and personal data are never shared with third parties."
+    },
+    "q5": {
+      "question": "What payment methods are accepted?",
+      "answer": "We accept all major credit and debit cards (Visa, Mastercard, Amex), PayPal, and cryptocurrency payments. All transactions are processed through secure, PCI-compliant payment gateways."
+    },
+    "q6": {
+      "question": "Can I cancel anytime?",
+      "answer": "Yes. There are no long-term contracts or commitments. You can cancel your subscription at any time from your dashboard. Unused credits remain valid for 12 months after purchase."
+    }
+  },
+  "testimonials": {
+    "title": "WHAT OUR USERS SAY",
+    "subtitle": "Trusted by professionals across industries worldwide",
+    "person1": {
+      "name": "Ahmet Y.",
+      "role": "Security Analyst",
+      "quote": "Face-Seek has completely transformed my OSINT workflow. The multi-engine search gives me comprehensive results that would take hours to gather manually. An essential tool for any security professional."
+    },
+    "person2": {
+      "name": "Sarah M.",
+      "role": "Private Investigator",
+      "quote": "The accuracy and speed are unmatched. I've tried many facial recognition tools, but Face-Seek's privacy-first approach and GDPR compliance make it the only platform I trust for sensitive investigations."
+    },
+    "person3": {
+      "name": "Mehmet K.",
+      "role": "Journalist",
+      "quote": "As an investigative journalist, verifying identities quickly is crucial. Face-Seek delivers reliable results with confidence scores that help me validate my findings before publishing."
+    }
+  },
+  "referral": {
+    "title": "INVITE FRIENDS, EARN FREE SEARCHES",
+    "description": "Invite 3 friends to Face-Seek and earn free search credits! Share your unique referral link and both you and your friends get rewarded.",
+    "button": "SHARE NOW"
   },
   "faceIndex": {
     "title": "FACE INDEX",

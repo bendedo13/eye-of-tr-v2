@@ -310,3 +310,39 @@ export async function advancedSearchFace(
 
   return res.json();
 }
+
+// --- Investigation ---
+
+export async function createInvestigationRequest(
+  token: string | null,
+  formData: FormData
+) {
+  const headers: Record<string, string> = {};
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
+  const base = (API_BASE || "").replace(/\/+$/, "");
+  const res = await fetch(`${base}/investigation/request`, {
+    method: "POST",
+    headers,
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new APIError(
+      err.error || err.detail || `HTTP ${res.status}`,
+      res.status,
+      err
+    );
+  }
+
+  return res.json();
+}
+
+export async function getMyInvestigations(token: string) {
+  return apiFetch<any>("/investigation/my-requests", { token });
+}
+
+export async function getInvestigationDetail(token: string, id: number) {
+  return apiFetch<any>(`/investigation/request/${id}`, { token });
+}

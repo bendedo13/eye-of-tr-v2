@@ -61,9 +61,10 @@ PRICING_PLANS = [
     {
         "id": "basic_yearly",
         "name": {"tr": "Basic Yıllık", "en": "Basic Yearly"},
-        "price_try": 1390,
-        "price_usd": 99.99,
+        "price_try": 1351,
+        "price_usd": 97.10,
         "credits": 132,
+        "discount_pct": 19,
         "search_normal": 120,
         "search_detailed": 12,
         "search_location": 0,
@@ -101,9 +102,10 @@ PRICING_PLANS = [
     {
         "id": "pro_yearly",
         "name": {"tr": "Pro Yıllık", "en": "Pro Yearly"},
-        "price_try": 3990,
-        "price_usd": 249.99,
+        "price_try": 3878,
+        "price_usd": 242.90,
         "credits": 660,
+        "discount_pct": 19,
         "search_normal": 600,
         "search_detailed": 60,
         "search_location": 120,
@@ -141,9 +143,10 @@ PRICING_PLANS = [
     {
         "id": "unlimited_yearly",
         "name": {"tr": "Sınırsız Yıllık", "en": "Unlimited Yearly"},
-        "price_try": 39990,
-        "price_usd": 1990,
+        "price_try": 38870,
+        "price_usd": 1934,
         "credits": 999999,
+        "discount_pct": 19,
         "search_normal": 999999,
         "search_detailed": 999999,
         "search_location": 999999,
@@ -205,6 +208,7 @@ def _resolve_plan_for_locale(plan: dict, locale: str = "tr", currency: str = "TR
         "features": resolved_features,
         "recommended": plan.get("recommended", False),
         "is_one_time": plan.get("is_one_time", False),
+        "discount_pct": plan.get("discount_pct", 0),
         "variant_id": variant_id,
     }
 

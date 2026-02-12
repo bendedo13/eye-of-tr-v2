@@ -30,6 +30,9 @@ class FaceSource(Base):
     last_crawl_at = Column(DateTime(timezone=True), nullable=True)
     last_crawl_status = Column(String(30), nullable=True)
 
+    # Stateful crawling - resume from last position
+    crawl_state_json = Column(Text, default="{}")
+
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 

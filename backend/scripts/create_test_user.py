@@ -28,6 +28,7 @@ if existing:
     # Update credits and tier for testing
     existing.credits = 100
     existing.tier = "premium"
+    existing.is_active = True
     db.commit()
 else:
     print(f"\n Creating new test user: {test_email}")
@@ -38,6 +39,7 @@ else:
         credits=100,
         tier="premium",
         role="user",
+        is_active=True,
         referral_code=User.generate_referral_code()
     )
     db.add(new_user)

@@ -22,6 +22,7 @@ interface PricingPlan {
   recommended?: boolean;
   is_one_time?: boolean;
   billing_period?: string;
+  discount_pct?: number;
 }
 
 export default function PricingPage({
@@ -42,7 +43,7 @@ export default function PricingPage({
         subtitle: "Ihtiyaciniza uygun plani secin",
         monthly: "Aylik",
         yearly: "Yillik",
-        yearlySave: "2 ay bedava",
+        yearlySave: "%19 indirim - sinirli sure",
         perMonth: "/ay",
         perYear: "/yil",
         popular: "En Populer",
@@ -101,7 +102,7 @@ export default function PricingPage({
         subtitle: "Choose the plan that fits your needs",
         monthly: "Monthly",
         yearly: "Yearly",
-        yearlySave: "2 months free",
+        yearlySave: "19% off - limited time",
         perMonth: "/mo",
         perYear: "/yr",
         popular: "Most Popular",
@@ -730,6 +731,11 @@ export default function PricingPage({
                       {isPro && (
                         <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-xs font-bold px-4 py-1 rounded-full">
                           {t.popular}
+                        </div>
+                      )}
+                      {(plan as any).discount_pct > 0 && (
+                        <div className="absolute -top-3 right-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-xs font-bold px-3 py-1 rounded-full animate-pulse">
+                          %{(plan as any).discount_pct} {isTR ? "indirim" : "off"}
                         </div>
                       )}
 

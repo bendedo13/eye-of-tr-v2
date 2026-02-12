@@ -30,6 +30,8 @@ from app.api.admin_email_endpoints import router as admin_email_router
 from app.api.notifications import router as notifications_router
 from app.api.support import router as support_router
 from app.api.admin_support import router as admin_support_router
+from app.api.investigation import router as investigation_router
+from app.api.alan_search import router as alan_search_router
 from app.db.database import get_engine, Base, SessionLocal  # Use database.py directly
 from app.middleware.rate_limit import RateLimitMiddleware
 
@@ -49,6 +51,7 @@ from app.models.lens import LensAnalysisLog
 from app.models.support import SupportTicket, SupportMessage
 from app.models.bank_transfer import BankTransferRequest
 from app.models.guest_bank_inquiry import GuestBankInquiry
+from app.models.investigation import InvestigationRequest
 
 # Face Index Module
 from app.modules.face_index.models import FaceSource, FaceCrawlJob, FaceImage, IndexedFace, ProxyServer
@@ -163,7 +166,10 @@ app.include_router(notifications_router)
 app.include_router(support_router)
 app.include_router(admin_support_router)
 app.include_router(admin_face_index_router)
+app.include_router(investigation_router)
+app.include_router(alan_search_router)
 logger.info("✅ Face search router: /api/upload-face, /api/search-face")
+logger.info(f"✅ AlanSearch router: {alan_search_router.prefix}")
 logger.info(f"✅ Auth router: {auth_router.prefix}")
 logger.info(f"✅ Dashboard router: {dashboard_router.prefix}")
 logger.info(f"✅ Pricing router: {pricing_router.prefix}")

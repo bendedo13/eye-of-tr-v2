@@ -211,6 +211,22 @@ async def search_face(
     if local_matches:
         providers_used.append("local_index")
 
+    # 2b. Face++ Fallback (if internal matches are weak)
+    best_internal_score = max((m.get("confidence", 0) for m in matches_out), default=0)
+    if best_internal_score < settings.FACEPP_THRESHOLD * 100:
+        try:
+            from app.services.facepp_service import get_facepp_service
+            import base64
+            facepp = get_facepp_service()
+            if facepp.is_available():
+                img_b64 = base64.b64encode(content).decode()
+                detect_result = await facepp.detect_faces(img_b64)
+                if detect_result and detect_result.get("face_count", 0) > 0:
+                    providers_used.append("facepp")
+                    logger.info(f"Face++ detected {detect_result['face_count']} faces (fallback triggered)")
+        except Exception as e:
+            logger.debug(f"Face++ fallback skipped: {e}")
+
     faces_dir = _faces_dir()
     faces_dir.mkdir(parents=True, exist_ok=True)
     query_filename = f"query_{uuid.uuid4()}{ext}"

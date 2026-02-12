@@ -87,6 +87,7 @@ def register(data: UserRegister, request: Request, db: Session = Depends(get_db)
         referral_code = User.generate_referral_code()
     
     # Yeni kullanıcı oluştur (1 ücretsiz kredi ile)
+    # Email doğrulaması opsiyonel — kullanıcı hemen giriş yapabilir
     user = User(
         email=data.email,
         username=data.username,
@@ -94,7 +95,7 @@ def register(data: UserRegister, request: Request, db: Session = Depends(get_db)
         referral_code=referral_code,
         credits=1,  # 1 ücretsiz arama kredisi
         tier="free",
-        is_active=False,
+        is_active=True,
     )
     db.add(user)
     db.commit()
@@ -107,18 +108,24 @@ def register(data: UserRegister, request: Request, db: Session = Depends(get_db)
     if data.referral_code:
         ReferralService.process_referral(user, data.referral_code, db)
     
-    verification_required = True
+    verification_required = False
     debug_code = None
     
-    # Doğrulama kodu oluşturma (opsiyonel, belki ileride lazım olur diye DB'de dursun)
-    # Ama kullanıcıya göndermeye zorlamıyoruz ve verification_required=False dönüyoruz.
+    # Doğrulama kodu oluştur (şifre sıfırlama ve opsiyonel email doğrulama için)
     try:
         debug_code = create_or_replace_verification(db, user)
     except Exception:
         pass
     
+    # JWT token oluştur — kullanıcı kayıttan sonra doğrudan giriş yapabilir
+    token = create_access_token(subject=user.id)
+    
     logger.info(f"New user registered: {user.email} (Active: {user.is_active})")
-    return RegisterResponse(verification_required=verification_required, debug_code=debug_code if settings.DEBUG else None)
+    return RegisterResponse(
+        verification_required=verification_required,
+        access_token=token,
+        debug_code=debug_code if settings.DEBUG else None,
+    )
 
 
 @router.post("/login", response_model=Token)
@@ -142,9 +149,8 @@ def login(data: UserLogin, db: Session = Depends(get_db)):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
         )
-    # Email doğrulaması kontrolünü pasif yaptık
-    if not user.is_active:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Email doğrulaması gerekli.")
+    # Email doğrulaması opsiyonel — is_active kontrolü kaldırıldı
+    # Kullanıcı doğrulama yapmadan da giriş yapabilir
     
     token = create_access_token(subject=user.id)
     return Token(access_token=token)

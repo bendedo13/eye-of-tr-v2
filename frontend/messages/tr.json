@@ -387,6 +387,65 @@
       "secure": "256-BIT GUVENLI",
       "private": "GIZLILIK ONCELIKLI",
       "compliant": "GDPR UYUMLU"
+    },
+    "useCases": {
+      "title": "KULLANICILAR BUNU NE İÇİN KULLANIYOR?",
+      "subtitle": "Farklı sektörlerden gerçek kullanım senaryoları",
+      "case1": {
+        "title": "Eski Fotoğraf Araştırması",
+        "desc": "Bir fotoğraftan kişiyi arayın. Kayıp yakınlarınızı, eski arkadaşlarınızı veya tanıdıklarınızı bulun."
+      },
+      "case2": {
+        "title": "Sahte Hesap Kontrolü",
+        "desc": "Dolandırıcılık şüphesi olan profillerin gerçekliğini doğrulayın. Catfish ve fake hesapları tespit edin."
+      },
+      "case3": {
+        "title": "Kendini İnternette Kontrol Et",
+        "desc": "Fotoğrafınızın izinsiz kullanılıp kullanılmadığını kontrol edin. Dijital ayak izinizi yönetin."
+      },
+      "case4": {
+        "title": "Güvenlik & Soruşturma",
+        "desc": "OSINT soruşturmaları için profesyonel düzeyde yüz arama. Güvenlik uzmanları ve gazeteciler tarafından tercih edilir."
+      }
+    },
+    "freePreview": {
+      "title": "HEMEN ÜCRETSİZ DENEYİN",
+      "subtitle": "Kayıt olun ve ilk aramanızı yapın — sonuç önizlemesi ücretsiz!",
+      "badge": "1 ÜCRETSİZ ARAMA",
+      "desc": "Kayıt olduğunuzda 1 ücretsiz arama hakkı kazanırsınız. İlk sonucu bulanık önizleme olarak görün, tam erişim için kredi kullanın.",
+      "blurNote": "Sonuçlar blur ile gösterilir — tam erişim için kredi gerekir",
+      "button": "ÜCRETSİZ KAYIT OL"
+    },
+    "trustCompliance": {
+      "title": "VERİLERİNİZ BİZDE GÜVENDEDİR",
+      "subtitle": "KVKK & GDPR tam uyumlu platform",
+      "item1": {
+        "title": "Görsel Saklamıyoruz",
+        "desc": "Yüklenen görseller işlem sonrası otomatik silinir. Kalıcı biyometrik veritabanı tutmuyoruz."
+      },
+      "item2": {
+        "title": "KVKK & GDPR Uyumlu",
+        "desc": "Tüm işlemler Türkiye KVKK ve AB GDPR düzenlemelerine tam uyumludur."
+      },
+      "item3": {
+        "title": "256-Bit Şifreleme",
+        "desc": "Tüm veri transferleri ve yükleme işlemleri endüstri standardı şifreleme ile korunur."
+      },
+      "item4": {
+        "title": "Açık Kullanım Amacı",
+        "desc": "Platform yalnızca dolandırıcılık tespiti, güvenlik araştırması gibi yasal amaçlarla kullanılabilir."
+      }
+    },
+    "legalAssurance": {
+      "title": "BU YASAL MI?",
+      "subtitle": "Evet, tamamen yasal ve etik bir platform",
+      "desc": "FaceSeek yalnızca kamuya açık verileri tarar. Tüm aramalar yasal çerçevede gerçekleşir. Platform KVKK, GDPR ve uluslararası veri koruma yasalarına tam uyumludur.",
+      "points": {
+        "p1": "Yalnızca kamuya açık verilerde arama yapılır",
+        "p2": "KVKK ve GDPR düzenlemelerine tam uyumluluk",
+        "p3": "Kullanıcılar yasal amaç beyanı onaylar",
+        "p4": "Biyometrik veri kalıcı olarak saklanmaz"
+      }
     }
   },
   "search": {
@@ -432,6 +491,103 @@
     "scanning": "Veritabanlari taraniyor...",
     "analyzing": "Biyometrik veri analiz ediliyor...",
     "matching": "Eslesmeler karsilastiriliyor..."
+  },
+  "investigation": {
+    "sectionTitle": "OZEL SORUSTURMA",
+    "sectionSubtitle": "Kayip yakinlarinizi bulun, fake hesaplari tespit edin",
+    "sectionDesc": "Profesyonel OSINT ekibimiz fotograf ve konum bilgisiyle 48 saat icinde detayli rapor sunar",
+    "basicTitle": "Basit Arama",
+    "basicDesc": "Yalnizca Instagram taramasi",
+    "basicPrice": "500 TL",
+    "detailedTitle": "Detayli Arama",
+    "detailedDesc": "Instagram + Facebook + Web taramasi",
+    "detailedPrice": "1.000 TL",
+    "currency": "TRY",
+    "startInvestigation": "Sorusturma Baslat",
+    "uploadPhoto": "Fotograf Yukle",
+    "uploadPhotoDesc": "Net bir yuz fotografi yukleyin (JPG, PNG, WebP)",
+    "country": "Ulke",
+    "city": "Sehir",
+    "additionalDetail": "Ek Detay (ilce, mahalle vb.)",
+    "searchType": "Arama Tipi",
+    "deliveryTime": "48 saat icinde rapor",
+    "deliveryDesc": "Sonuclar e-posta ve hesabiniza PDF/JSON olarak gonderilir",
+    "submitRequest": "Talep Gonder",
+    "name": "Ad Soyad",
+    "email": "E-posta",
+    "phone": "Telefon (opsiyonel)",
+    "guestInfo": "Iletisim Bilgileri",
+    "success": "Sorusturma talebiniz basariyla gonderildi! Ekibimiz 48 saat icinde sizinle iletisime gececektir.",
+    "error": "Talep gonderilemedi. Lutfen tekrar deneyin.",
+    "features": {
+      "basic": [
+        "Instagram profil taramasi",
+        "48 saat icinde rapor",
+        "PDF rapor"
+      ],
+      "detailed": [
+        "Instagram + Facebook taramasi",
+        "Web sitesi taramasi",
+        "Sosyal medya URL'leri",
+        "48 saat icinde detayli rapor",
+        "PDF + JSON rapor"
+      ]
+    },
+    "badge1": "48 SAAT TESLIMAT",
+    "badge2": "PROFESYONEL OSINT",
+    "badge3": "GIZLI"
+  },
+  "landingFaq": {
+    "title": "SORULARINIZ MI VAR?",
+    "subtitle": "Face-Seek hakkinda en cok sorulan sorularin yanitlari",
+    "q1": {
+      "question": "Face-Seek nedir?",
+      "answer": "Face-Seek, yapay zeka destekli gelismis bir yuz tanima arama platformudur. Bir fotograf yukleyerek birden fazla motor ve OSINT veritabaninda herkese acik internette eslesen yuzleri arayabilirsiniz."
+    },
+    "q2": {
+      "question": "Nasil calisir?",
+      "answer": "Bir yuz fotografi yukleyin. Yapay zeka motorumuz 128 noktali biyometrik imza cikarir ve Google, Bing, Yandex ve ozel OSINT veritabanlarinda es zamanli arama yaparak guven skorlariyla sonuclari dondurur."
+    },
+    "q3": {
+      "question": "Yasal mi?",
+      "answer": "Evet. Face-Seek yalnizca kamuya acik verileri tarar ve GDPR ile KVKK duzenlemelerine tam uyumludur. Kullanicilar kabul edilebilir kullanim politikamizi kabul etmeli ve aramalarinin yalnizca yasal amaclarla yapildigini onaylamalidir."
+    },
+    "q4": {
+      "question": "Verilerim guvenli mi?",
+      "answer": "Kesinlikle. Tum yuklemeler 256-bit sifreleme ile korunur ve islem sonrasinda otomatik olarak silinir. Kalici biyometrik veritabani tutmuyoruz. Arama gecmisiniz ve kisisel verileriniz ucuncu taraflarla asla paylasilmaz."
+    },
+    "q5": {
+      "question": "Hangi odeme yontemleri kabul ediliyor?",
+      "answer": "Tum buyuk kredi ve banka kartlarini (Visa, Mastercard, Amex), PayPal ve kripto para odemelerini kabul ediyoruz. Tum islemler guvenli, PCI uyumlu odeme gecitleri uzerinden islenir."
+    },
+    "q6": {
+      "question": "Her zaman iptal edebilir miyim?",
+      "answer": "Evet. Uzun vadeli sozlesme veya taahhut yoktur. Aboneliginizi istediginiz zaman panelinizden iptal edebilirsiniz. Kullanilmayan krediler satin alma tarihinden itibaren 12 ay gecerlidir."
+    }
+  },
+  "testimonials": {
+    "title": "KULLANICILARIMIZ NE DIYOR",
+    "subtitle": "Dunya genelinde farkli sektorlerden profesyoneller tarafindan tercih ediliyor",
+    "person1": {
+      "name": "Ahmet Y.",
+      "role": "Guvenlik Analisti",
+      "quote": "Face-Seek, OSINT is akisimi tamamen donusturdu. Cok motorlu arama, manuel olarak saatler surecek kapsamli sonuclari veriyor. Her guvenlik uzmani icin vazgecilmez bir arac."
+    },
+    "person2": {
+      "name": "Sarah M.",
+      "role": "Ozel Dedektif",
+      "quote": "Dogruluk ve hiz esiz. Bircok yuz tanima araci denedim, ancak Face-Seek'in gizlilik oncelikli yaklasimi ve GDPR uyumlulugu onu hassas sorusturmalar icin guvendigim tek platform yapiyor."
+    },
+    "person3": {
+      "name": "Mehmet K.",
+      "role": "Gazeteci",
+      "quote": "Arastirmaci gazeteci olarak kimlikleri hizla dogrulamak cok onemli. Face-Seek, yayinlamadan once bulgularimi dogrulamamda yardimci olan guven skorlariyla guvenilir sonuclar sunuyor."
+    }
+  },
+  "referral": {
+    "title": "ARKADASLARINI DAVET ET, UCRETSIZ ARAMA KAZAN",
+    "description": "3 arkadasini Face-Seek'e davet et ve ucretsiz arama kredisi kazan! Benzersiz davet linkini paylas, hem sen hem arkadaslarin odullendirilsin.",
+    "button": "SIMDI PAYLAS"
   },
   "faceIndex": {
     "title": "YUZ INDEKSI",

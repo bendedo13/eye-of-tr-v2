@@ -388,6 +388,57 @@ def purge_document(
     return _doc_to_out(doc)
 
 
+@router.post("/start-all")
+async def start_all_sources(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Start crawl jobs for ALL enabled data sources at once.
+
+    Creates a new CrawlJob for each enabled source and kicks them off.
+    Useful for 24/7 continuous crawling — press once to run everything.
+    """
+    sources = (
+        db.query(DataSource)
+        .filter(
+            DataSource.owner_user_id == user.id,
+            DataSource.is_enabled == True,
+        )
+        .all()
+    )
+
+    if not sources:
+        raise HTTPException(status_code=404, detail="No enabled sources found")
+
+    started_jobs = []
+    skipped = 0
+
+    for src in sources:
+        job = CrawlJob(
+            owner_user_id=user.id,
+            source_id=src.id,
+            status="queued",
+            consent_received=True,
+            policy_context_json=_json_dumps({"batch_start": True}),
+            strategy_override_json="{}",
+        )
+        db.add(job)
+        db.commit()
+        db.refresh(job)
+
+        ok = start_job(job.id)
+        if ok:
+            started_jobs.append(_job_to_out(job))
+        else:
+            skipped += 1
+
+    return {
+        "started": len(started_jobs),
+        "skipped": skipped,
+        "jobs": started_jobs,
+    }
+
+
 @router.get("/quality/summary")
 def quality_summary(
     source_id: Optional[int] = None,

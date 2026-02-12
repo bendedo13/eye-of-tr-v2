@@ -28,6 +28,9 @@ class User(Base):
     referred_by = Column(String(10), nullable=True)  # Kimin referansıyla kayıt oldu
     referral_count = Column(Integer, default=0, nullable=False)  # Kaç kişi davet etti
     
+    # AlanSearch Credits (OSINT search)
+    alan_search_credits = Column(Integer, default=1, nullable=False)  # 1 free on registration
+
     # Statistics
     total_searches = Column(Integer, default=0, nullable=False)
     successful_searches = Column(Integer, default=0, nullable=False)

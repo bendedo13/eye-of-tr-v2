@@ -19,6 +19,7 @@ from app.models.subscription import Payment
 from app.models.user import User
 from app.models.bank_transfer import BankTransferRequest
 from app.models.guest_bank_inquiry import GuestBankInquiry
+from app.models.investigation import InvestigationRequest
 from app.services.scraper_service import scraper_service
 from app.services.credit_service import CreditService
 from app.api.pricing import PRICING_PLANS
@@ -919,6 +920,118 @@ def admin_create_notification(request: Request, payload: dict[str, Any], db: Ses
     db.commit()
     db.refresh(n)
     return {"id": n.id, "status": "sent"}
+
+
+# --- Investigations ---
+
+@router.get("/investigations")
+def admin_list_investigations(
+    request: Request,
+    status_filter: str | None = None,
+    limit: int = 100,
+    offset: int = 0,
+    db: Session = Depends(get_db),
+):
+    _require_admin_key(request)
+    q = db.query(InvestigationRequest)
+    if status_filter:
+        q = q.filter(InvestigationRequest.status == status_filter)
+    rows = q.order_by(desc(InvestigationRequest.created_at)).offset(offset).limit(min(limit, 500)).all()
+    items = []
+    for r in rows:
+        user_email = None
+        if r.user_id:
+            u = db.query(User).filter(User.id == r.user_id).first()
+            user_email = u.email if u else None
+        items.append(
+            {
+                "id": r.id,
+                "user_id": r.user_id,
+                "user_email": user_email,
+                "guest_name": r.guest_name,
+                "guest_email": r.guest_email,
+                "guest_phone": r.guest_phone,
+                "photo_urls": r.photo_urls,
+                "country": r.country,
+                "city": r.city,
+                "detail": r.detail,
+                "search_type": r.search_type,
+                "amount": r.amount,
+                "currency": r.currency,
+                "status": r.status,
+                "admin_note": r.admin_note,
+                "created_at": r.created_at,
+                "completed_at": r.completed_at,
+            }
+        )
+    return {"items": items}
+
+
+@router.get("/investigations/{inv_id}")
+def admin_get_investigation(inv_id: int, request: Request, db: Session = Depends(get_db)):
+    _require_admin_key(request)
+    r = db.query(InvestigationRequest).filter(InvestigationRequest.id == inv_id).first()
+    if not r:
+        raise HTTPException(status_code=404, detail="Not found")
+    user_email = None
+    if r.user_id:
+        u = db.query(User).filter(User.id == r.user_id).first()
+        user_email = u.email if u else None
+    return {
+        "id": r.id,
+        "user_id": r.user_id,
+        "user_email": user_email,
+        "guest_name": r.guest_name,
+        "guest_email": r.guest_email,
+        "guest_phone": r.guest_phone,
+        "photo_urls": r.photo_urls,
+        "country": r.country,
+        "city": r.city,
+        "detail": r.detail,
+        "search_type": r.search_type,
+        "amount": r.amount,
+        "currency": r.currency,
+        "status": r.status,
+        "payment_method": r.payment_method,
+        "result_json": r.result_json,
+        "result_pdf_url": r.result_pdf_url,
+        "result_summary": r.result_summary,
+        "admin_note": r.admin_note,
+        "created_at": r.created_at,
+        "updated_at": r.updated_at,
+        "completed_at": r.completed_at,
+    }
+
+
+@router.put("/investigations/{inv_id}")
+def admin_update_investigation(
+    inv_id: int,
+    request: Request,
+    payload: dict[str, Any],
+    db: Session = Depends(get_db),
+):
+    _require_admin_key(request)
+    r = db.query(InvestigationRequest).filter(InvestigationRequest.id == inv_id).first()
+    if not r:
+        raise HTTPException(status_code=404, detail="Not found")
+
+    for field in ("status", "admin_note", "result_summary", "result_pdf_url", "result_json", "payment_method"):
+        if field in payload:
+            setattr(r, field, payload[field])
+
+    if payload.get("status") == "completed" and not r.completed_at:
+        r.completed_at = datetime.now(timezone.utc)
+
+    _audit(
+        db=db,
+        request=request,
+        action="investigation.update",
+        resource_type="investigation",
+        resource_id=str(inv_id),
+        meta=payload,
+    )
+    db.commit()
+    return {"status": "ok"}
 
 
 # --- Blog Auto-Generation ---
