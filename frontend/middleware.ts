@@ -20,17 +20,6 @@ export default function middleware(request: NextRequest) {
     return new NextResponse(null, { status: 204 });
   }
 
-  const adminPrefixed = pathname.match(/^\/(en|tr)\/admin(\/.*)?$/);
-  if (adminPrefixed) {
-    const nextUrl = request.nextUrl.clone();
-    nextUrl.pathname = `/admin${adminPrefixed[2] || ""}`;
-    return NextResponse.redirect(nextUrl);
-  }
-
-  if (pathname.startsWith("/admin")) {
-    return NextResponse.next();
-  }
-
   return intlMiddleware(request);
 }
 
