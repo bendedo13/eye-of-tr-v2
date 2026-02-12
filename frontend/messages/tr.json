@@ -143,7 +143,7 @@
     },
     "feature4": {
       "title": "Etik Yapay Zeka Yüz Tanıma",
-      "description": "Sıkı kabul edilebilir kullanım politikalarına sahip sorumlu yüz istihbarat platformu. Yalnızca kamu verileri. Kolluk kuvvetleri bağlantısı yok."
+      "description": "Sorumlu yüz istihbarat platformu. TikTok, Instagram, Facebook ve Twitter verileriyle kapsamlı analiz."
     },
     "feature5": {
       "title": "Çoklu Motor Toplama",
@@ -611,7 +611,7 @@
     "sources": {
       "addSource": "KAYNAK EKLE",
       "name": "Ad",
-      "kind": "Tur",
+      "kind": "Tür (website|instagram|twitter|facebook|tiktok)",
       "baseUrl": "Base URL",
       "rateLimit": "Rate Limit (RPM)",
       "concurrent": "Esanli",

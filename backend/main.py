@@ -57,8 +57,8 @@ from app.models.investigation import InvestigationRequest
 from app.modules.face_index.models import FaceSource, FaceCrawlJob, FaceImage, IndexedFace, ProxyServer
 from app.api.admin_face_index import router as admin_face_index_router
 
-# Import WebSocket service
 from app.services.websocket_service import get_socket_server, socket_app
+from app.modules.face_index.scheduler import start_scheduler
 
 # Logging ayarla
 logging.basicConfig(
@@ -421,6 +421,9 @@ def create_initial_data():
             db.add(user)
             db.commit()
             logger.info("Admin user created successfully")
+        
+        # Start the Face Index scheduler
+        start_scheduler()
         
         db.close()
     except Exception as e:

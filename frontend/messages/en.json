@@ -143,7 +143,7 @@
     },
     "feature4": {
       "title": "Ethical AI Facial Recognition",
-      "description": "Responsible platform with strict acceptable-use policies. Public data only. No law enforcement affiliation."
+      "description": "Responsible facial intelligence platform. Comprehensive analysis with TikTok, Instagram, Facebook, and Twitter data."
     },
     "feature5": {
       "title": "Multi-Engine Aggregation",
@@ -611,7 +611,7 @@
     "sources": {
       "addSource": "ADD SOURCE",
       "name": "Name",
-      "kind": "Type",
+      "kind": "Type (website|instagram|twitter|facebook|tiktok)",
       "baseUrl": "Base URL",
       "rateLimit": "Rate Limit (RPM)",
       "concurrent": "Concurrent",

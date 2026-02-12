@@ -16,5 +16,8 @@ def get_social_crawler(kind: str, proxy_manager: ProxyManager, rate_limiter: Dom
     elif kind == "facebook":
         from app.modules.face_index.social_crawlers.facebook import FacebookCrawler
         return FacebookCrawler(proxy_manager, rate_limiter)
+    elif kind == "tiktok":
+        from app.modules.face_index.social_crawlers.tiktok import TiktokCrawler
+        return TiktokCrawler(proxy_manager, rate_limiter)
     else:
         raise ValueError(f"Unknown social crawler kind: {kind}")

@@ -59,8 +59,48 @@ class FacebookCrawler(BaseSocialCrawler):
             main_results = await self._crawl_main(username, db)
             results.extend(main_results)
 
-        logger.info(f"[Facebook] {username}: found {len(results)} images")
+        # Strategy 3: Try to crawl public friends list from mbasic
+        logger.info(f"[Facebook] {username}: Strategy 3 - Public friends crawl")
+        friends_results = await self._crawl_friends(username, db)
+        for ci in friends_results:
+            if ci.url not in [r.url for r in results]:
+                results.append(ci)
+
+        logger.info(f"[Facebook] {username}: found {len(results)} total images")
         return results
+
+    async def _crawl_friends(self, username: str, db: Session) -> List[CrawledImage]:
+        """Crawl mbasic.facebook.com for public friends list and their profile photos."""
+        results: List[CrawledImage] = []
+
+        if username.isdigit():
+            url = f"https://mbasic.facebook.com/profile.php?id={username}&sk=friends"
+        else:
+            url = f"https://mbasic.facebook.com/{username}/friends"
+
+        await self.rate_limiter.acquire("facebook.com", rpm=5)
+        resp = await self.fetch_with_proxy(url, db)
+        if not resp:
+            return results
+
+        html = resp.text
+        
+        # Extract profile photos from the friends list
+        # Patterns to find <img> tags that are profile pics in the friends list
+        for m in re.finditer(r'<img[^>]+src="([^"]+?fbcdn[^"]+?)"[^>]+alt="([^"]+?)"', html, re.I):
+            img_url = unquote(m.group(1)).replace("&amp;", "&")
+            friend_name = m.group(2)
+            
+            if any(skip in img_url.lower() for skip in ("static", "rsrc", "pixel", "emoji")):
+                continue
+                
+            results.append(CrawledImage(
+                url=img_url,
+                page_url=url,
+                context="profile_photo",
+            ))
+
+        return results[:30]
 
     async def _crawl_mbasic(self, username: str, db: Session) -> List[CrawledImage]:
         """Crawl mbasic.facebook.com for simpler HTML."""

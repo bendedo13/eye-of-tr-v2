@@ -144,7 +144,7 @@ def extract_page_links(html: str, base_url: str, same_domain: bool = True) -> Li
 
 # ---- Crawl Execution ----
 
-SOCIAL_KINDS = {"instagram", "twitter", "facebook"}
+SOCIAL_KINDS = {"instagram", "twitter", "facebook", "tiktok"}
 
 
 async def _download_and_process_images(
