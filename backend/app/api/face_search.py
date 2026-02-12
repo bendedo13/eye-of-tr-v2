@@ -172,8 +172,10 @@ async def search_face(
     try:
         embedder = get_embedder()
         emb = embedder.embed(content)
+        logger.info(f"[SEARCH] Embedding created: shape={emb.vector.shape if hasattr(emb.vector, 'shape') else 'unknown'}")
         store = get_faiss_store()
         matches = await store.search(vector=emb.vector, top_k=top_k)
+        logger.info(f"[SEARCH] FAISS found {len(matches)} matches with top_k={top_k}")
     except EmbeddingError as e:
         raise HTTPException(status_code=422, detail=str(e))
     except FaissError as e:
@@ -200,7 +202,9 @@ async def search_face(
 
     # 2. Local Face Index Search
     fi_threshold = float(getattr(settings, "FACE_INDEX_SIMILARITY_THRESHOLD", 0.6))
+    logger.info(f"[SEARCH] Local index threshold: {fi_threshold}")
     local_matches = await _search_local_index(emb.vector, top_k=top_k, threshold=fi_threshold, db=db)
+    logger.info(f"[SEARCH] Local index found {len(local_matches) if local_matches else 0} matches")
     if local_matches:
         matches_out.extend(local_matches)
 
