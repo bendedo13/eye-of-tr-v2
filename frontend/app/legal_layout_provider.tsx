@@ -6,14 +6,24 @@ import { usePathname } from "next/navigation";
 
 export default function LegalLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
+    const isTR = pathname?.startsWith("/tr");
+    const prefix = isTR ? "/tr" : "/en";
 
-    const links = [
-        { href: "/legal", label: "Legal Hub" },
-        { href: "/legal/privacy", label: "Privacy Policy" },
-        { href: "/legal/kvkk", label: "KVKK" },
-        { href: "/legal/terms", label: "Terms" },
-        { href: "/legal/disclaimer", label: "Disclaimer" },
-    ];
+    const links = isTR
+        ? [
+            { href: `${prefix}/legal`, label: "Yasal Merkez" },
+            { href: `${prefix}/legal/privacy`, label: "Gizlilik Politikası" },
+            { href: `${prefix}/legal/kvkk`, label: "KVKK" },
+            { href: `${prefix}/legal/terms`, label: "Kullanım Şartları" },
+            { href: `${prefix}/legal/disclaimer`, label: "Sorumluluk Reddi" },
+        ]
+        : [
+            { href: `${prefix}/legal`, label: "Legal Hub" },
+            { href: `${prefix}/legal/privacy`, label: "Privacy Policy" },
+            { href: `${prefix}/legal/kvkk`, label: "KVKK" },
+            { href: `${prefix}/legal/terms`, label: "Terms" },
+            { href: `${prefix}/legal/disclaimer`, label: "Disclaimer" },
+        ];
 
     return (
         <div className="min-h-screen bg-background text-slate-200">
@@ -22,14 +32,16 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
                 <div className="flex flex-col lg:flex-row gap-16">
                     <aside className="w-full lg:w-64 shrink-0">
                         <div className="sticky top-40 space-y-2">
-                            <h3 className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.3em] mb-6">COMPLIANCE HUB</h3>
+                            <h3 className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.3em] mb-6">
+                                {isTR ? "UYUMLULUK MERKEZİ" : "COMPLIANCE HUB"}
+                            </h3>
                             {links.map((link) => (
                                 <Link
                                     key={link.href}
                                     href={link.href}
-                                    className={`block px-6 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${pathname?.endsWith(link.href)
-                                            ? "bg-primary text-white shadow-lg shadow-primary/20"
-                                            : "text-zinc-500 hover:text-white hover:bg-white/5"
+                                    className={`block px-6 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${pathname?.endsWith(link.href.replace(prefix, ""))
+                                        ? "bg-primary text-white shadow-lg shadow-primary/20"
+                                        : "text-zinc-500 hover:text-white hover:bg-white/5"
                                         }`}
                                 >
                                     {link.label}
