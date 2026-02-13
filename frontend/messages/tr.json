@@ -21,12 +21,12 @@
     "support": "Destek"
   },
   "hero": {
-    "badge": "Yeni Nesil Yapay Zeka Tanıma Motoru v2.0",
-    "title": "GELİŞMİŞ YÜZ ARAMA TEKNOLOJİSİ",
-    "subtitle": "Face Seek'in yapay zeka destekli yüz tanıma platformu ile kimlikleri güvenli bir şekilde ortaya çıkarın. Etik OSINT araştırmaları için dünya çapında araştırmacılar, gazeteciler ve güvenlik uzmanları tarafından güvenilir.",
-    "ctaPrimary": "ÜCRETSİZ TANIMA BAŞLAT",
+    "badge": "Yeni Nesil Yapay Zeka Kişi Arama Motoru v2.0",
+    "title": "AD SOYAD İLE KİŞİ BULMA",
+    "subtitle": "FaceSeek'in yapay zeka destekli Alan Search teknolojisi ile ad ve soyad bilgisiyle kişileri bulun. Her kullanıcıya 1 ücretsiz arama hakkı! Yüz arama ve konum tespiti özellikleri premium abonelikle sınırsız.",
+    "ctaPrimary": "ÜCRETSİZ ARAMA BAŞLAT",
     "ctaSecondary": "GİRİŞ YAP",
-    "ctaSearch": "ANALİZE BAŞLA",
+    "ctaSearch": "ARAMA BAŞLAT",
     "ctaDashboard": "PANEL",
     "learnMore": "Daha Fazla Bilgi"
   },
@@ -36,28 +36,28 @@
   },
   "featureCards": {
     "card1": {
-      "title": "YILDIRIM HIZINDA YÜZ ARAMA",
-      "desc": "Ters görüntü yüz arama teknolojimiz milisaniyeler içinde milyonlarca indekslenmiş görüntüyü tarar. Gelişmiş yapay zeka yüz arama algoritmaları küresel veri kümelerinde anında sonuç verir."
+      "title": "ALAN SEARCH - AD SOYAD İLE KİŞİ BULMA",
+      "desc": "Sadece ad ve soyad bilgisiyle kişileri bulun. Her kullanıcıya 1 ücretsiz arama hakkı! Sosyal medya, haber siteleri ve kamu kayıtlarında kapsamlı tarama yapın."
     },
     "card2": {
-      "title": "GİZLİLİK ODAKLI YÜZ ARAMA",
-      "desc": "Sektör lideri 256-bit şifreleme her yüz tanıma aramasını korur. Görüntü verileriniz asla kalıcı olarak saklanmaz, yüz istihbarat operasyonlarında tam gizlilik sağlanır."
+      "title": "YÜZ ARAMA - PREMIUM ÖZELLİK",
+      "desc": "Fotoğraftan kişi bulma özelliği premium abonelikle sınırsız. Gelişmiş yapay zeka yüz tanıma teknolojisi ile milyonlarca görüntüde arama yapın. 2000 TL / $100 aylık abonelik."
     },
     "card3": {
-      "title": "ÇOK MOTORLU OSINT YÜZ ARAMA",
-      "desc": "Google, Bing, Yandex ve özel OSINT veritabanlarında eşzamanlı sorgular. Yüz arama motorumuz dünyanın en büyük kamu web indekslerinden sonuçları toplar."
+      "title": "KONUM TESPİTİ - PREMIUM ÖZELLİK",
+      "desc": "Konum bilgisiyle kişi bulma özelliği premium abonelikle sınırsız. Şehir, ilçe ve mahalle bilgisiyle detaylı arama yapın. 2000 TL / $100 aylık abonelik."
     },
     "card4": {
-      "title": "HASSAS BİYOMETRİK EŞLEŞTİRME",
-      "desc": "Son teknoloji yüz tanıma algoritmaları %98.7 doğruluk elde eder. Görüntü istihbarat platformumuz yüz tanıma aramasında eşsiz hassasiyet için 128 noktalı yüz haritalama kullanır."
+      "title": "GİZLİLİK ODAKLI PLATFORM",
+      "desc": "Sektör lideri 256-bit şifreleme her aramayı korur. Verileriniz asla kalıcı olarak saklanmaz, tam gizlilik sağlanır. KVKK ve GDPR uyumlu."
     },
     "card5": {
-      "title": "ETİK YAPAY ZEKA YÜZ TANIMA",
-      "desc": "Sorumlu yüz istihbaratı için tam GDPR ve KVKK uyumluluğu. Platformumuz etik yapay zeka ve açık kaynak istihbarat protokolleri için uluslararası standartlara uyar."
+      "title": "HIZLI VE HASSAS SONUÇLAR",
+      "desc": "Yapay zeka destekli algoritmalar saniyeler içinde sonuç verir. Çoklu kaynak taraması ile en kapsamlı sonuçları alın."
     },
     "card6": {
-      "title": "KAPSAMLI OSINT VERİ ENTEGRASYONU",
-      "desc": "Sosyal medya, haber siteleri ve kamu kayıtlarından yüz arama sonuçları. OSINT yüz tanıma platformumuz açık kaynak istihbaratını birleştirir."
+      "title": "KOLAY KULLANIM",
+      "desc": "Basit ve kullanıcı dostu arayüz. Kayıt olun, aramanızı yapın ve sonuçları anında görün. Teknik bilgi gerektirmez."
     }
   },
   "footer": {
@@ -195,9 +195,9 @@
     }
   },
   "cta": {
-    "titlePart1": "YÜZ ARAMANIZA",
+    "titlePart1": "ALAN SEARCH'E",
     "titlePart2": "BAŞLAYIN",
-    "description": "Etik yüz istihbaratı için FaceSeek kullanan binlerce profesyonele katılın. Yapay zeka yüz arama platformumuzu deneyimlemek için 3 ücretsiz arama hakkı alın.",
+    "description": "Ad soyad ile kişi bulma için 1 ücretsiz arama hakkı. Premium abonelik (2000 TL/ay) ile sınırsız yüz arama ve konum tespiti özelliklerine erişin.",
     "button": "Ücretsiz Hesap Oluştur"
   },
   "auth": {
@@ -348,11 +348,36 @@
   },
   "landing": {
     "badges": {
-      "noStorage": "GORSEL SAKLANMAZ",
+      "noStorage": "VERİ SAKLANMAZ",
       "gdpr": "GDPR & KVKK",
-      "encrypted": "256-BIT SIFRELI"
+      "encrypted": "256-BIT ŞİFRELİ"
     },
     "heroCta": "UCRETSIZ ARAMA BASLAT",
+    "pricing": {
+      "title": "BASİT FİYATLANDIRMA",
+      "subtitle": "İhtiyacınıza uygun planı seçin",
+      "alanSearch": {
+        "title": "Alan Search",
+        "price": "ÜCRETSİZ",
+        "desc": "Her kullanıcıya 1 ücretsiz arama",
+        "feature1": "Ad soyad ile kişi bulma",
+        "feature2": "Sosyal medya taraması",
+        "feature3": "Kamu kayıtları araması"
+      },
+      "premium": {
+        "title": "Premium Sınırsız",
+        "priceTry": "2000 TL",
+        "priceUsd": "$100",
+        "period": "/ay",
+        "desc": "Tüm özelliklere sınırsız erişim",
+        "feature1": "Sınırsız Alan Search",
+        "feature2": "Sınırsız Yüz Arama",
+        "feature3": "Sınırsız Konum Tespiti",
+        "feature4": "Öncelikli destek",
+        "feature5": "Sonuçlarda blur yok"
+      },
+      "button": "Başlayın"
+    },
     "stats": {
       "totalSearches": "Toplam Arama",
       "accuracy": "Dogruluk Orani",

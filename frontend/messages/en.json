@@ -21,12 +21,12 @@
     "support": "Support"
   },
   "hero": {
-    "badge": "Next-Gen AI Recognition Engine v2.0",
-    "title": "ADVANCED FACIAL SEARCH TECHNOLOGY",
-    "subtitle": "Uncover identities securely with Face Seek's AI-powered facial recognition platform. Trusted by investigators, journalists, and security professionals worldwide for ethical OSINT research.",
-    "ctaPrimary": "START RECOGNITION FREE",
+    "badge": "Next-Gen AI People Search Engine v2.0",
+    "title": "FIND PEOPLE BY NAME",
+    "subtitle": "Find people using name and surname with FaceSeek's AI-powered Alan Search technology. 1 free search for every user! Face search and location intelligence features unlimited with premium subscription.",
+    "ctaPrimary": "START FREE SEARCH",
     "ctaSecondary": "LOG IN",
-    "ctaSearch": "START ANALYSIS",
+    "ctaSearch": "START SEARCH",
     "ctaDashboard": "DASHBOARD",
     "learnMore": "Learn More"
   },
@@ -36,28 +36,28 @@
   },
   "featureCards": {
     "card1": {
-      "title": "LIGHTNING-FAST FACIAL SEARCH",
-      "desc": "Our reverse image face search technology scans millions of indexed images in milliseconds. Advanced AI face lookup algorithms deliver instant results across global data clusters."
+      "title": "ALAN SEARCH - FIND PEOPLE BY NAME",
+      "desc": "Find people using only name and surname. 1 free search for every user! Comprehensive scanning across social media, news sites, and public records."
     },
     "card2": {
-      "title": "PRIVACY-FOCUSED FACIAL SEARCH",
-      "desc": "Industry-leading 256-bit encryption protects every facial recognition search. Your image data is never permanently stored, ensuring complete privacy in facial intelligence operations."
+      "title": "FACE SEARCH - PREMIUM FEATURE",
+      "desc": "Find people from photos with premium subscription unlimited. Advanced AI facial recognition technology searches millions of images. $100 / 2000 TL monthly subscription."
     },
     "card3": {
-      "title": "MULTI-ENGINE OSINT FACE SEARCH",
-      "desc": "Simultaneous queries across Google, Bing, Yandex, and specialized OSINT databases. Our facial search engine aggregates results from the world's largest public web indexes."
+      "title": "LOCATION INTELLIGENCE - PREMIUM FEATURE",
+      "desc": "Find people by location with premium subscription unlimited. Detailed search with city, district, and neighborhood information. $100 / 2000 TL monthly subscription."
     },
     "card4": {
-      "title": "PRECISION BIOMETRIC MATCHING",
-      "desc": "State-of-the-art facial recognition algorithms achieve 98.7% accuracy. Our image intelligence platform uses 128-point facial mapping for unmatched precision in face recognition search."
+      "title": "PRIVACY-FOCUSED PLATFORM",
+      "desc": "Industry-leading 256-bit encryption protects every search. Your data is never permanently stored, ensuring complete privacy. KVKK and GDPR compliant."
     },
     "card5": {
-      "title": "ETHICAL AI FACIAL RECOGNITION",
-      "desc": "Full GDPR and KVKK compliance for responsible facial intelligence. Our platform adheres to international standards for ethical AI and open-source intelligence protocols."
+      "title": "FAST AND ACCURATE RESULTS",
+      "desc": "AI-powered algorithms deliver results in seconds. Multi-source scanning provides the most comprehensive results."
     },
     "card6": {
-      "title": "COMPREHENSIVE OSINT DATA INTEGRATION",
-      "desc": "Facial search results from social media, news sites, and public records. Our OSINT facial recognition platform consolidates open-source intelligence."
+      "title": "EASY TO USE",
+      "desc": "Simple and user-friendly interface. Register, search, and see results instantly. No technical knowledge required."
     }
   },
   "footer": {
@@ -196,8 +196,8 @@
   },
   "cta": {
     "titlePart1": "START YOUR",
-    "titlePart2": "FACE SEARCH",
-    "description": "Join thousands of professionals using FaceSeek for ethical facial intelligence. Get 3 free searches to start.",
+    "titlePart2": "ALAN SEARCH",
+    "description": "Find people by name with 1 free search. Premium subscription ($100/month) unlocks unlimited face search and location intelligence features.",
     "button": "Create Free Account"
   },
   "auth": {
@@ -348,11 +348,36 @@
   },
   "landing": {
     "badges": {
-      "noStorage": "NO IMAGE STORAGE",
+      "noStorage": "NO DATA STORAGE",
       "gdpr": "GDPR & KVKK",
       "encrypted": "256-BIT ENCRYPTED"
     },
     "heroCta": "START FREE SEARCH",
+    "pricing": {
+      "title": "SIMPLE PRICING",
+      "subtitle": "Choose the plan that fits your needs",
+      "alanSearch": {
+        "title": "Alan Search",
+        "price": "FREE",
+        "desc": "1 free search per user",
+        "feature1": "Find people by name",
+        "feature2": "Social media scanning",
+        "feature3": "Public records search"
+      },
+      "premium": {
+        "title": "Premium Unlimited",
+        "priceTry": "2000 TL",
+        "priceUsd": "$100",
+        "period": "/month",
+        "desc": "Unlimited access to all features",
+        "feature1": "Unlimited Alan Search",
+        "feature2": "Unlimited Face Search",
+        "feature3": "Unlimited Location Intelligence",
+        "feature4": "Priority support",
+        "feature5": "No blur on results"
+      },
+      "button": "Get Started"
+    },
     "stats": {
       "totalSearches": "Total Searches",
       "accuracy": "Accuracy Rate",

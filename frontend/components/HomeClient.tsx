@@ -511,6 +511,109 @@ export default function HomeClient({ locale }: { locale: string }) {
           </div>
         </section>
 
+        {/* ═══ PRICING SECTION ═══ */}
+        <section className="py-28 px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-20">
+              <h2 className="text-3xl md:text-5xl font-black text-white mb-4 uppercase tracking-tight">
+                {tLanding("pricing.title")}
+              </h2>
+              <p className="text-zinc-500 text-lg font-medium max-w-xl mx-auto">{tLanding("pricing.subtitle")}</p>
+              <div className="w-16 h-1 bg-primary mx-auto rounded-full mt-6" />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+              {/* Alan Search - Free */}
+              <GlassCard className="p-10 group hover:border-primary/40 transition-all duration-500 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-emerald-500/10 to-transparent rounded-bl-[80px]" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-400 border border-emerald-500/20">
+                      <UserSearch size={24} />
+                    </div>
+                    <h3 className="text-2xl font-black text-white uppercase tracking-tight">{tLanding("pricing.alanSearch.title")}</h3>
+                  </div>
+                  <div className="mb-6">
+                    <div className="text-5xl font-black text-emerald-400 mb-2">{tLanding("pricing.alanSearch.price")}</div>
+                    <p className="text-zinc-500 text-sm font-medium">{tLanding("pricing.alanSearch.desc")}</p>
+                  </div>
+                  <ul className="space-y-3 mb-8">
+                    <li className="flex items-start gap-3 text-sm text-zinc-300">
+                      <CheckCircle size={18} className="text-emerald-400 mt-0.5 flex-shrink-0" />
+                      <span>{tLanding("pricing.alanSearch.feature1")}</span>
+                    </li>
+                    <li className="flex items-start gap-3 text-sm text-zinc-300">
+                      <CheckCircle size={18} className="text-emerald-400 mt-0.5 flex-shrink-0" />
+                      <span>{tLanding("pricing.alanSearch.feature2")}</span>
+                    </li>
+                    <li className="flex items-start gap-3 text-sm text-zinc-300">
+                      <CheckCircle size={18} className="text-emerald-400 mt-0.5 flex-shrink-0" />
+                      <span>{tLanding("pricing.alanSearch.feature3")}</span>
+                    </li>
+                  </ul>
+                  <Button
+                    onClick={() => router.push(`/${locale}/register`)}
+                    className="w-full h-14 text-base bg-emerald-600 hover:bg-emerald-700 font-black uppercase tracking-wide"
+                  >
+                    {tLanding("pricing.button")} <ArrowRight className="ml-2" size={18} />
+                  </Button>
+                </div>
+              </GlassCard>
+
+              {/* Premium Unlimited */}
+              <GlassCard className="p-10 group hover:border-primary/40 transition-all duration-500 relative overflow-hidden border-primary/30 ring-1 ring-primary/20">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-xs font-bold px-6 py-2 rounded-full uppercase tracking-wider">
+                  {locale === "tr" ? "En Popüler" : "Most Popular"}
+                </div>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary/10 to-transparent rounded-bl-[80px]" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary border border-primary/20">
+                      <Sparkles size={24} />
+                    </div>
+                    <h3 className="text-2xl font-black text-white uppercase tracking-tight">{tLanding("pricing.premium.title")}</h3>
+                  </div>
+                  <div className="mb-6">
+                    <div className="text-5xl font-black text-white mb-1">
+                      {locale === "tr" ? tLanding("pricing.premium.priceTry") : tLanding("pricing.premium.priceUsd")}
+                    </div>
+                    <p className="text-zinc-400 text-sm font-medium">{tLanding("pricing.premium.period")}</p>
+                    <p className="text-zinc-500 text-xs mt-2">{tLanding("pricing.premium.desc")}</p>
+                  </div>
+                  <ul className="space-y-3 mb-8">
+                    <li className="flex items-start gap-3 text-sm text-zinc-300">
+                      <CheckCircle size={18} className="text-primary mt-0.5 flex-shrink-0" />
+                      <span>{tLanding("pricing.premium.feature1")}</span>
+                    </li>
+                    <li className="flex items-start gap-3 text-sm text-zinc-300">
+                      <CheckCircle size={18} className="text-primary mt-0.5 flex-shrink-0" />
+                      <span>{tLanding("pricing.premium.feature2")}</span>
+                    </li>
+                    <li className="flex items-start gap-3 text-sm text-zinc-300">
+                      <CheckCircle size={18} className="text-primary mt-0.5 flex-shrink-0" />
+                      <span>{tLanding("pricing.premium.feature3")}</span>
+                    </li>
+                    <li className="flex items-start gap-3 text-sm text-zinc-300">
+                      <CheckCircle size={18} className="text-primary mt-0.5 flex-shrink-0" />
+                      <span>{tLanding("pricing.premium.feature4")}</span>
+                    </li>
+                    <li className="flex items-start gap-3 text-sm text-zinc-300">
+                      <CheckCircle size={18} className="text-primary mt-0.5 flex-shrink-0" />
+                      <span>{tLanding("pricing.premium.feature5")}</span>
+                    </li>
+                  </ul>
+                  <Button
+                    onClick={() => router.push(`/${locale}/pricing`)}
+                    className="w-full h-14 text-base bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 font-black uppercase tracking-wide shadow-lg shadow-primary/30"
+                  >
+                    {tLanding("pricing.button")} <ArrowRight className="ml-2" size={18} />
+                  </Button>
+                </div>
+              </GlassCard>
+            </div>
+          </div>
+        </section>
+
         {/* ═══ TRUST & COMPLIANCE — KVKK + "veri saklamıyoruz" ═══ */}
         <section className="py-28 px-6">
           <div className="max-w-6xl mx-auto">
