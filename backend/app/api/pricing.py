@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 import httpx
 from app.core.config import settings
 
-# Pricing plans with dual currency and search type breakdown
+# Pricing plans - SIMPLIFIED: Only Alan Search Monthly + Credit Pack
 PRICING_PLANS = [
     {
         "id": "free",
@@ -29,12 +29,12 @@ PRICING_PLANS = [
         "credits": 1,
         "search_normal": 1,
         "search_detailed": 0,
-        "search_location": 0,
+        "search_location": 1,
         "daily_limit": 1,
         "billing_period": "once",
         "features": {
-            "tr": ["1 ücretsiz arama", "Temel sonuçlar", "Sınırlı erişim"],
-            "en": ["1 free search", "Basic results", "Limited access"]
+            "tr": ["1 ücretsiz Alan Search", "1 ücretsiz Konum Arama", "Temel sonuçlar"],
+            "en": ["1 free Alan Search", "1 free Location Search", "Basic results"]
         },
         "recommended": False,
     },
@@ -46,140 +46,17 @@ PRICING_PLANS = [
         "credits": 999999,
         "search_normal": 999999,
         "search_detailed": 0,
-        "search_location": 0,
-        "daily_limit": 20,
+        "search_location": 999999,
+        "daily_limit": 50,
         "billing_period": "monthly",
         "tier": "alan_search",
         "features": {
-            "tr": ["Sınırsız Alan Search", "Ad soyad ile kişi bulma", "Sosyal medya taraması", "Öncelikli destek"],
-            "en": ["Unlimited Alan Search", "Find people by name", "Social media scanning", "Priority support"]
+            "tr": ["Sınırsız Alan Search", "Sınırsız Konum Arama", "Ad soyad ile kişi bulma", "Öncelikli destek", "Sonuçlarda blur yok"],
+            "en": ["Unlimited Alan Search", "Unlimited Location Search", "Find people by name", "Priority support", "No blur on results"]
         },
         "recommended": True,
         "variant_id_try": "1272158",
         "variant_id_usd": "1272158",
-    },
-    {
-        "id": "basic_monthly",
-        "name": {"tr": "Basic", "en": "Basic"},
-        "price_try": 139,
-        "price_usd": 9.99,
-        "credits": 11,
-        "search_normal": 10,
-        "search_detailed": 1,
-        "search_location": 0,
-        "daily_limit": 5,
-        "billing_period": "monthly",
-        "tier": "basic",
-        "features": {
-            "tr": ["10 normal arama", "1 detaylı arama", "E-posta destek", "Temel sonuçlar"],
-            "en": ["10 normal searches", "1 detailed search", "Email support", "Basic results"]
-        },
-        "recommended": False,
-        "variant_id_try": "1272158",
-        "variant_id_usd": "1272158",
-    },
-    {
-        "id": "basic_yearly",
-        "name": {"tr": "Basic Yıllık", "en": "Basic Yearly"},
-        "price_try": 1351,
-        "price_usd": 97.10,
-        "credits": 132,
-        "discount_pct": 19,
-        "search_normal": 120,
-        "search_detailed": 12,
-        "search_location": 0,
-        "daily_limit": 5,
-        "billing_period": "yearly",
-        "tier": "basic",
-        "features": {
-            "tr": ["Aylık 10 normal arama", "Aylık 1 detaylı arama", "2 ay bedava", "E-posta destek"],
-            "en": ["10 normal searches/mo", "1 detailed search/mo", "2 months free", "Email support"]
-        },
-        "recommended": False,
-        "variant_id_try": "1272167",
-        "variant_id_usd": "1272167",
-    },
-    {
-        "id": "pro_monthly",
-        "name": {"tr": "Pro", "en": "Pro"},
-        "price_try": 399,
-        "price_usd": 24.99,
-        "credits": 55,
-        "search_normal": 50,
-        "search_detailed": 5,
-        "search_location": 10,
-        "daily_limit": 15,
-        "billing_period": "monthly",
-        "tier": "pro",
-        "features": {
-            "tr": ["50 normal arama", "5 detaylı arama", "10 konum tespiti", "Öncelikli destek", "Blur yok"],
-            "en": ["50 normal searches", "5 detailed searches", "10 location intel", "Priority support", "No blur"]
-        },
-        "recommended": True,
-        "variant_id_try": "1272167",
-        "variant_id_usd": "1272167",
-    },
-    {
-        "id": "pro_yearly",
-        "name": {"tr": "Pro Yıllık", "en": "Pro Yearly"},
-        "price_try": 3878,
-        "price_usd": 242.90,
-        "credits": 660,
-        "discount_pct": 19,
-        "search_normal": 600,
-        "search_detailed": 60,
-        "search_location": 120,
-        "daily_limit": 15,
-        "billing_period": "yearly",
-        "tier": "pro",
-        "features": {
-            "tr": ["Aylık 50 normal arama", "Aylık 5 detaylı", "Aylık 10 konum", "2 ay bedava", "Öncelikli destek"],
-            "en": ["50 normal/mo", "5 detailed/mo", "10 location/mo", "2 months free", "Priority support"]
-        },
-        "recommended": False,
-        "variant_id_try": "1272174",
-        "variant_id_usd": "1272174",
-    },
-    {
-        "id": "unlimited_monthly",
-        "name": {"tr": "Sınırsız", "en": "Unlimited"},
-        "price_try": 3999,
-        "price_usd": 199,
-        "credits": 999999,
-        "search_normal": 999999,
-        "search_detailed": 999999,
-        "search_location": 999999,
-        "daily_limit": 20,
-        "billing_period": "monthly",
-        "tier": "unlimited",
-        "features": {
-            "tr": ["Sınırsız arama", "Günlük 20 arama", "7/24 özel destek", "API erişimi", "Ticari kullanım"],
-            "en": ["Unlimited searches", "20 searches/day", "24/7 VIP support", "API access", "Commercial use"]
-        },
-        "recommended": False,
-        "variant_id_try": "1272174",
-        "variant_id_usd": "1272174",
-    },
-    {
-        "id": "unlimited_yearly",
-        "name": {"tr": "Sınırsız Yıllık", "en": "Unlimited Yearly"},
-        "price_try": 38870,
-        "price_usd": 1934,
-        "credits": 999999,
-        "discount_pct": 19,
-        "search_normal": 999999,
-        "search_detailed": 999999,
-        "search_location": 999999,
-        "daily_limit": 20,
-        "billing_period": "yearly",
-        "tier": "unlimited",
-        "features": {
-            "tr": ["Sınırsız arama", "Günlük 20 arama", "2 ay bedava", "7/24 destek", "API + Ticari"],
-            "en": ["Unlimited", "20/day", "2 months free", "24/7 support", "API + Commercial"]
-        },
-        "recommended": False,
-        "variant_id_try": "1272174",
-        "variant_id_usd": "1272174",
     },
     {
         "id": "credit_pack",
@@ -189,13 +66,13 @@ PRICING_PLANS = [
         "credits": 1,
         "search_normal": 1,
         "search_detailed": 0,
-        "search_location": 0,
+        "search_location": 1,
         "daily_limit": 0,
         "billing_period": "once",
         "is_one_time": True,
         "features": {
-            "tr": ["1 kredi", "Alan Search için kullanılabilir", "Abonelik gerektirmez", "Tek seferlik ödeme"],
-            "en": ["1 credit", "Can be used for Alan Search", "No subscription needed", "One-time payment"]
+            "tr": ["1 kredi", "Alan Search veya Konum Arama", "Abonelik gerektirmez", "Tek seferlik ödeme"],
+            "en": ["1 credit", "Alan Search or Location Search", "No subscription needed", "One-time payment"]
         },
         "recommended": False,
         "variant_id_try": "1272158",
