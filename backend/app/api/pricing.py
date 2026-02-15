@@ -39,6 +39,26 @@ PRICING_PLANS = [
         "recommended": False,
     },
     {
+        "id": "alan_search_monthly",
+        "name": {"tr": "Alan Search Aylık", "en": "Alan Search Monthly"},
+        "price_try": 299,
+        "price_usd": 14.99,
+        "credits": 999999,
+        "search_normal": 999999,
+        "search_detailed": 0,
+        "search_location": 0,
+        "daily_limit": 20,
+        "billing_period": "monthly",
+        "tier": "alan_search",
+        "features": {
+            "tr": ["Sınırsız Alan Search", "Ad soyad ile kişi bulma", "Sosyal medya taraması", "Öncelikli destek"],
+            "en": ["Unlimited Alan Search", "Find people by name", "Social media scanning", "Priority support"]
+        },
+        "recommended": True,
+        "variant_id_try": "1272158",
+        "variant_id_usd": "1272158",
+    },
+    {
         "id": "basic_monthly",
         "name": {"tr": "Basic", "en": "Basic"},
         "price_try": 139,
@@ -164,18 +184,18 @@ PRICING_PLANS = [
     {
         "id": "credit_pack",
         "name": {"tr": "Kredi Paketi", "en": "Credit Pack"},
-        "price_try": 79,
-        "price_usd": 3.50,
-        "credits": 7,
-        "search_normal": 3,
-        "search_detailed": 1,
-        "search_location": 3,
+        "price_try": 100,
+        "price_usd": 5.00,
+        "credits": 1,
+        "search_normal": 1,
+        "search_detailed": 0,
+        "search_location": 0,
         "daily_limit": 0,
         "billing_period": "once",
         "is_one_time": True,
         "features": {
-            "tr": ["3 normal arama", "1 detaylı arama", "3 konum tespiti", "Abonelik gerektirmez"],
-            "en": ["3 normal searches", "1 detailed search", "3 location intel", "No subscription needed"]
+            "tr": ["1 kredi", "Alan Search için kullanılabilir", "Abonelik gerektirmez", "Tek seferlik ödeme"],
+            "en": ["1 credit", "Can be used for Alan Search", "No subscription needed", "One-time payment"]
         },
         "recommended": False,
         "variant_id_try": "1272158",
