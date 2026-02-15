@@ -10,8 +10,10 @@ const nextConfig = {
         ignoreBuildErrors: true,
     },
     async rewrites() {
-        const apiUrl = process.env.SERVER_API_URL || 'http://localhost:8000';
-        console.log(`Rewriting /api requests to: ${apiUrl}`);
+        const apiUrl = process.env.SERVER_API_URL || 'http://127.0.0.1:8000';
+        if (process.env.NODE_ENV !== 'production') {
+            console.log(`Rewriting /api requests to: ${apiUrl}`);
+        }
         return [
             {
                 source: '/api/:path*',
