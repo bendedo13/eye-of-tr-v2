@@ -168,6 +168,9 @@ export default function AlanSearchPage({
   const [isSearching, setIsSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const [searchProgress, setSearchProgress] = useState(0);
+  const [searchStage, setSearchStage] = useState("");
+  const [showBlur, setShowBlur] = useState(false);
 
   /* ── Auth redirect ────────────────────────── */
   useEffect(() => {
@@ -242,6 +245,26 @@ export default function AlanSearchPage({
     setIsSearching(true);
     setResults([]);
     setHasSearched(false);
+    setSearchProgress(0);
+    setShowBlur(false);
+
+    // Professional loading animation
+    const stages = [
+      { progress: 20, text: isTR ? "Platformlar taranıyor..." : "Scanning platforms..." },
+      { progress: 40, text: isTR ? "Sosyal medya veritabanları sorgulanıyor..." : "Querying social media databases..." },
+      { progress: 60, text: isTR ? "Sonuçlar analiz ediliyor..." : "Analyzing results..." },
+      { progress: 80, text: isTR ? "Veriler birleştiriliyor..." : "Consolidating data..." },
+      { progress: 95, text: isTR ? "Son kontroller yapılıyor..." : "Final checks..." },
+    ];
+
+    let stageIndex = 0;
+    const progressInterval = setInterval(() => {
+      if (stageIndex < stages.length) {
+        setSearchProgress(stages[stageIndex].progress);
+        setSearchStage(stages[stageIndex].text);
+        stageIndex++;
+      }
+    }, 800);
 
     try {
       const data = await api.post<{
@@ -258,11 +281,21 @@ export default function AlanSearchPage({
         { token }
       );
 
+      clearInterval(progressInterval);
+      setSearchProgress(100);
+      setSearchStage(isTR ? "Tamamlandı!" : "Complete!");
+
       setResults(data.results || []);
       setCreditsRemaining(data.credits_remaining);
       setCredits(data.credits_remaining);
       setHasSearched(true);
+
+      // Show blur if user has no credits left (free user)
+      if (data.credits_remaining === 0) {
+        setShowBlur(true);
+      }
     } catch (err: any) {
+      clearInterval(progressInterval);
       setError(err?.message || t.errorSearch);
     } finally {
       setIsSearching(false);
@@ -396,6 +429,37 @@ export default function AlanSearchPage({
                     />
                   </div>
 
+                  {/* Loading Progress */}
+                  <AnimatePresence>
+                    {isSearching && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="mb-6"
+                      >
+                        <div className="bg-slate-800/50 border border-cyan-500/30 rounded-xl p-6">
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="text-sm font-semibold text-cyan-400">
+                              {searchStage}
+                            </span>
+                            <span className="text-sm font-bold text-cyan-400">
+                              {searchProgress}%
+                            </span>
+                          </div>
+                          <div className="h-2 rounded-full bg-slate-900/60 border border-slate-700 overflow-hidden">
+                            <motion.div
+                              className="h-full bg-gradient-to-r from-cyan-500 to-purple-500"
+                              initial={{ width: 0 }}
+                              animate={{ width: `${searchProgress}%` }}
+                              transition={{ duration: 0.5 }}
+                            />
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
                   {/* Platform Selection */}
                   <div className="mb-6">
                     <div className="flex items-center justify-between mb-3">
@@ -501,7 +565,7 @@ export default function AlanSearchPage({
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.4 }}
                   >
-                    <GlassCard className="p-6 md:p-8">
+                    <GlassCard className="p-6 md:p-8 relative">
                       <div className="flex items-center justify-between mb-6">
                         <h2 className="text-xl font-bold text-white flex items-center gap-2">
                           <CheckCircle2 className="w-5 h-5 text-emerald-400" />
@@ -569,6 +633,36 @@ export default function AlanSearchPage({
                           })}
                         </div>
                       )}
+
+                      {/* Blur Overlay for Free Users */}
+                      <AnimatePresence>
+                        {showBlur && (
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="absolute inset-0 backdrop-blur-md bg-slate-900/80 rounded-xl flex items-center justify-center"
+                          >
+                            <div className="text-center p-8 max-w-md">
+                              <Coins className="w-16 h-16 text-cyan-400 mx-auto mb-4" />
+                              <h3 className="text-2xl font-bold text-white mb-3">
+                                {isTR ? "Ücretsiz Hakkınız Bitti" : "Free Search Used"}
+                              </h3>
+                              <p className="text-slate-300 mb-6">
+                                {isTR
+                                  ? "Sonuçları görmek ve sınırsız arama yapmak için premium plana geçin."
+                                  : "Upgrade to premium to view results and get unlimited searches."}
+                              </p>
+                              <button
+                                onClick={() => router.push(`/${locale}/pricing`)}
+                                className="px-8 py-4 rounded-xl font-bold text-lg bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white transition-all shadow-lg shadow-cyan-500/30"
+                              >
+                                {isTR ? "Kredi Satın Al" : "Buy Credits"}
+                              </button>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </GlassCard>
                   </motion.div>
                 )}

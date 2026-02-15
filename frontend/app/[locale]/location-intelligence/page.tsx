@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { toast } from "@/lib/toast";
 import { analyzeLocationIntelligence, LocationIntelligenceAPIError, LocationIntelligenceResult } from "@/lib/locationIntelligence";
 import { me } from "@/lib/api";
-import { use } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Compass, Crosshair, MapPin, ShieldCheck, Sparkles, Upload } from "lucide-react";
 
 
@@ -33,6 +33,9 @@ export default function LocationIntelligencePage({
   const [result, setResult] = useState<LocationIntelligenceResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [creditsSnapshot, setCreditsSnapshot] = useState<number | null>(null);
+  const [analysisProgress, setAnalysisProgress] = useState(0);
+  const [analysisStage, setAnalysisStage] = useState("");
+  const [showBlur, setShowBlur] = useState(false);
 
   useEffect(() => {
     if (mounted && !loading && !user) {
@@ -158,14 +161,47 @@ export default function LocationIntelligencePage({
     setAnalyzing(true);
     setError(null);
     setResult(null);
+    setAnalysisProgress(0);
+    setShowBlur(false);
+
+    // Professional loading animation
+    const stages = [
+      { progress: 20, text: locale === "tr" ? "Görsel işleniyor..." : "Processing image..." },
+      { progress: 40, text: locale === "tr" ? "Çevresel ipuçları analiz ediliyor..." : "Analyzing environmental clues..." },
+      { progress: 60, text: locale === "tr" ? "Konum tahminleri hesaplanıyor..." : "Computing location predictions..." },
+      { progress: 80, text: locale === "tr" ? "Güven skorları değerlendiriliyor..." : "Evaluating confidence scores..." },
+      { progress: 95, text: locale === "tr" ? "Sonuçlar hazırlanıyor..." : "Preparing results..." },
+    ];
+
+    let stageIndex = 0;
+    const progressInterval = setInterval(() => {
+      if (stageIndex < stages.length) {
+        setAnalysisProgress(stages[stageIndex].progress);
+        setAnalysisStage(stages[stageIndex].text);
+        stageIndex++;
+      }
+    }, 800);
+
     try {
       const data = await analyzeLocationIntelligence({ token, file, consent: acceptedConsent });
+      
+      clearInterval(progressInterval);
+      setAnalysisProgress(100);
+      setAnalysisStage(locale === "tr" ? "Tamamlandı!" : "Complete!");
+
       setResult(data);
       if (user && user.tier !== "unlimited" && creditsSnapshot !== null) {
-        setCreditsSnapshot(Math.max(0, creditsSnapshot - 1));
+        const newCredits = Math.max(0, creditsSnapshot - 1);
+        setCreditsSnapshot(newCredits);
+        
+        // Show blur if user has no credits left (free user)
+        if (newCredits === 0) {
+          setShowBlur(true);
+        }
       }
       me(token).catch(() => undefined);
     } catch (e) {
+      clearInterval(progressInterval);
       const err = e as LocationIntelligenceAPIError;
       if (err.statusCode === 402) {
         toast.error(locale === "tr" ? "Krediniz bitti. Fiyatlandırma sayfasına yönlendiriliyorsunuz." : "Out of credits. Redirecting to pricing.");
@@ -304,6 +340,37 @@ export default function LocationIntelligencePage({
                     </div>
                   </div>
 
+                  {/* Loading Progress */}
+                  <AnimatePresence>
+                    {analyzing && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="max-w-sm mx-auto"
+                      >
+                        <div className="bg-slate-800/50 border border-primary/30 rounded-xl p-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-semibold text-primary">
+                              {analysisStage}
+                            </span>
+                            <span className="text-xs font-bold text-primary">
+                              {analysisProgress}%
+                            </span>
+                          </div>
+                          <div className="h-2 rounded-full bg-slate-900/60 border border-slate-700 overflow-hidden">
+                            <motion.div
+                              className="h-full bg-gradient-to-r from-cyan-500 to-purple-500"
+                              initial={{ width: 0 }}
+                              animate={{ width: `${analysisProgress}%` }}
+                              transition={{ duration: 0.5 }}
+                            />
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
                   <div className="flex flex-col sm:flex-row gap-4 max-w-sm mx-auto">
                     <Button
                       onClick={reset}
@@ -372,7 +439,7 @@ export default function LocationIntelligencePage({
           </GlassCard>
 
           {result && !analyzing && (
-            <div className="max-w-5xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
+            <div className="max-w-5xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-700 relative">
               <div className="flex items-center justify-between gap-4 flex-col md:flex-row bg-white/5 border border-white/10 rounded-[32px] p-8">
                 <div className="space-y-2">
                   <h2 className={`text-2xl md:text-3xl font-black uppercase tracking-tighter ${themeClasses.title}`}>
@@ -449,6 +516,36 @@ export default function LocationIntelligencePage({
                   ))}
                 </div>
               </GlassCard>
+
+              {/* Blur Overlay for Free Users */}
+              <AnimatePresence>
+                {showBlur && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute inset-0 backdrop-blur-md bg-slate-900/80 rounded-[32px] flex items-center justify-center z-10"
+                  >
+                    <div className="text-center p-8 max-w-md">
+                      <Crosshair className="w-16 h-16 text-primary mx-auto mb-4" />
+                      <h3 className="text-2xl font-black uppercase text-white mb-3">
+                        {locale === "tr" ? "Ücretsiz Hakkınız Bitti" : "Free Analysis Used"}
+                      </h3>
+                      <p className="text-slate-300 mb-6">
+                        {locale === "tr"
+                          ? "Sonuçları görmek ve sınırsız analiz yapmak için premium plana geçin."
+                          : "Upgrade to premium to view results and get unlimited analyses."}
+                      </p>
+                      <button
+                        onClick={() => router.push(`/${locale}/pricing`)}
+                        className="px-8 py-4 rounded-xl font-bold text-lg bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white transition-all shadow-lg shadow-cyan-500/30"
+                      >
+                        {locale === "tr" ? "Kredi Satın Al" : "Buy Credits"}
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           )}
         </div>
