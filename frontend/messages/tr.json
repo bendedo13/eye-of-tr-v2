@@ -197,7 +197,7 @@
   "cta": {
     "titlePart1": "ALAN SEARCH'E",
     "titlePart2": "BAŞLAYIN",
-    "description": "Ad soyad ile kişi bulma için 1 ücretsiz arama hakkı. Premium abonelik (2000 TL/ay) ile sınırsız yüz arama ve konum tespiti özelliklerine erişin.",
+    "description": "Ad soyad ile kişi bulma için 1 ücretsiz arama hakkı. Premium abonelik (299 TL/ay) ile sınırsız yüz arama ve konum tespiti özelliklerine erişin.",
     "button": "Ücretsiz Hesap Oluştur"
   },
   "auth": {
@@ -366,8 +366,8 @@
       },
       "premium": {
         "title": "Premium Sınırsız",
-        "priceTry": "2000 TL",
-        "priceUsd": "$100",
+        "priceTry": "299 TL",
+        "priceUsd": "$14.99",
         "period": "/ay",
         "desc": "Tüm özelliklere sınırsız erişim",
         "feature1": "Sınırsız Alan Search",
@@ -375,6 +375,13 @@
         "feature3": "Sınırsız Konum Tespiti",
         "feature4": "Öncelikli destek",
         "feature5": "Sonuçlarda blur yok"
+      },
+      "credits": {
+        "title": "Kredi Paketi",
+        "priceTry": "100 TL",
+        "priceUsd": "$5",
+        "perCredit": "/kredi",
+        "desc": "Tek seferlik satın alım"
       },
       "button": "Başlayın"
     },

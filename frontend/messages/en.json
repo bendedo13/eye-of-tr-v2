@@ -197,7 +197,7 @@
   "cta": {
     "titlePart1": "START YOUR",
     "titlePart2": "ALAN SEARCH",
-    "description": "Find people by name with 1 free search. Premium subscription ($100/month) unlocks unlimited face search and location intelligence features.",
+    "description": "Find people by name with 1 free search. Premium subscription ($14.99/month) unlocks unlimited face search and location intelligence features.",
     "button": "Create Free Account"
   },
   "auth": {
@@ -366,8 +366,8 @@
       },
       "premium": {
         "title": "Premium Unlimited",
-        "priceTry": "2000 TL",
-        "priceUsd": "$100",
+        "priceTry": "299 TL",
+        "priceUsd": "$14.99",
         "period": "/month",
         "desc": "Unlimited access to all features",
         "feature1": "Unlimited Alan Search",
@@ -375,6 +375,13 @@
         "feature3": "Unlimited Location Intelligence",
         "feature4": "Priority support",
         "feature5": "No blur on results"
+      },
+      "credits": {
+        "title": "Credit Pack",
+        "priceTry": "100 TL",
+        "priceUsd": "$5",
+        "perCredit": "/credit",
+        "desc": "One-time purchase"
       },
       "button": "Get Started"
     },
