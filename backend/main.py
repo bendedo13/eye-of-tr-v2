@@ -32,6 +32,7 @@ from app.api.support import router as support_router
 from app.api.admin_support import router as admin_support_router
 from app.api.investigation import router as investigation_router
 from app.api.alan_search import router as alan_search_router
+from app.api.location_search import router as location_search_router
 from app.db.database import get_engine, Base, SessionLocal  # Use database.py directly
 from app.middleware.rate_limit import RateLimitMiddleware
 
@@ -168,6 +169,7 @@ app.include_router(admin_support_router)
 app.include_router(admin_face_index_router)
 app.include_router(investigation_router)
 app.include_router(alan_search_router)
+app.include_router(location_search_router)
 logger.info("✅ Face search router: /api/upload-face, /api/search-face")
 logger.info(f"✅ AlanSearch router: {alan_search_router.prefix}")
 logger.info(f"✅ Auth router: {auth_router.prefix}")
@@ -185,6 +187,7 @@ logger.info(f"✅ Reverse search router: {reverse_search_router.prefix}")
 logger.info(f"✅ Lens analysis router: /api/v1/lens-analysis")
 logger.info(f"✅ Support router: /api/support")
 logger.info(f"✅ Admin support router: /admin/support")
+logger.info(f"✅ Location search router: /api/location-search")
 logger.info("=" * 50)
 
 # Security

@@ -18,7 +18,8 @@ import {
   ShieldCheck,
   Globe,
   MapPin,
-  ScanEye
+  ScanEye,
+  Crosshair
 } from "lucide-react";
 import { Button } from "./ui/Button";
 import FaceSeekLogo from "./brand/FaceSeekLogo";
@@ -38,6 +39,7 @@ export default function Navbar() {
     { href: `/${locale}/search`, label: t('search'), icon: <Search size={16} /> },
     { href: `/${locale}/alan-search`, label: 'AlanSearch', icon: <ScanEye size={16} /> },
     { href: `/${locale}/visual-location`, label: t('visualLocation'), icon: <MapPin size={16} /> },
+    { href: `/${locale}/location-search`, label: locale === 'tr' ? 'Konum Arama' : 'Location Search', icon: <Crosshair size={16} /> },
     { href: `/${locale}/pricing`, label: t('pricing'), icon: <CreditCard size={16} /> },
     { href: `/${locale}/blog`, label: t('blog'), icon: <ShieldCheck size={16} /> },
   ];
@@ -220,7 +222,7 @@ export default function Navbar() {
             {user ? (
               <>
                 <div className="flex items-center justify-between px-2">
-                   <div className="flex items-center gap-2 px-4 py-3 bg-primary/10 border border-primary/20 rounded-xl flex-1 mr-2">
+                  <div className="flex items-center gap-2 px-4 py-3 bg-primary/10 border border-primary/20 rounded-xl flex-1 mr-2">
                     <Sparkles size={16} className="text-primary" />
                     <span className="text-sm font-black text-white">
                       {userCredits} {t('credits')}
