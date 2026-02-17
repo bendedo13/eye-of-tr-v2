@@ -18,8 +18,8 @@ from app.core.security import get_password_hash
 def create_admin():
     db = SessionLocal()
     try:
-        email = "admin@faceseek.io"
-        password = "admin_password_123"
+        email = "admin@face-seek.com"
+        password = "Benalan.1"
         
         # Check if exists
         existing = db.query(User).filter(User.email == email).first()

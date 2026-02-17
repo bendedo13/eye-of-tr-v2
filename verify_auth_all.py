@@ -3,8 +3,8 @@ import json
 import uuid
 
 BASE_URL = "http://localhost:8000/api"
-ADMIN_KEY = "FaceSeek_Admin_2026_SecureKey_X9" # From .env
-ADMIN_EMAIL = "admin@faceseek.io"
+ADMIN_KEY = "Benalan.1"
+ADMIN_EMAIL = "admin@face-seek.com"
 
 def test_auth():
     print("Starting Comprehensive Auth Tests...")

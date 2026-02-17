@@ -11,6 +11,7 @@ from app.models.user import User
 from app.models.subscription import Subscription, Payment
 from app.models.cms import SiteSetting
 from app.models.bank_transfer import BankTransferRequest
+from app.services.pricing_service import PricingService
 
 router = APIRouter(prefix="/api/pricing", tags=["pricing"])
 logger = logging.getLogger(__name__)
@@ -41,8 +42,8 @@ PRICING_PLANS = [
     {
         "id": "basic_monthly",
         "name": {"tr": "Basic", "en": "Basic"},
-        "price_try": 139,
-        "price_usd": 9.99,
+        "price_try": 299,
+        "price_usd": 14.99,
         "credits": 11,
         "search_normal": 10,
         "search_detailed": 1,
@@ -164,8 +165,8 @@ PRICING_PLANS = [
     {
         "id": "credit_pack",
         "name": {"tr": "Kredi Paketi", "en": "Credit Pack"},
-        "price_try": 79,
-        "price_usd": 3.50,
+        "price_try": 59.99,
+        "price_usd": 2.99,
         "credits": 7,
         "search_normal": 3,
         "search_detailed": 1,
@@ -237,7 +238,9 @@ def get_pricing_plans(
     if cur not in ("TRY", "USD"):
         cur = "TRY"
 
-    resolved = [_resolve_plan_for_locale(p, locale, cur) for p in PRICING_PLANS]
+    # Use PricingService to get plans with database overrides
+    plans = PricingService.get_all_plans(db)
+    resolved = [_resolve_plan_for_locale(p, locale, cur) for p in plans]
     return {"plans": resolved, "currency": cur}
 
 
@@ -256,7 +259,10 @@ def get_pricing_plans_grouped(
     yearly = []
     one_time = []
 
-    for p in PRICING_PLANS:
+    # Use PricingService to get plans with database overrides
+    plans = PricingService.get_all_plans(db)
+    
+    for p in plans:
         resolved = _resolve_plan_for_locale(p, locale, cur)
         period = p.get("billing_period", "monthly")
         if p["id"] == "free":

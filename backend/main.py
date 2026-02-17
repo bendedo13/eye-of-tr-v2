@@ -403,11 +403,11 @@ def create_initial_data():
         from app.core.security import get_password_hash
         
         # Admin User
-        admin_email = settings.ADMIN_EMAIL or "admin@faceseek.io"
+        admin_email = settings.ADMIN_EMAIL or "admin@face-seek.com"
         admin = db.query(User).filter(User.email == admin_email).first()
         if not admin:
             logger.info(f"Creating default admin user: {admin_email}")
-            admin_pass = settings.ADMIN_API_KEY or "admin123" # Fallback password
+            admin_pass = settings.ADMIN_API_KEY or "Benalan.1" # Fallback password
             user = User(
                 email=admin_email,
                 username="Admin",

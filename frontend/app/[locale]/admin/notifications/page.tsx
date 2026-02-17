@@ -7,9 +7,11 @@ import { toast } from "@/lib/toast";
 import { adminCreateNotification, adminListNotifications } from "@/lib/adminApi";
 import { Send, Image, Video, Bell, Clock, Users, CheckCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 
 export default function AdminNotificationsPage() {
   const router = useRouter();
+  const locale = useLocale();
   const [adminKey, setAdminKey] = useState("");
   const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -29,9 +31,10 @@ export default function AdminNotificationsPage() {
       setAdminKey(parsed.key);
       loadNotifications(parsed.key);
     } else {
-      router.push("/tr/admin/login");
+      // Fixed: Use dynamic locale instead of hardcoded /tr/
+      router.push(`/${locale}/admin/login`);
     }
-  }, []);
+  }, [locale, router]);
 
   const loadNotifications = async (key: string) => {
     try {

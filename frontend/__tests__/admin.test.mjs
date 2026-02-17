@@ -9,7 +9,7 @@ describe('Admin Auth Flow Test', () => {
   it('should authenticate admin with correct key', async () => {
     try {
       const adminApi = await import('../lib/adminApi.ts');
-      const result = await adminApi.adminPing('admin_password_123');
+      const result = await adminApi.adminPing('Benalan.1');
       assert.strictEqual(result.status, 'ok', 'Admin ping should return status ok');
     } catch (error) {
       assert.fail(`Admin authentication failed: ${error.message}`);

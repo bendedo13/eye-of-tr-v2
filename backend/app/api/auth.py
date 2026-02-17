@@ -94,6 +94,7 @@ def register(data: UserRegister, request: Request, db: Session = Depends(get_db)
         hashed_password=get_password_hash(data.password),
         referral_code=referral_code,
         credits=1,  # 1 ücretsiz arama kredisi
+        alan_search_credits=1,  # 1 ücretsiz AlanSearch kredisi
         tier="free",
         is_active=True,
     )

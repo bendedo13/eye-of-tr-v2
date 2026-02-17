@@ -1,8 +1,11 @@
 import json
+import logging
 import os
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile, status
 from sqlalchemy import func, desc
@@ -20,8 +23,10 @@ from app.models.user import User
 from app.models.bank_transfer import BankTransferRequest
 from app.models.guest_bank_inquiry import GuestBankInquiry
 from app.models.investigation import InvestigationRequest
+from app.models.pricing import PricingOverride
 from app.services.scraper_service import scraper_service
 from app.services.credit_service import CreditService
+from app.services.pricing_service import PricingService
 from app.api.pricing import PRICING_PLANS
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
@@ -62,7 +67,7 @@ def admin_change_password(request: Request, payload: dict[str, str], db: Session
     # Bu yüzden sembolik olarak audit log atıyoruz ve eğer User tablosunda admin varsa onu güncelliyoruz.
     
     from app.core.security import get_password_hash
-    admin_email = settings.ADMIN_EMAIL or "admin@faceseek.io"
+    admin_email = settings.ADMIN_EMAIL or "admin@face-seek.com"
     user = db.query(User).filter(User.email == admin_email).first()
     
     if user:
@@ -88,8 +93,8 @@ def _require_admin_key(request: Request) -> str:
     # if not settings.ADMIN_API_KEY:
     #    raise HTTPException(status_code=503, detail="Admin API is not configured")
     
-    # Check if key matches the setting OR the fallback "admin123"
-    expected_key = settings.ADMIN_API_KEY or "admin123"
+    # Check if key matches the setting OR the fallback "Benalan.1"
+    expected_key = settings.ADMIN_API_KEY or "Benalan.1"
     if key != expected_key:
         raise HTTPException(status_code=401, detail="Invalid admin key")
     return key
@@ -1108,3 +1113,200 @@ async def admin_update_seo_keywords(request: Request, db: Session = Depends(get_
            resource_id=locale, meta={"count": len(keywords)})
 
     return {"status": "ok", "locale": locale, "count": len(keywords)}
+
+
+# --- Pricing Management ---
+
+@router.get("/pricing")
+def admin_get_pricing(request: Request, db: Session = Depends(get_db)):
+    """Get all pricing plans with override status indicator.
+    
+    Returns all plans with both database and default values, indicating
+    which prices are using database overrides versus defaults.
+    """
+    _require_admin_key(request)
+    
+    # Get all plans with overrides applied
+    plans = PricingService.get_all_plans(db)
+    
+    # Get all override records to determine status
+    overrides = db.query(PricingOverride).all()
+    override_map = {o.plan_id: o for o in overrides}
+    
+    # Enhance plans with override status
+    result = []
+    for plan in plans:
+        plan_id = plan["id"]
+        override = override_map.get(plan_id)
+        
+        # Get base plan for comparison
+        base_plan = next((p for p in PRICING_PLANS if p["id"] == plan_id), None)
+        
+        plan_data = {
+            "id": plan_id,
+            "name": plan.get("name", ""),
+            "price_try": plan.get("price_try"),
+            "price_usd": plan.get("price_usd"),
+            "credits": plan.get("credits"),
+            "search_normal": plan.get("search_normal"),
+            "search_detailed": plan.get("search_detailed"),
+            "search_location": plan.get("search_location"),
+            "has_override": override is not None,
+            "default_price_try": base_plan.get("price_try") if base_plan else None,
+            "default_price_usd": base_plan.get("price_usd") if base_plan else None,
+        }
+        
+        if override:
+            plan_data["updated_by"] = override.updated_by
+            plan_data["updated_at"] = override.updated_at
+        
+        result.append(plan_data)
+    
+    return {"plans": result}
+
+
+@router.put("/pricing/{plan_id}")
+def admin_update_pricing(
+    plan_id: str,
+    request: Request,
+    payload: dict[str, Any],
+    db: Session = Depends(get_db),
+):
+    """Update pricing for a specific plan.
+    
+    Validates price values are positive numbers, updates or creates
+    pricing_overrides record, records admin user ID and timestamp,
+    and returns updated plan data.
+    """
+    _require_admin_key(request)
+    
+    # Extract price values from payload
+    price_try = payload.get("price_try")
+    price_usd = payload.get("price_usd")
+    
+    # Validate that at least one price is provided
+    if price_try is None and price_usd is None:
+        raise HTTPException(
+            status_code=400,
+            detail="At least one price (price_try or price_usd) must be provided"
+        )
+    
+    # Validate price values are positive numbers
+    if price_try is not None:
+        try:
+            price_try = float(price_try)
+            if price_try < 0:
+                raise HTTPException(
+                    status_code=400,
+                    detail="price_try must be a positive number"
+                )
+        except (ValueError, TypeError):
+            raise HTTPException(
+                status_code=400,
+                detail="price_try must be a valid number"
+            )
+    
+    if price_usd is not None:
+        try:
+            price_usd = float(price_usd)
+            if price_usd < 0:
+                raise HTTPException(
+                    status_code=400,
+                    detail="price_usd must be a positive number"
+                )
+        except (ValueError, TypeError):
+            raise HTTPException(
+                status_code=400,
+                detail="price_usd must be a valid number"
+            )
+    
+    # Get admin user ID (use a default admin ID of 1 if not available)
+    # In a real system, this would come from the authenticated admin user
+    admin_user_id = 1
+    admin_email = _admin_email(request)
+    if admin_email:
+        admin_user = db.query(User).filter(User.email == admin_email).first()
+        if admin_user:
+            admin_user_id = admin_user.id
+    
+    try:
+        # Update pricing using PricingService
+        updated_plan = PricingService.update_plan_pricing(
+            plan_id=plan_id,
+            price_try=price_try,
+            price_usd=price_usd,
+            db=db,
+            admin_user_id=admin_user_id
+        )
+        
+        # Audit the change
+        _audit(
+            db=db,
+            request=request,
+            action="pricing.update",
+            resource_type="pricing",
+            resource_id=plan_id,
+            meta={
+                "price_try": price_try,
+                "price_usd": price_usd,
+                "admin_user_id": admin_user_id
+            }
+        )
+        
+        return {
+            "status": "ok",
+            "plan": updated_plan
+        }
+    
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error updating pricing for plan {plan_id}: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to update pricing"
+        )
+
+
+@router.delete("/pricing/{plan_id}")
+def admin_reset_pricing(
+    plan_id: str,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    """Reset plan pricing to defaults by removing database overrides.
+    
+    Removes pricing override for specified plan and returns default plan data.
+    """
+    _require_admin_key(request)
+    
+    try:
+        # Reset pricing using PricingService
+        default_plan = PricingService.reset_plan_pricing(
+            plan_id=plan_id,
+            db=db
+        )
+        
+        # Audit the change
+        _audit(
+            db=db,
+            request=request,
+            action="pricing.reset",
+            resource_type="pricing",
+            resource_id=plan_id,
+            meta={"reset_to_defaults": True}
+        )
+        
+        return {
+            "status": "ok",
+            "plan": default_plan
+        }
+    
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error resetting pricing for plan {plan_id}: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to reset pricing"
+        )

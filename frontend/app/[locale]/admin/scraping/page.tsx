@@ -7,9 +7,11 @@ import { toast } from "@/lib/toast";
 import { adminStartScraping } from "@/lib/adminApi";
 import { Globe, Download, Play, CheckCircle, AlertTriangle, Image as ImageIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 
 export default function AdminScrapingPage() {
   const router = useRouter();
+  const locale = useLocale();
   const [adminKey, setAdminKey] = useState("");
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
@@ -22,9 +24,10 @@ export default function AdminScrapingPage() {
       const parsed = JSON.parse(stored);
       setAdminKey(parsed.key);
     } else {
-      router.push("/tr/admin/login");
+      // Fixed: Use dynamic locale instead of hardcoded /tr/
+      router.push(`/${locale}/admin/login`);
     }
-  }, []);
+  }, [locale, router]);
 
   const handleScrape = async (e: React.FormEvent) => {
     e.preventDefault();

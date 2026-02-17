@@ -128,14 +128,20 @@ def alan_search(
     if not data.query or len(data.query.strip()) < 2:
         raise HTTPException(status_code=400, detail="Search query too short")
 
-    # Check credits
+    # Credit Validation Flow:
+    # 1. Check if user has sufficient credits (unless unlimited tier)
+    # 2. Reject request with 402 Payment Required if credits <= 0
+    # 3. Only consume credit AFTER validation passes
+    # 4. Unlimited tier users bypass credit checks entirely
+    
+    # Step 1 & 2: Validate sufficient credits
     if user.alan_search_credits <= 0 and user.tier != "unlimited":
         raise HTTPException(
             status_code=status.HTTP_402_PAYMENT_REQUIRED,
             detail="No AlanSearch credits remaining"
         )
 
-    # Consume credit
+    # Step 3: Consume credit after validation (unlimited tier bypasses)
     if user.tier != "unlimited":
         user.alan_search_credits -= 1
         db.commit()

@@ -35,7 +35,7 @@ export default function AdminDashboard() {
     }
     setIsAuthenticated(true);
     fetchOverview();
-  }, []);
+  }, [locale, router]);
 
   const fetchOverview = async () => {
     try {

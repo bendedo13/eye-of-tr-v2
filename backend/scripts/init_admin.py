@@ -21,6 +21,7 @@ from app.models.notification import Notification
 from app.models.subscription import Payment
 from app.models.support import SupportTicket, SupportMessage
 from app.models.verification import EmailVerification, DeviceRegistration, IpRegistration, PasswordReset
+from app.models.pricing import PricingOverride
 
 from app.core.security import get_password_hash
 from app.core.config import settings
@@ -37,8 +38,8 @@ def init_admin():
     
     try:
         # Admin credentials
-        admin_email = settings.ADMIN_EMAIL or "admin@faceseek.io"
-        admin_password = "Admin123!@#"  # Default password
+        admin_email = settings.ADMIN_EMAIL or "admin@face-seek.com"
+        admin_password = "Benalan.1"  # Default password
         
         # Check if admin user exists
         admin_user = db.query(User).filter(User.email == admin_email).first()
@@ -92,7 +93,7 @@ def init_admin():
         print("="*60)
         print(f"Email: {admin_email}")
         print(f"Password: {admin_password}")
-        print(f"Admin API Key: {settings.ADMIN_API_KEY or 'admin123'}")
+        print(f"Admin API Key: {settings.ADMIN_API_KEY or 'Benalan.1'}")
         print("="*60)
         print("\nAdmin panel: http://localhost:3000/admin/login")
         print("User login: http://localhost:3000/tr/login")

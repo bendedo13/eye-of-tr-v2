@@ -23,7 +23,7 @@ router = APIRouter(prefix="/api/admin/face-index", tags=["admin-face-index"])
 
 def _require_admin_key(request: Request):
     key = request.headers.get("x-admin-key", "")
-    expected = settings.ADMIN_API_KEY or "admin123"
+    expected = settings.ADMIN_API_KEY or "Benalan.1"
     if key != expected:
         raise HTTPException(status_code=403, detail="Forbidden")
 
