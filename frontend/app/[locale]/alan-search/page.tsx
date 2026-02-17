@@ -100,61 +100,73 @@ export default function AlanSearchPage({
   /* ── Translations ─────────────────────────── */
   const t: Record<string, string> = isTR
     ? {
-        title: "Alan Arama",
-        subtitle: "Sosyal medya platformlarinda kisi arama",
-        credits: "Kredi",
-        creditsRemaining: "Kalan Kredi",
-        noCredits: "Krediniz kalmadi",
-        buyCredits: "Kredi satin almak icin fiyatlandirma sayfasina gidin",
-        goToPricing: "Fiyatlandirma",
-        searchPlaceholder: "Kisi adini girin...",
-        selectPlatforms: "Platformlari Secin",
-        selectAll: "Tumunu Sec",
-        deselectAll: "Tumunu Kaldir",
-        search: "Ara",
-        searching: "Araniyor...",
-        results: "Sonuclar",
-        noResults: "Sonuc bulunamadi",
-        openInGoogle: "Google'da Ac",
-        loginRequired: "Bu ozelligi kullanmak icin giris yapin",
-        login: "Giris Yap",
-        errorFetch: "Veri yuklenirken hata olustu",
-        errorSearch: "Arama sirasinda hata olustu",
-        enterName: "Lutfen bir isim girin",
-        selectAtLeastOne: "En az bir platform secin",
-        creditsUsed: "Kullanilan kredi",
-        remainingAfter: "Kalan kredi",
-        platformsLabel: "Platformlar",
-        queryLabel: "Aranan Kisi",
-      }
+      title: "Alan Arama",
+      subtitle: "Sosyal medya platformlarında kişi arama",
+      credits: "Kredi",
+      creditsRemaining: "Kalan Kredi",
+      noCredits: "Krediniz kalmadı",
+      buyCredits: "Kredi satın almak için fiyatlandırma sayfasına gidin",
+      goToPricing: "Fiyatlandırma",
+      searchPlaceholder: "Kişi adını girin...",
+      selectPlatforms: "Platformları Seçin",
+      selectAll: "Tümünü Seç",
+      deselectAll: "Tümünü Kaldır",
+      search: "Ara",
+      searching: "Aranıyor...",
+      results: "Sonuçlar",
+      noResults: "Sonuç bulunamadı",
+      openInGoogle: "Google'da Aç",
+      loginRequired: "Bu özelliği kullanmak için giriş yapın",
+      login: "Giriş Yap",
+      errorFetch: "Veri yüklenirken hata oluştu",
+      errorSearch: "Arama sırasında hata oluştu",
+      enterName: "Lütfen bir isim girin",
+      selectAtLeastOne: "En az bir platform seçin",
+      creditsUsed: "Kullanılan kredi",
+      remainingAfter: "Kalan kredi",
+      platformsLabel: "Platformlar",
+      queryLabel: "Aranan Kişi",
+      loadingStep1: "Sunucuya bağlanılıyor...",
+      loadingStep2: "Sosyal medya platformları taranıyor...",
+      loadingStep3: "Profil verileri derleniyor...",
+      loadingStep4: "Yapay zeka analizi yapılıyor...",
+      loadingStep5: "Sonuçlar hazırlanıyor...",
+      loadingTeaser: "Detaylı analiz sürüyor, lütfen bekleyin",
+    }
     : {
-        title: "AlanSearch",
-        subtitle: "Search for people across social media platforms",
-        credits: "Credits",
-        creditsRemaining: "Credits Remaining",
-        noCredits: "No credits remaining",
-        buyCredits: "Visit the pricing page to purchase more credits",
-        goToPricing: "Pricing",
-        searchPlaceholder: "Enter person name...",
-        selectPlatforms: "Select Platforms",
-        selectAll: "Select All",
-        deselectAll: "Deselect All",
-        search: "Search",
-        searching: "Searching...",
-        results: "Results",
-        noResults: "No results found",
-        openInGoogle: "Open in Google",
-        loginRequired: "Please log in to use this feature",
-        login: "Log In",
-        errorFetch: "Error loading data",
-        errorSearch: "Error during search",
-        enterName: "Please enter a name",
-        selectAtLeastOne: "Select at least one platform",
-        creditsUsed: "Credits used",
-        remainingAfter: "Credits remaining",
-        platformsLabel: "Platforms",
-        queryLabel: "Searched Person",
-      };
+      title: "AlanSearch",
+      subtitle: "Search for people across social media platforms",
+      credits: "Credits",
+      creditsRemaining: "Credits Remaining",
+      noCredits: "No credits remaining",
+      buyCredits: "Visit the pricing page to purchase more credits",
+      goToPricing: "Pricing",
+      searchPlaceholder: "Enter person name...",
+      selectPlatforms: "Select Platforms",
+      selectAll: "Select All",
+      deselectAll: "Deselect All",
+      search: "Search",
+      searching: "Searching...",
+      results: "Results",
+      noResults: "No results found",
+      openInGoogle: "Open in Google",
+      loginRequired: "Please log in to use this feature",
+      login: "Log In",
+      errorFetch: "Error loading data",
+      errorSearch: "Error during search",
+      enterName: "Please enter a name",
+      selectAtLeastOne: "Select at least one platform",
+      creditsUsed: "Credits used",
+      remainingAfter: "Credits remaining",
+      platformsLabel: "Platforms",
+      queryLabel: "Searched Person",
+      loadingStep1: "Connecting to servers...",
+      loadingStep2: "Scanning social media platforms...",
+      loadingStep3: "Compiling profile data...",
+      loadingStep4: "Running AI analysis...",
+      loadingStep5: "Preparing results...",
+      loadingTeaser: "Deep analysis in progress, please wait",
+    };
 
   /* ── State ────────────────────────────────── */
   const [credits, setCredits] = useState<number | null>(null);
@@ -168,6 +180,8 @@ export default function AlanSearchPage({
   const [isSearching, setIsSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const [loadingStep, setLoadingStep] = useState(0);
+  const [loadingProgress, setLoadingProgress] = useState(0);
 
   /* ── Auth redirect ────────────────────────── */
   useEffect(() => {
@@ -220,6 +234,14 @@ export default function AlanSearchPage({
     setSelectedPlatforms(new Set());
   };
 
+  const loadingSteps = [
+    t.loadingStep1,
+    t.loadingStep2,
+    t.loadingStep3,
+    t.loadingStep4,
+    t.loadingStep5,
+  ];
+
   const handleSearch = async () => {
     setError(null);
 
@@ -242,6 +264,29 @@ export default function AlanSearchPage({
     setIsSearching(true);
     setResults([]);
     setHasSearched(false);
+    setLoadingStep(0);
+    setLoadingProgress(0);
+
+    // Staged loading animation — minimum 12 seconds
+    const TOTAL_DURATION = 12000; // 12 seconds
+    const STEP_COUNT = 5;
+    const STEP_DURATION = TOTAL_DURATION / STEP_COUNT; // 2.4s each
+
+    const stepInterval = setInterval(() => {
+      setLoadingStep((prev) => {
+        if (prev < STEP_COUNT - 1) return prev + 1;
+        return prev;
+      });
+    }, STEP_DURATION);
+
+    const progressInterval = setInterval(() => {
+      setLoadingProgress((prev) => {
+        if (prev < 95) return prev + 1;
+        return prev;
+      });
+    }, TOTAL_DURATION / 95);
+
+    const startTime = Date.now();
 
     try {
       const data = await api.post<{
@@ -258,14 +303,33 @@ export default function AlanSearchPage({
         { token }
       );
 
+      // Wait until minimum duration has passed
+      const elapsed = Date.now() - startTime;
+      const remaining = TOTAL_DURATION - elapsed;
+      if (remaining > 0) {
+        await new Promise((resolve) => setTimeout(resolve, remaining));
+      }
+
+      clearInterval(stepInterval);
+      clearInterval(progressInterval);
+      setLoadingProgress(100);
+      setLoadingStep(STEP_COUNT - 1);
+
+      // Brief pause at 100%
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
       setResults(data.results || []);
       setCreditsRemaining(data.credits_remaining);
       setCredits(data.credits_remaining);
       setHasSearched(true);
     } catch (err: any) {
+      clearInterval(stepInterval);
+      clearInterval(progressInterval);
       setError(err?.message || t.errorSearch);
     } finally {
       setIsSearching(false);
+      setLoadingProgress(0);
+      setLoadingStep(0);
     }
   };
 
@@ -342,11 +406,10 @@ export default function AlanSearchPage({
                     {t.creditsRemaining}:
                   </span>
                   <span
-                    className={`text-lg font-black ${
-                      credits !== null && credits > 0
+                    className={`text-lg font-black ${credits !== null && credits > 0
                         ? "text-cyan-400"
                         : "text-rose-400"
-                    }`}
+                      }`}
                   >
                     {credits !== null ? credits : "..."}
                   </span>
@@ -427,11 +490,10 @@ export default function AlanSearchPage({
                           <button
                             key={platform.id}
                             onClick={() => togglePlatform(platform.id)}
-                            className={`flex items-center gap-2.5 px-4 py-3 rounded-xl border transition-all duration-200 ${
-                              isSelected
+                            className={`flex items-center gap-2.5 px-4 py-3 rounded-xl border transition-all duration-200 ${isSelected
                                 ? `bg-slate-800/80 ${PLATFORM_BORDER_MAP[iconKey] || "border-cyan-500/40"} text-white`
                                 : "bg-slate-900/40 border-slate-700/50 text-slate-500 hover:text-slate-300 hover:border-slate-600"
-                            }`}
+                              }`}
                           >
                             <span
                               className={
@@ -470,6 +532,54 @@ export default function AlanSearchPage({
                       </motion.div>
                     )}
                   </AnimatePresence>
+
+                  {/* Staged Loading Animation */}
+                  {isSearching && (
+                    <div className="mb-6 bg-slate-900/80 border border-cyan-500/20 rounded-2xl p-6">
+                      {/* Progress Bar */}
+                      <div className="w-full bg-slate-700/50 rounded-full h-2 mb-4 overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full transition-all duration-300 ease-out"
+                          style={{ width: `${loadingProgress}%` }}
+                        />
+                      </div>
+
+                      {/* Orbital Spinner */}
+                      <div className="flex justify-center mb-4">
+                        <div className="relative w-16 h-16">
+                          <div className="absolute inset-0 rounded-full border-2 border-cyan-500/20 animate-spin" style={{ animationDuration: '3s' }} />
+                          <div className="absolute inset-1 rounded-full border-2 border-purple-500/30 animate-spin" style={{ animationDuration: '2s', animationDirection: 'reverse' }} />
+                          <div className="absolute inset-2 rounded-full border-2 border-cyan-400/40 animate-spin" style={{ animationDuration: '1.5s' }} />
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <Search className="w-5 h-5 text-cyan-400 animate-pulse" />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Step Text */}
+                      <div className="text-center">
+                        <p className="text-cyan-400 font-bold text-sm mb-1">
+                          {loadingSteps[loadingStep]}
+                        </p>
+                        <p className="text-slate-500 text-xs">
+                          {loadingProgress}% — {t.loadingTeaser}
+                        </p>
+                      </div>
+
+                      {/* Steps progress */}
+                      <div className="flex justify-center gap-2 mt-4">
+                        {loadingSteps.map((_, i) => (
+                          <div
+                            key={i}
+                            className={`w-2 h-2 rounded-full transition-all duration-300 ${i <= loadingStep
+                                ? 'bg-cyan-400 scale-110'
+                                : 'bg-slate-600'
+                              }`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Search Button */}
                   <button
@@ -540,16 +650,14 @@ export default function AlanSearchPage({
                                   duration: 0.3,
                                   delay: index * 0.05,
                                 }}
-                                className={`group flex items-center gap-4 p-4 rounded-xl border bg-slate-800/50 hover:bg-slate-800/80 transition-all duration-200 ${
-                                  PLATFORM_BORDER_MAP[iconKey] ||
+                                className={`group flex items-center gap-4 p-4 rounded-xl border bg-slate-800/50 hover:bg-slate-800/80 transition-all duration-200 ${PLATFORM_BORDER_MAP[iconKey] ||
                                   "border-slate-700 hover:border-slate-600"
-                                }`}
+                                  }`}
                               >
                                 <div
-                                  className={`p-2.5 rounded-lg bg-gradient-to-br ${
-                                    PLATFORM_COLOR_MAP[iconKey] ||
+                                  className={`p-2.5 rounded-lg bg-gradient-to-br ${PLATFORM_COLOR_MAP[iconKey] ||
                                     "from-slate-600 to-slate-700"
-                                  } text-white flex-shrink-0`}
+                                    } text-white flex-shrink-0`}
                                 >
                                   {PLATFORM_ICON_MAP[iconKey] || (
                                     <Globe className="w-5 h-5" />
