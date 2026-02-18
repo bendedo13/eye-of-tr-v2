@@ -79,7 +79,7 @@ The implementation follows a logical progression: database schema → backend se
     - **Property 10: Pricing API Response Format Consistency**
     - **Validates: Requirements 4.3**
 
-- [ ] 6. Checkpoint - Ensure pricing service tests pass
+- [x] 6. Checkpoint - Ensure pricing service tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 7. Implement admin pricing management API
@@ -148,7 +148,7 @@ The implementation follows a logical progression: database schema → backend se
     - Test credit is decremented after successful search
     - _Requirements: 5.3_
 
-- [ ] 10. Checkpoint - Ensure backend tests pass
+- [~] 10. Checkpoint - Ensure backend tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 11. Create admin pricing management frontend page
@@ -174,7 +174,7 @@ The implementation follows a logical progression: database schema → backend se
     - _Requirements: 2.1_
 
 - [ ] 12. Update frontend pricing display
-  - [x] 12.1 Verify frontend pricing pages use API correctly
+  - [~] 12.1 Verify frontend pricing pages use API correctly
     - Check that pricing page fetches from /api/pricing/plans
     - Verify currency selection works correctly
     - Ensure new prices display correctly
@@ -193,7 +193,7 @@ The implementation follows a logical progression: database schema → backend se
     - Admin views pricing → Updates price → Verifies persistence → Resets → Verifies default
     - _Requirements: 5.4_
 
-- [ ] 14. Final checkpoint - Ensure all tests pass
+- [~] 14. Final checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes
