@@ -96,6 +96,24 @@ export default function SettingsPage() {
               <option value="true">Açık</option>
             </select>
           </div>
+          <div>
+            <label className="block text-white font-black uppercase text-sm mb-2">Shopify Aylık Abonelik Linki</label>
+            <input
+              type="text"
+              value={settings.pricing_basic_monthly_shopify_url || ""}
+              onChange={(e) => setSettings({ ...settings, pricing_basic_monthly_shopify_url: e.target.value })}
+              className="w-full px-4 py-3 bg-black/40 border border-white/5 rounded-lg text-white focus:outline-none focus:border-primary/50"
+            />
+          </div>
+          <div>
+            <label className="block text-white font-black uppercase text-sm mb-2">Shopify Kredi Paketi Linki</label>
+            <input
+              type="text"
+              value={settings.pricing_credit_pack_shopify_url || ""}
+              onChange={(e) => setSettings({ ...settings, pricing_credit_pack_shopify_url: e.target.value })}
+              className="w-full px-4 py-3 bg-black/40 border border-white/5 rounded-lg text-white focus:outline-none focus:border-primary/50"
+            />
+          </div>
         </GlassCard>
       )}
     </div>

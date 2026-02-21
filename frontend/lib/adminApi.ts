@@ -141,8 +141,9 @@ export function adminListReferrals(adminKey: string, params: { offset?: number; 
   return adminFetch<{ items: any[] }>(`/admin/referrals${qs ? `?${qs}` : ""}`, { method: "GET", adminKey });
 }
 
-export function adminGetSiteSettings(adminKey: string) {
-  return adminFetch<{ settings: any }>("/admin/site-settings", { method: "GET", adminKey });
+export async function adminGetSiteSettings(adminKey: string) {
+  const res = await adminFetch<{ settings: any }>("/admin/site-settings", { method: "GET", adminKey });
+  return res.settings || {};
 }
 
 export function adminSetSiteSetting(adminKey: string, key: string, value: any) {

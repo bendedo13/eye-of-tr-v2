@@ -110,6 +110,8 @@ def public_site_config(locale: str, db: Session = Depends(get_db)):
         "home.analysis_video_title",
         "site.maintenance_mode",
         "site.contact_email",
+        "pricing_basic_monthly_shopify_url",
+        "pricing_credit_pack_shopify_url",
     ]
     rows = db.query(SiteSetting).filter(SiteSetting.key.in_(keys)).all()
     out: dict[str, Any] = {}

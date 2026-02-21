@@ -2,10 +2,11 @@
 
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
-import { createGuestBankInquiry, getPricingPlansGrouped, requestBankTransfer, subscribe } from "@/lib/api";
+import { useEffect, useState } from "react";
+import { createGuestBankInquiry, requestBankTransfer } from "@/lib/api";
 import Navbar from "@/components/Navbar";
 import ClientOnly from "@/components/ClientOnly";
+import { useSiteConfig } from "@/lib/siteConfig";
 
 interface PricingPlan {
   id: string;
@@ -36,6 +37,7 @@ export default function PricingPage({ params }: PricingPageProps) {
 
   const isTR = locale === "tr";
   const currency = isTR ? "TRY" : "USD";
+  const { config } = useSiteConfig(locale);
 
   const t: Record<string, string> = isTR
     ? {
@@ -175,14 +177,12 @@ export default function PricingPage({ params }: PricingPageProps) {
       oneTimePayment: "One-Time Payment",
     };
 
-  const [processingPlan, setProcessingPlan] = useState<string | null>(null);
+  const [processing, setProcessing] = useState<string | null>(null);
   const [loadingPlans, setLoadingPlans] = useState(true);
-
-  // Bank transfer states
   const [paymentMethod, setPaymentMethod] = useState<"card" | "bank">("card");
   const [showBankForm, setShowBankForm] = useState(false);
   const [bankPurchaseType, setBankPurchaseType] = useState<"plan" | "credits">("plan");
-  const [bankPlanId, setBankPlanId] = useState("");
+  const [bankPlanId] = useState("basic_monthly");
   const [bankCredits, setBankCredits] = useState("");
   const [bankAmount, setBankAmount] = useState("");
   const [bankNote, setBankNote] = useState("");
@@ -190,8 +190,6 @@ export default function PricingPage({ params }: PricingPageProps) {
   const [bankSuccess, setBankSuccess] = useState<string | null>(null);
   const [bankError, setBankError] = useState<string | null>(null);
   const [ibanCopied, setIbanCopied] = useState(false);
-
-  // Guest form
   const [guestOpen, setGuestOpen] = useState(false);
   const [guestSubmitting, setGuestSubmitting] = useState(false);
   const [guestSuccess, setGuestSuccess] = useState<string | null>(null);
@@ -203,60 +201,19 @@ export default function PricingPage({ params }: PricingPageProps) {
     desired: "",
     message: "",
   });
-
-  // Credit quantity for purchase
   const [creditQty, setCreditQty] = useState(5);
 
   useEffect(() => {
-    // Simulating plan load
     const timer = setTimeout(() => setLoadingPlans(false), 300);
     return () => clearTimeout(timer);
   }, []);
 
   const subscriptionPrice = isTR ? "299" : "14.99";
   const subscriptionCurrency = isTR ? "₺" : "$";
-  const creditPrice = isTR ? "54.99" : "2";
+  const creditPrice = isTR ? "59.99" : "2.99";
   const creditCurrencySymbol = isTR ? "₺" : "$";
-
-  const handleSubscribe = async (planId: string) => {
-    if (!user || !token) {
-      router.push(`/${locale}/login`);
-      return;
-    }
-    setProcessingPlan(planId);
-    try {
-      const result: any = await subscribe(token, planId, currency);
-      if (result?.checkout_url) {
-        window.location.href = result.checkout_url;
-      } else {
-        alert(result?.message || "OK");
-      }
-    } catch (error: any) {
-      alert(error?.message || "Error");
-    } finally {
-      setProcessingPlan(null);
-    }
-  };
-
-  const handleBuyCredits = async () => {
-    if (!user || !token) {
-      router.push(`/${locale}/login`);
-      return;
-    }
-    setProcessingPlan("credits");
-    try {
-      const result: any = await subscribe(token, `credit_pack_${creditQty}`, currency);
-      if (result?.checkout_url) {
-        window.location.href = result.checkout_url;
-      } else {
-        alert(result?.message || "OK");
-      }
-    } catch (error: any) {
-      alert(error?.message || "Error");
-    } finally {
-      setProcessingPlan(null);
-    }
-  };
+  const basicShopifyUrl = typeof config?.pricing_basic_monthly_shopify_url === "string" ? config.pricing_basic_monthly_shopify_url : "";
+  const creditShopifyUrl = typeof config?.pricing_credit_pack_shopify_url === "string" ? config.pricing_credit_pack_shopify_url : "";
 
   const handleBankRequest = async () => {
     if (!user || !token) {
@@ -272,7 +229,7 @@ export default function PricingPage({ params }: PricingPageProps) {
     }
     const payload: any = { amount, currency: "TRY", note: bankNote || undefined };
     if (bankPurchaseType === "plan") {
-      payload.plan_id = "pro_monthly";
+      payload.plan_id = bankPlanId;
     } else {
       const credits = Number(bankCredits || 0);
       if (!Number.isFinite(credits) || credits <= 0) {
@@ -307,6 +264,20 @@ export default function PricingPage({ params }: PricingPageProps) {
     } catch {
       setIbanCopied(false);
     }
+  };
+
+  const handleOpenShopify = (kind: "subscription" | "credits") => {
+    if (!user || !token) {
+      router.push(`/${locale}/login`);
+      return;
+    }
+    const url = kind === "subscription" ? basicShopifyUrl : creditShopifyUrl;
+    if (!url) {
+      alert(isTR ? "Shopify ödeme bağlantısı henüz tanımlanmadı." : "Shopify checkout URL is not configured yet.");
+      return;
+    }
+    setProcessing(kind);
+    window.location.href = url;
   };
 
   const handleGuestSubmit = async () => {
@@ -393,7 +364,7 @@ export default function PricingPage({ params }: PricingPageProps) {
                   : "bg-slate-700 text-slate-200 hover:bg-slate-600"
                   }`}
               >
-                {t.bankTransfer}
+                        {t.bankTransfer}
               </button>
             </div>
           </div>
@@ -633,11 +604,11 @@ export default function PricingPage({ params }: PricingPageProps) {
                 </ul>
 
                 <button
-                  onClick={() => handleSubscribe("pro_monthly")}
-                  disabled={processingPlan === "pro_monthly"}
+                  onClick={() => handleOpenShopify("subscription")}
+                  disabled={processing === "subscription"}
                   className="w-full py-4 rounded-xl font-bold text-lg transition-all disabled:opacity-50 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/20"
                 >
-                  {processingPlan === "pro_monthly" ? t.processing : t.subscribe}
+                  {processing === "subscription" ? t.processing : t.subscribe}
                 </button>
               </div>
 
@@ -682,8 +653,8 @@ export default function PricingPage({ params }: PricingPageProps) {
                     <span className="text-slate-400 text-sm">{isTR ? "Toplam:" : "Total:"} </span>
                     <span className="text-2xl font-black text-white">
                       {isTR
-                        ? `${(creditQty * 54.99).toFixed(2)} ₺`
-                        : `$${(creditQty * 2).toFixed(2)}`
+                        ? `${(creditQty * 59.99).toFixed(2)} ₺`
+                        : `$${(creditQty * 2.99).toFixed(2)}`
                       }
                     </span>
                   </div>
@@ -706,11 +677,11 @@ export default function PricingPage({ params }: PricingPageProps) {
                 </ul>
 
                 <button
-                  onClick={handleBuyCredits}
-                  disabled={processingPlan === "credits"}
+                  onClick={() => handleOpenShopify("credits")}
+                  disabled={processing === "credits"}
                   className="w-full py-4 rounded-xl font-bold text-lg transition-all disabled:opacity-50 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-black shadow-lg shadow-amber-500/20"
                 >
-                  {processingPlan === "credits" ? t.processing : t.buyCredits}
+                  {processing === "credits" ? t.processing : t.buyCredits}
                 </button>
               </div>
             </div>
