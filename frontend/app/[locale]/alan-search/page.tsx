@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 import ClientOnly from "@/components/ClientOnly";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, use } from "react";
+import { useEffect, useState, use, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
@@ -24,6 +24,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { computeBlurIndices } from "@/helpers/searchUtils";
 
 /* ─── Types ──────────────────────────────────── */
 
@@ -105,8 +106,8 @@ export default function AlanSearchPage({
       credits: "Kredi",
       creditsRemaining: "Kalan Kredi",
       noCredits: "Krediniz kalmadı",
-      buyCredits: "Kredi satın almak için fiyatlandırma sayfasına gidin",
-      goToPricing: "Fiyatlandırma",
+      buyCredits: "Daha fazla sonuç ve sınırsız erişim için kredi satın alın.",
+      goToPricing: "Kredi Satın Al",
       searchPlaceholder: "Kişi adını girin...",
       selectPlatforms: "Platformları Seçin",
       selectAll: "Tümünü Seç",
@@ -182,6 +183,9 @@ export default function AlanSearchPage({
   const [hasSearched, setHasSearched] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const [overlayVisible, setOverlayVisible] = useState(false);
+  const requestIdRef = useRef(0);
+  const lastTriggerRef = useRef(0);
 
   /* ── Auth redirect ────────────────────────── */
   useEffect(() => {
@@ -250,6 +254,13 @@ export default function AlanSearchPage({
       return;
     }
 
+    const now = Date.now();
+    if (now - lastTriggerRef.current < 1200 || isSearching) {
+      return;
+    }
+    lastTriggerRef.current = now;
+    const myRequestId = ++requestIdRef.current;
+
     const trimmedQuery = query.trim();
     if (!trimmedQuery) {
       setError(t.enterName);
@@ -262,6 +273,7 @@ export default function AlanSearchPage({
     }
 
     setIsSearching(true);
+    setOverlayVisible(true);
     setResults([]);
     setHasSearched(false);
     setLoadingStep(0);
@@ -318,18 +330,27 @@ export default function AlanSearchPage({
       // Brief pause at 100%
       await new Promise((resolve) => setTimeout(resolve, 500));
 
-      setResults(data.results || []);
-      setCreditsRemaining(data.credits_remaining);
-      setCredits(data.credits_remaining);
-      setHasSearched(true);
+      if (myRequestId === requestIdRef.current) {
+        setResults(data.results || []);
+        setCreditsRemaining(data.credits_remaining);
+        setCredits(data.credits_remaining);
+        setHasSearched(true);
+      }
     } catch (err: any) {
       clearInterval(stepInterval);
       clearInterval(progressInterval);
-      setError(err?.message || t.errorSearch);
+      if (err?.statusCode === 402) {
+        setError(t.noCredits);
+      } else {
+        setError(err?.message || t.errorSearch);
+      }
     } finally {
-      setIsSearching(false);
-      setLoadingProgress(0);
-      setLoadingStep(0);
+      if (myRequestId === requestIdRef.current) {
+        setIsSearching(false);
+        setOverlayVisible(false);
+        setLoadingProgress(0);
+        setLoadingStep(0);
+      }
     }
   };
 
@@ -344,6 +365,21 @@ export default function AlanSearchPage({
     <ClientOnly>
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
         <Navbar />
+
+        {/* Fullscreen Search Overlay */}
+        {overlayVisible && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center">
+            <div className="relative w-20 h-20 mb-6">
+              <div className="absolute inset-0 rounded-full border-2 border-cyan-500/20 animate-spin" style={{ animationDuration: '3s' }} />
+              <div className="absolute inset-1 rounded-full border-2 border-purple-500/30 animate-spin" style={{ animationDuration: '2s', animationDirection: 'reverse' }} />
+              <div className="absolute inset-2 rounded-full border-2 border-cyan-400/40 animate-spin" style={{ animationDuration: '1.5s' }} />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Search className="w-6 h-6 text-cyan-400 animate-pulse" />
+              </div>
+            </div>
+            <div className="text-cyan-400 font-black text-sm uppercase tracking-widest">{t.searching}</div>
+          </div>
+        )}
 
         <div className="max-w-5xl mx-auto px-4 py-12">
           {/* ── Header ── */}
@@ -634,47 +670,65 @@ export default function AlanSearchPage({
                         </div>
                       ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          {results.map((result, index) => {
+                          {(() => {
+                            const blurSet = computeBlurIndices(results.length, 0.4, (query || "") + (user?.email || ""));
+                            return results.map((result, index) => {
                             const iconKey =
                               result.icon?.toLowerCase() ||
                               result.platform?.toLowerCase();
-                            return (
-                              <motion.a
-                                key={`${result.platform}-${index}`}
-                                href={result.query_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{
-                                  duration: 0.3,
-                                  delay: index * 0.05,
-                                }}
-                                className={`group flex items-center gap-4 p-4 rounded-xl border bg-slate-800/50 hover:bg-slate-800/80 transition-all duration-200 ${PLATFORM_BORDER_MAP[iconKey] ||
-                                  "border-slate-700 hover:border-slate-600"
-                                  }`}
-                              >
-                                <div
-                                  className={`p-2.5 rounded-lg bg-gradient-to-br ${PLATFORM_COLOR_MAP[iconKey] ||
-                                    "from-slate-600 to-slate-700"
-                                    } text-white flex-shrink-0`}
+                              const isBlurred = blurSet.has(index);
+                              return (
+                                <motion.div
+                                  key={`${result.platform}-${index}`}
+                                  initial={{ opacity: 0, y: 10 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{
+                                    duration: 0.3,
+                                    delay: index * 0.05,
+                                  }}
+                                  className={`relative group flex items-center gap-4 p-4 rounded-xl border bg-slate-800/50 transition-all duration-200 ${PLATFORM_BORDER_MAP[iconKey] ||
+                                    "border-slate-700 hover:border-slate-600"
+                                    }`}
                                 >
-                                  {PLATFORM_ICON_MAP[iconKey] || (
-                                    <Globe className="w-5 h-5" />
+                                  <a
+                                    href={isBlurred ? undefined : result.query_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="contents"
+                                  >
+                                    <div
+                                      className={`p-2.5 rounded-lg bg-gradient-to-br ${PLATFORM_COLOR_MAP[iconKey] ||
+                                        "from-slate-600 to-slate-700"
+                                        } text-white flex-shrink-0`}
+                                    >
+                                      {PLATFORM_ICON_MAP[iconKey] || (
+                                        <Globe className="w-5 h-5" />
+                                      )}
+                                    </div>
+                                    <div className={`flex-1 min-w-0 ${isBlurred ? "blur-sm select-none" : ""}`}>
+                                      <p className="text-white font-semibold text-sm">
+                                        {result.platform_name}
+                                      </p>
+                                      <p className="text-slate-500 text-xs truncate">
+                                        {result.query_url}
+                                      </p>
+                                    </div>
+                                    <ExternalLink className={`w-4 h-4 ${isBlurred ? "text-slate-700" : "text-slate-500 group-hover:text-cyan-400"} transition-colors flex-shrink-0`} />
+                                  </a>
+                                  {isBlurred && (
+                                    <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px] rounded-xl flex items-center justify-center">
+                                      <button
+                                        onClick={() => router.push(`/${locale}/pricing`)}
+                                        className="px-4 py-2 rounded-lg font-bold text-xs bg-gradient-to-r from-cyan-600 to-purple-600 text-white"
+                                      >
+                                        {t.goToPricing}
+                                      </button>
+                                    </div>
                                   )}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-white font-semibold text-sm">
-                                    {result.platform_name}
-                                  </p>
-                                  <p className="text-slate-500 text-xs truncate">
-                                    {result.query_url}
-                                  </p>
-                                </div>
-                                <ExternalLink className="w-4 h-4 text-slate-500 group-hover:text-cyan-400 transition-colors flex-shrink-0" />
-                              </motion.a>
-                            );
-                          })}
+                                </motion.div>
+                              );
+                            });
+                          })()}
                         </div>
                       )}
                     </GlassCard>
