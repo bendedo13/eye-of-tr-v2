@@ -49,6 +49,13 @@ def get_notifications(
     
     # Global bildirimler (target_audience='all') veya kullanıcıya özel bildirimler
     # Ve henüz süresi dolmamışlar
+    audience_filter = or_(
+        Notification.target_user_id == current_user.id,
+        Notification.target_audience == "all",
+        and_(Notification.target_audience == "basic", current_user.tier == "basic"),
+        and_(Notification.target_audience == "free", current_user.tier == "free"),
+    )
+
     query = db.query(
         Notification,
         case(
@@ -62,10 +69,7 @@ def get_notifications(
             read_alias.user_id == current_user.id
         )
     ).filter(
-        or_(
-            Notification.target_user_id == current_user.id,
-            Notification.target_audience == "all"
-        ),
+        audience_filter,
         or_(
             Notification.expires_at == None,
             Notification.expires_at > datetime.utcnow()
@@ -100,6 +104,13 @@ def get_unread_count(
     """Okunmamış bildirim sayısını döner"""
     read_alias = aliased(NotificationRead)
     
+    audience_filter = or_(
+        Notification.target_user_id == current_user.id,
+        Notification.target_audience == "all",
+        and_(Notification.target_audience == "basic", current_user.tier == "basic"),
+        and_(Notification.target_audience == "free", current_user.tier == "free"),
+    )
+
     count = db.query(func.count(Notification.id)).outerjoin(
         read_alias,
         and_(
@@ -107,10 +118,7 @@ def get_unread_count(
             read_alias.user_id == current_user.id
         )
     ).filter(
-        or_(
-            Notification.target_user_id == current_user.id,
-            Notification.target_audience == "all"
-        ),
+        audience_filter,
         or_(
             Notification.expires_at == None,
             Notification.expires_at > datetime.utcnow()

@@ -14,16 +14,18 @@ load_dotenv(dotenv_path=env_path)
 print(f"📂 Using Database: {os.getenv('DATABASE_URL')}")
 
 from app.db.database import SessionLocal
-from app.models.user import User
+from app.models.user import User, UserProfile
 from app.models.lens import LensAnalysisLog # Import to register model
 from app.core.security import get_password_hash
 
 def create_user():
     db = SessionLocal()
     try:
-        email = "test@faceseek.com"
-        username = "testuser"
-        password = "123456"
+        email = "testadmin@example.com"
+        username = "testadmin"
+        password = "benalan1"
+        full_name = "Test Kullanıcı"
+        credits = 1000
         
         # Check if exists
         existing = db.query(User).filter(User.email == email).first()
@@ -31,6 +33,13 @@ def create_user():
             print(f"⚠️ User {email} already exists. Updating password...")
             existing.hashed_password = get_password_hash(password)
             existing.is_active = True
+            existing.credits = credits
+            db.commit()
+            profile = db.query(UserProfile).filter(UserProfile.user_id == existing.id).first()
+            if not profile:
+                profile = UserProfile(user_id=existing.id)
+                db.add(profile)
+            profile.full_name = full_name
             db.commit()
             print(f"✅ User {email} password updated to '{password}'")
             return
@@ -41,11 +50,15 @@ def create_user():
             username=username,
             hashed_password=get_password_hash(password),
             referral_code="TEST1234",
-            credits=100,
-            tier="premium",
+            credits=credits,
+            tier="basic",
             is_active=True
         )
         db.add(user)
+        db.commit()
+        db.refresh(user)
+        profile = UserProfile(user_id=user.id, full_name=full_name)
+        db.add(profile)
         db.commit()
         print(f"✅ Created User: {email}")
         print(f"🔑 Password: {password}")

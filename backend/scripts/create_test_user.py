@@ -27,7 +27,7 @@ if existing:
     print(f"\n✅ Found existing user: {test_email}")
     # Update credits and tier for testing
     existing.credits = 100
-    existing.tier = "premium"
+    existing.tier = "basic"
     existing.is_active = True
     db.commit()
 else:
@@ -37,7 +37,7 @@ else:
         username="testuser",
         hashed_password=pwd_context.hash(test_password),
         credits=100,
-        tier="premium",
+        tier="basic",
         role="user",
         is_active=True,
         referral_code=User.generate_referral_code()
@@ -51,7 +51,7 @@ print("="*60)
 print(f"📧 Email: {test_email}")
 print(f"🔑 Password: {test_password}")
 print(f"💳 Credits: 100")
-print(f"🎖️  Tier: premium")
+print(f"🎖️  Tier: basic")
 print("="*60)
 print("\n🔗 Login at: http://localhost:3000/tr/login")
 print("="*60)

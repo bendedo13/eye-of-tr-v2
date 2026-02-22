@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import Navbar from "@/components/Navbar";
 import ClientOnly from "@/components/ClientOnly";
 import { GlassCard } from "@/components/ui/GlassCard";
@@ -47,6 +47,9 @@ export default function LocationSearchPage({
     const [error, setError] = useState<string | null>(null);
     const [analyzeProgress, setAnalyzeProgress] = useState(0);
     const [analyzeStep, setAnalyzeStep] = useState("");
+    const [efixMode, setEfixMode] = useState(true);
+    const [overlayVisible, setOverlayVisible] = useState(false);
+    const lastTriggerRef = useRef(0);
 
     useEffect(() => {
         if (mounted && !loading && !user) {
@@ -98,7 +101,7 @@ export default function LocationSearchPage({
                 mandatoryNotice: "ZORUNLU İBARE",
                 // Preview / blur
                 unlockTitle: "DETAYLI RAPOR",
-                unlockBody: "Tam koordinatlar, adres detayları ve harita görünümü için premium erişim gereklidir.",
+                unlockBody: "Tam koordinatlar, adres detayları ve harita görünümü için aktif abonelik gereklidir.",
                 unlockCta: "DETAYLI RAPORU AÇ",
                 dataFound: "veri noktası tespit edildi",
                 blurredLabel: "GİZLENMİŞ",
@@ -145,7 +148,7 @@ export default function LocationSearchPage({
             openMaps: "OPEN IN MAPS",
             mandatoryNotice: "MANDATORY NOTICE",
             unlockTitle: "DETAILED REPORT",
-            unlockBody: "Full coordinates, address details and map view require premium access.",
+            unlockBody: "Full coordinates, address details and map view require an active subscription.",
             unlockCta: "UNLOCK FULL REPORT",
             dataFound: "data points detected",
             blurredLabel: "HIDDEN",
@@ -207,7 +210,14 @@ export default function LocationSearchPage({
             return;
         }
 
+        const now = Date.now();
+        if (now - lastTriggerRef.current < 1200 || analyzing) {
+            return;
+        }
+        lastTriggerRef.current = now;
+
         setAnalyzing(true);
+        setOverlayVisible(true);
         setError(null);
         setResult(null);
         try {
@@ -228,8 +238,17 @@ export default function LocationSearchPage({
             setError(err.message || (locale === "tr" ? "Analiz başarısız" : "Analysis failed"));
         } finally {
             setAnalyzing(false);
+            setOverlayVisible(false);
         }
     };
+
+    useEffect(() => {
+        if (!efixMode) return;
+        if (!file) return;
+        if (!acceptedConsent) return;
+        handleAnalyze();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [efixMode, file, acceptedConsent]);
 
     if (!mounted || loading) {
         return (
@@ -249,6 +268,20 @@ export default function LocationSearchPage({
             <div className="min-h-screen bg-background text-slate-200">
                 <Navbar />
 
+                {overlayVisible && (
+                    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center">
+                        <div className="relative w-20 h-20 mb-6">
+                            <div className="absolute inset-0 rounded-full border-2 border-primary/20 animate-spin" style={{ animationDuration: '3s' }} />
+                            <div className="absolute inset-1 rounded-full border-2 border-cyan-400/30 animate-spin" style={{ animationDuration: '2s', animationDirection: 'reverse' }} />
+                            <div className="absolute inset-2 rounded-full border-2 border-primary/40 animate-spin" style={{ animationDuration: '1.5s' }} />
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <Radar size={24} className="text-primary animate-pulse" />
+                            </div>
+                        </div>
+                        <div className="text-primary font-black text-sm uppercase tracking-widest">{locale === "tr" ? "Analiz Ediliyor..." : "Analyzing..."}</div>
+                    </div>
+                )}
+
                 <div className="max-w-6xl mx-auto px-6 py-12 md:py-24 animate-in fade-in slide-in-from-bottom-4 duration-700">
                     {/* Header */}
                     <div className="flex items-start justify-between gap-6 flex-col md:flex-row mb-14">
@@ -262,10 +295,18 @@ export default function LocationSearchPage({
                             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-zinc-300">
                                 <Sparkles size={14} className="text-primary" /> {copy.regionNote}
                             </div>
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-zinc-300">
+                                <span className={`${efixMode ? "text-primary" : "text-zinc-400"}`}>EXIF</span>
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" checked={efixMode} onChange={(e) => setEfixMode(e.target.checked)} className="sr-only peer" />
+                                    <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary/50"></div>
+                                </label>
+                                <span className={`${efixMode ? "text-zinc-300" : "text-zinc-400"}`}>{locale === "tr" ? "Modu" : "Mode"}</span>
+                            </div>
                         </div>
 
                         <div className="px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-[10px] font-black uppercase tracking-widest text-white">
-                            {user.tier === "unlimited" ? "∞" : (user.credits ?? 0)} {locale === "tr" ? "KREDİ" : "CREDITS"}
+                            {user.credits ?? 0} {locale === "tr" ? "KREDİ" : "CREDITS"}
                         </div>
                     </div>
 

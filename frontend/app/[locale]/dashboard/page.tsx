@@ -133,10 +133,7 @@ export default function DashboardPage({
                     <div className="w-12 h-12 bg-primary/20 rounded-2xl flex items-center justify-center text-primary group-hover:rotate-6 transition-transform">
                       <CreditCard size={24} />
                     </div>
-                    <div className={`px-4 py-1.5 rounded-full text-[9px] font-black tracking-widest border ${dashboardData?.credits?.tier === 'unlimited'
-                      ? 'bg-amber-500/10 text-amber-500 border-amber-500/20'
-                      : 'bg-primary/10 text-primary border-primary/20'
-                      }`}>
+                    <div className="px-4 py-1.5 rounded-full text-[9px] font-black tracking-widest border bg-primary/10 text-primary border-primary/20">
                       {dashboardData?.credits?.tier?.toUpperCase() || 'FREE'} PROTOCOL
                     </div>
                   </div>

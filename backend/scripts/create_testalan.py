@@ -23,7 +23,7 @@ new_user = User(
     username="testalan",
     hashed_password=pwd_context.hash("123456"),
     credits=100,
-    tier="premium",
+    tier="basic",
     role="user",
     is_active=True,
     referral_code=User.generate_referral_code()
@@ -38,7 +38,7 @@ print("="*50)
 print("📧 Email: testalan@gmail.com")
 print("🔑 Password: 123456")
 print("💳 Credits: 100")
-print("🎖️  Tier: premium")
+print("🎖️  Tier: basic")
 print("✅ Active: True")
 print("="*50)
 

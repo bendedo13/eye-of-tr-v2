@@ -39,7 +39,7 @@ def create_admin():
             hashed_password=get_password_hash(password),
             referral_code="ADMIN001",
             role="admin",
-            tier="unlimited",
+            tier="basic",
             credits=99999,
             is_active=True
         )

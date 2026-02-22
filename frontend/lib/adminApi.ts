@@ -91,6 +91,26 @@ export function adminUpdateUser(adminKey: string, userId: number, patch: any) {
   return adminFetch<{ status: string }>(`/admin/users/${userId}`, { method: "PATCH", body: JSON.stringify(patch), adminKey });
 }
 
+export function adminGetUserSearches(
+  adminKey: string,
+  userId: number,
+  params: { status?: string; offset?: number; limit?: number } = {}
+) {
+  const usp = new URLSearchParams();
+  if (params.status) usp.set("status_filter", params.status);
+  if (params.offset != null) usp.set("offset", String(params.offset));
+  if (params.limit != null) usp.set("limit", String(params.limit));
+  const qs = usp.toString();
+  return adminFetch<{ items: any[] }>(`/admin/users/${userId}/searches${qs ? `?${qs}` : ""}`, { method: "GET", adminKey });
+}
+
+export function adminGetUserSearchStats(adminKey: string, userId: number) {
+  return adminFetch<{ total_searches: number; successful_searches: number; avg_duration_ms: number | null; top_queries: any[] }>(
+    `/admin/users/${userId}/search-stats`,
+    { method: "GET", adminKey }
+  );
+}
+
 export function adminListPayments(adminKey: string, params: { status?: string; offset?: number; limit?: number } = {}) {
   const usp = new URLSearchParams();
   if (params.status) usp.set("status_filter", params.status);
@@ -98,39 +118,6 @@ export function adminListPayments(adminKey: string, params: { status?: string; o
   if (params.limit != null) usp.set("limit", String(params.limit));
   const qs = usp.toString();
   return adminFetch<{ items: any[] }>(`/admin/payments${qs ? `?${qs}` : ""}`, { method: "GET", adminKey });
-}
-
-export function adminListBankTransfers(adminKey: string, params: { status?: string; offset?: number; limit?: number } = {}) {
-  const usp = new URLSearchParams();
-  if (params.status) usp.set("status_filter", params.status);
-  if (params.offset != null) usp.set("offset", String(params.offset));
-  if (params.limit != null) usp.set("limit", String(params.limit));
-  const qs = usp.toString();
-  return adminFetch<{ items: any[] }>(`/admin/bank-transfers${qs ? `?${qs}` : ""}`, { method: "GET", adminKey });
-}
-
-export function adminListGuestBankInquiries(adminKey: string, params: { offset?: number; limit?: number } = {}) {
-  const usp = new URLSearchParams();
-  if (params.offset != null) usp.set("offset", String(params.offset));
-  if (params.limit != null) usp.set("limit", String(params.limit));
-  const qs = usp.toString();
-  return adminFetch<{ items: any[] }>(`/admin/guest-bank-inquiries${qs ? `?${qs}` : ""}`, { method: "GET", adminKey });
-}
-
-export function adminApproveBankTransfer(adminKey: string, requestId: number, payload: { message?: string; admin_note?: string } = {}) {
-  return adminFetch<{ status: string }>(`/admin/bank-transfers/${requestId}/approve`, {
-    method: "POST",
-    body: JSON.stringify(payload),
-    adminKey,
-  });
-}
-
-export function adminRejectBankTransfer(adminKey: string, requestId: number, payload: { message?: string; admin_note?: string }) {
-  return adminFetch<{ status: string }>(`/admin/bank-transfers/${requestId}/reject`, {
-    method: "POST",
-    body: JSON.stringify(payload),
-    adminKey,
-  });
 }
 
 export function adminListReferrals(adminKey: string, params: { offset?: number; limit?: number } = {}) {
@@ -141,8 +128,9 @@ export function adminListReferrals(adminKey: string, params: { offset?: number; 
   return adminFetch<{ items: any[] }>(`/admin/referrals${qs ? `?${qs}` : ""}`, { method: "GET", adminKey });
 }
 
-export function adminGetSiteSettings(adminKey: string) {
-  return adminFetch<{ settings: any }>("/admin/site-settings", { method: "GET", adminKey });
+export async function adminGetSiteSettings(adminKey: string) {
+  const res = await adminFetch<{ settings: any }>("/admin/site-settings", { method: "GET", adminKey });
+  return res.settings || {};
 }
 
 export function adminSetSiteSetting(adminKey: string, key: string, value: any) {

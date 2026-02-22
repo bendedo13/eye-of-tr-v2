@@ -14,7 +14,7 @@ class Subscription(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     
     # Plan details
-    plan_name = Column(String(50), nullable=False)  # free, premium, unlimited
+    plan_name = Column(String(50), nullable=False)  # free, basic
     plan_price = Column(Float, nullable=False)
     
     # Status

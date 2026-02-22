@@ -1,0 +1,48 @@
+PRICING_PLANS: list[dict] = [
+    {
+        "id": "basic_monthly",
+        "name": {"tr": "Basit Aylık", "en": "Basic Monthly"},
+        "price_try": 299,
+        "price_usd": 14.99,
+        "credits": 100,
+        "billing_period": "monthly",
+        "tier": "basic",
+        "features": {
+            "tr": ["Tüm özellikler", "Bulanıksız sonuçlar", "Öncelikli destek"],
+            "en": ["All features", "No blur", "Priority support"],
+        },
+        "recommended": True,
+        "shopify_url": "",
+    },
+    {
+        "id": "basic_yearly",
+        "name": {"tr": "Basit Yıllık", "en": "Basic Yearly"},
+        "price_try": 2990,
+        "price_usd": 149.99,
+        "credits": 1200,
+        "billing_period": "yearly",
+        "tier": "basic",
+        "features": {
+            "tr": ["Tüm özellikler", "Bulanıksız sonuçlar", "Öncelikli destek"],
+            "en": ["All features", "No blur", "Priority support"],
+        },
+        "recommended": False,
+        "shopify_url": "",
+    },
+    {
+        "id": "credit_pack",
+        "name": {"tr": "Kredi Satın Alma", "en": "Credit Purchase"},
+        "price_try": 59.99,
+        "price_usd": 2.99,
+        "credits": 10,
+        "billing_period": "once",
+        "is_one_time": True,
+        "tier": "credit",
+        "features": {
+            "tr": ["Abonelik gerektirmez", "İstediğin zaman kullan", "Tek seferlik ödeme"],
+            "en": ["No subscription needed", "Use anytime", "One-time payment"],
+        },
+        "recommended": False,
+        "shopify_url": "",
+    },
+]

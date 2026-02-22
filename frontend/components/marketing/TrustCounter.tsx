@@ -33,8 +33,8 @@ const trNames = [
   "Selin K."
 ];
 
-const itemsTR = ["2 kredi paketi", "6 kredi paketi", "Basic plan", "Pro plan", "Unlimited plan"];
-const itemsEN = ["2-credit pack", "6-credit pack", "Basic plan", "Pro plan", "Unlimited plan"];
+const itemsTR = ["Aylık basit abonelik", "Yıllık basit abonelik", "Tek seferlik kredi paketi"];
+const itemsEN = ["Basic monthly", "Basic yearly", "One-time credits"];
 
 function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n));

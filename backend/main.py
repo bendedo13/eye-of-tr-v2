@@ -16,7 +16,6 @@ from app.api.face_search import router as face_search_router
 from app.api.auth import router as auth_router
 from app.api.dashboard import router as dashboard_router
 from app.api.pricing import router as pricing_router
-from app.api.webhooks import router as webhooks_router
 from app.api.location_intelligence import router as location_intelligence_router
 from app.api.visual_location import router as visual_location_router
 from app.api.admin import router as admin_router
@@ -37,7 +36,7 @@ from app.db.database import get_engine, Base, SessionLocal  # Use database.py di
 from app.middleware.rate_limit import RateLimitMiddleware
 
 # Import all models for DB table creation
-from app.models.user import User
+from app.models.user import User, UserProfile
 from app.models.notification import Notification, NotificationRead, EmailTemplate, EmailLog
 from app.models.subscription import Subscription, Payment
 from app.models.analytics import SiteVisit, SearchLog, ReferralLog
@@ -50,8 +49,6 @@ from app.models.search_results import SearchResult
 from app.models.admin_audit import AdminAuditLog
 from app.models.lens import LensAnalysisLog
 from app.models.support import SupportTicket, SupportMessage
-from app.models.bank_transfer import BankTransferRequest
-from app.models.guest_bank_inquiry import GuestBankInquiry
 from app.models.investigation import InvestigationRequest
 
 # Face Index Module
@@ -152,7 +149,6 @@ app.include_router(face_search_router, prefix="/api")
 app.include_router(auth_router)
 app.include_router(dashboard_router)
 app.include_router(pricing_router)
-app.include_router(webhooks_router)
 app.include_router(location_intelligence_router)
 app.include_router(visual_location_router)
 app.include_router(admin_router)
@@ -175,7 +171,6 @@ logger.info(f"✅ AlanSearch router: {alan_search_router.prefix}")
 logger.info(f"✅ Auth router: {auth_router.prefix}")
 logger.info(f"✅ Dashboard router: {dashboard_router.prefix}")
 logger.info(f"✅ Pricing router: {pricing_router.prefix}")
-logger.info(f"✅ Webhooks router: {webhooks_router.prefix}")
 logger.info(f"✅ Location intelligence router: {location_intelligence_router.prefix}")
 logger.info(f"✅ Visual location router: {visual_location_router.prefix}")
 logger.info(f"✅ Admin router: {admin_router.prefix}")
@@ -207,6 +202,7 @@ def get_current_user_email(credentials: HTTPAuthorizationCredentials = Depends(s
 
 # Health check endpoint
 @app.get("/health")
+@app.get("/api/health")
 async def health_check():
     """Sistem sağlık kontrolü"""
     return {
@@ -225,6 +221,7 @@ async def root():
         "version": settings.API_VERSION,
         "endpoints": {
             "health": "/health",
+            "api_health": "/api/health",
             "upload": "/api/upload",
             "search": "/api/search",
             "providers": "/api/providers",
@@ -321,11 +318,7 @@ async def search_face(
                 user_tier = user.tier
                 
                 # Credit kontrolü
-                if user_tier == "unlimited":
-                    # Sınırsız kullanım
-                    has_credit = True
-                    blur_results = False
-                elif user.credits > 0:
+                if user.credits > 0:
                     # Kredi var - kullan
                     CreditService.consume_credit(user, db, 1)
                     has_credit = True
@@ -344,7 +337,7 @@ async def search_face(
         if blur_results and result.get("matches"):
             for match in result["matches"]:
                 match["blurred"] = True
-                match["profile_url"] = "🔒 Premium için satın al"
+                match["profile_url"] = "🔒 Abonelik için satın al"
                 match["image_url"] = None
                 match["username"] = "🔒 Gizli"
         
@@ -417,7 +410,7 @@ def create_initial_data():
                 hashed_password=get_password_hash(admin_pass),
                 referral_code="ADMIN001",
                 credits=999999,
-                tier="unlimited",
+                tier="basic",
                 role="admin",
                 is_active=True
             )

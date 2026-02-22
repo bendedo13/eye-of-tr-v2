@@ -55,14 +55,6 @@ async def rapidapi_image_search(
 ):
     _require_admin_key(request)
     
-    # Erişim kontrolü: Unlimited paketi kontrolü
-    user = request.state.user if hasattr(request.state, "user") else None
-    if not user or user.tier != "unlimited":
-         raise HTTPException(
-            status_code=403, 
-            detail="Bu özellik sadece Unlimited paket kullanıcıları içindir"
-        )
-
     adapter = get_rapidapi_image_search_adapter(
         {
             "api_key": settings.RAPIDAPI_KEY,
