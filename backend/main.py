@@ -202,6 +202,7 @@ def get_current_user_email(credentials: HTTPAuthorizationCredentials = Depends(s
 
 # Health check endpoint
 @app.get("/health")
+@app.get("/api/health")
 async def health_check():
     """Sistem sağlık kontrolü"""
     return {
@@ -220,6 +221,7 @@ async def root():
         "version": settings.API_VERSION,
         "endpoints": {
             "health": "/health",
+            "api_health": "/api/health",
             "upload": "/api/upload",
             "search": "/api/search",
             "providers": "/api/providers",
