@@ -101,7 +101,7 @@ export default function LocationSearchPage({
                 mandatoryNotice: "ZORUNLU İBARE",
                 // Preview / blur
                 unlockTitle: "DETAYLI RAPOR",
-                unlockBody: "Tam koordinatlar, adres detayları ve harita görünümü için premium erişim gereklidir.",
+                unlockBody: "Tam koordinatlar, adres detayları ve harita görünümü için aktif abonelik gereklidir.",
                 unlockCta: "DETAYLI RAPORU AÇ",
                 dataFound: "veri noktası tespit edildi",
                 blurredLabel: "GİZLENMİŞ",
@@ -148,7 +148,7 @@ export default function LocationSearchPage({
             openMaps: "OPEN IN MAPS",
             mandatoryNotice: "MANDATORY NOTICE",
             unlockTitle: "DETAILED REPORT",
-            unlockBody: "Full coordinates, address details and map view require premium access.",
+            unlockBody: "Full coordinates, address details and map view require an active subscription.",
             unlockCta: "UNLOCK FULL REPORT",
             dataFound: "data points detected",
             blurredLabel: "HIDDEN",
@@ -306,7 +306,7 @@ export default function LocationSearchPage({
                         </div>
 
                         <div className="px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-[10px] font-black uppercase tracking-widest text-white">
-                            {user.tier === "unlimited" ? "∞" : (user.credits ?? 0)} {locale === "tr" ? "KREDİ" : "CREDITS"}
+                            {user.credits ?? 0} {locale === "tr" ? "KREDİ" : "CREDITS"}
                         </div>
                     </div>
 

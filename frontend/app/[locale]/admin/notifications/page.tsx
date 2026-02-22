@@ -95,7 +95,7 @@ export default function AdminNotificationsPage() {
                   onChange={(e) => setForm({ ...form, target_audience: e.target.value })}
                 >
                   <option value="all">Tüm Kullanıcılar</option>
-                  <option value="premium">Premium Üyeler</option>
+                  <option value="basic">Aktif Aboneler</option>
                   <option value="free">Ücretsiz Üyeler</option>
                 </select>
               </div>

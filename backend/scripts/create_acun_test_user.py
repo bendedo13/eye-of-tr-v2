@@ -32,7 +32,7 @@ try:
         print(f"[OK] Found existing user: {TEST_EMAIL}")
         # Update for testing
         existing.credits = 1000
-        existing.tier = "unlimited"
+        existing.tier = "basic"
         existing.is_active = True
         db.commit()
         user_id = existing.id
@@ -43,7 +43,7 @@ try:
             username=TEST_USERNAME,
             hashed_password=get_password_hash(TEST_PASSWORD),
             credits=1000,
-            tier="unlimited",
+            tier="basic",
             role="user",
             is_active=True,
             referral_code=User.generate_referral_code()
@@ -55,7 +55,7 @@ try:
 
     print(f"   Email: {TEST_EMAIL}")
     print(f"   Username: {TEST_USERNAME}")
-    print(f"   Tier: unlimited")
+    print(f"   Tier: basic")
     print(f"   Credits: 1000")
 
 finally:
@@ -92,7 +92,7 @@ print("="*70)
 print(f"\nEmail:      {TEST_EMAIL}")
 print(f"Password:   {TEST_PASSWORD}")
 print(f"Username:   {TEST_USERNAME}")
-print(f"Credits:    1000 (unlimited tier)")
+print(f"Credits:    1000 (basic tier)")
 if jwt_token:
     print(f"JWT Token:  {jwt_token[:50]}...")
 else:

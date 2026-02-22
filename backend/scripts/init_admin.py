@@ -72,7 +72,7 @@ def init_admin():
                 username="admin",
                 hashed_password=get_password_hash(admin_password),
                 role="admin",
-                tier="unlimited",
+                tier="basic",
                 credits=999999,
                 is_active=True,
                 referral_code=referral_code,

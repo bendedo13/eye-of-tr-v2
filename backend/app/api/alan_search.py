@@ -128,23 +128,13 @@ def alan_search(
     if not data.query or len(data.query.strip()) < 2:
         raise HTTPException(status_code=400, detail="Search query too short")
 
-    # Credit Validation Flow:
-    # 1. Check if user has sufficient credits (unless unlimited tier)
-    # 2. Reject request with 402 Payment Required if credits <= 0
-    # 3. Only consume credit AFTER validation passes
-    # 4. Unlimited tier users bypass credit checks entirely
-    
-    # Step 1 & 2: Validate sufficient credits
-    if user.alan_search_credits <= 0 and user.tier != "unlimited":
-        raise HTTPException(
-            status_code=status.HTTP_402_PAYMENT_REQUIRED,
-            detail="No AlanSearch credits remaining"
-        )
+    has_credit = user.alan_search_credits > 0
+    is_preview = not has_credit
 
-    # Step 3: Consume credit after validation (unlimited tier bypasses)
-    if user.tier != "unlimited":
+    if has_credit:
         user.alan_search_credits -= 1
         db.commit()
+        db.refresh(user)
 
     query = data.query.strip()
     selected_platforms = data.platforms if data.platforms else [p["id"] for p in OSINT_PLATFORMS]
@@ -175,11 +165,17 @@ def alan_search(
             "icon": platform["icon"],
         })
 
-    logger.info(f"AlanSearch: user={user.email}, query='{query}', platforms={len(results)}")
+    logger.info(
+        f"AlanSearch: user={user.email}, query='{query}', platforms={len(results)}, preview={is_preview}"
+    )
 
     return {
         "status": "success",
         "query": query,
         "credits_remaining": user.alan_search_credits,
+        "has_credit": has_credit,
+        "blurred": is_preview,
+        "redirect_to_pricing": is_preview,
+        "preview_ratio": 0.6 if is_preview else 0,
         "results": results,
     }

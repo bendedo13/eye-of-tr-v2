@@ -161,7 +161,7 @@ export default function LocationIntelligencePage({
     try {
       const data = await analyzeLocationIntelligence({ token, file, consent: acceptedConsent });
       setResult(data);
-      if (user && user.tier !== "unlimited" && creditsSnapshot !== null) {
+      if (user && creditsSnapshot !== null) {
         setCreditsSnapshot(Math.max(0, creditsSnapshot - 1));
       }
       me(token).catch(() => undefined);
@@ -256,7 +256,7 @@ export default function LocationIntelligencePage({
               </div>
 
               <div className="px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-[10px] font-black uppercase tracking-widest text-white">
-                {user.tier === "unlimited" ? "∞" : (creditsSnapshot ?? user.credits ?? 0)} {locale === "tr" ? "KREDİ" : "CREDITS"}
+                {creditsSnapshot ?? user.credits ?? 0} {locale === "tr" ? "KREDİ" : "CREDITS"}
               </div>
             </div>
           </div>

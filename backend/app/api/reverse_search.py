@@ -33,7 +33,6 @@ async def reverse_search(
         raise HTTPException(status_code=400, detail=str(e))
 
     user_id = None
-    user_tier = "free"
     blur_results = False
     has_credit = False
 
@@ -44,18 +43,13 @@ async def reverse_search(
     try:
         if user_id:
             user = db.query(User).filter(User.id == int(user_id)).first()
-            if user:
-                user_tier = user.tier
-                if user_tier == "unlimited":
-                    has_credit = True
-                    blur_results = False
-                elif user.credits > 0:
-                    CreditService.consume_credit(user, db, 1)
-                    has_credit = True
-                    blur_results = False
-                else:
-                    has_credit = False
-                    blur_results = True
+            if user and user.credits > 0:
+                CreditService.consume_credit(user, db, 1)
+                has_credit = True
+                blur_results = False
+            else:
+                has_credit = False
+                blur_results = True
 
         if blur_results:
             run = await prepare_reverse_search(content, file.filename or "upload.jpg")
@@ -66,7 +60,7 @@ async def reverse_search(
 
         if blur_results and result.get("matches"):
             for m in result["matches"]:
-                m["profile_url"] = "🔒 Premium için satın al"
+                m["profile_url"] = "🔒 Abonelik için satın al"
                 m["image_url"] = None
                 m["username"] = "🔒 Gizli"
                 m["confidence"] = 0.0

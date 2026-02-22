@@ -20,11 +20,6 @@ class TestCreditService(unittest.TestCase):
         user = self._make_user(credits=0)
         self.assertFalse(CreditService.has_credits(user))
 
-    def test_unlimited_tier_always_has_credits(self):
-        from app.services.credit_service import CreditService
-        user = self._make_user(credits=0, tier="unlimited")
-        self.assertTrue(CreditService.has_credits(user))
-
     def test_consume_credit_decrements(self):
         from app.services.credit_service import CreditService
         user = self._make_user(credits=5, tier="basic")
@@ -39,14 +34,6 @@ class TestCreditService(unittest.TestCase):
         db = MagicMock()
         result = CreditService.consume_credit(user, db, 1)
         self.assertFalse(result)
-
-    def test_unlimited_doesnt_consume(self):
-        from app.services.credit_service import CreditService
-        user = self._make_user(credits=0, tier="unlimited")
-        db = MagicMock()
-        result = CreditService.consume_credit(user, db, 1)
-        self.assertTrue(result)
-        self.assertEqual(user.credits, 0)  # Not decremented
 
     def test_add_credits(self):
         from app.services.credit_service import CreditService

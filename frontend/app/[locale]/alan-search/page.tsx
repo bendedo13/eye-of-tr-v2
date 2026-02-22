@@ -181,6 +181,9 @@ export default function AlanSearchPage({
   const [isSearching, setIsSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const [previewMode, setPreviewMode] = useState(false);
+  const [previewRatio, setPreviewRatio] = useState(0);
+  const [redirectToPricing, setRedirectToPricing] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [overlayVisible, setOverlayVisible] = useState(false);
@@ -276,6 +279,9 @@ export default function AlanSearchPage({
     setOverlayVisible(true);
     setResults([]);
     setHasSearched(false);
+    setPreviewMode(false);
+    setPreviewRatio(0);
+    setRedirectToPricing(false);
     setLoadingStep(0);
     setLoadingProgress(0);
 
@@ -305,6 +311,10 @@ export default function AlanSearchPage({
         status: string;
         query: string;
         credits_remaining: number;
+        has_credit: boolean;
+        blurred: boolean;
+        redirect_to_pricing: boolean;
+        preview_ratio?: number;
         results: SearchResult[];
       }>(
         "/api/alan-search/search",
@@ -335,6 +345,11 @@ export default function AlanSearchPage({
         setCreditsRemaining(data.credits_remaining);
         setCredits(data.credits_remaining);
         setHasSearched(true);
+        setPreviewMode(Boolean(data.blurred));
+        setPreviewRatio(
+          data.preview_ratio != null ? data.preview_ratio : data.blurred ? 0.6 : 0
+        );
+        setRedirectToPricing(Boolean(data.redirect_to_pricing));
       }
     } catch (err: any) {
       clearInterval(stepInterval);
@@ -620,7 +635,7 @@ export default function AlanSearchPage({
                   {/* Search Button */}
                   <button
                     onClick={handleSearch}
-                    disabled={isSearching || (credits !== null && credits <= 0)}
+                    disabled={isSearching}
                     className="w-full py-4 rounded-xl font-bold text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/30"
                   >
                     {isSearching ? (
@@ -662,6 +677,17 @@ export default function AlanSearchPage({
                           </span>
                         )}
                       </div>
+                      {redirectToPricing && (
+                        <div className="mb-6 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 flex items-center justify-between gap-3">
+                          <div className="text-sm text-rose-200">{t.buyCredits}</div>
+                          <button
+                            onClick={() => router.push(`/${locale}/pricing`)}
+                            className="px-4 py-2 rounded-lg font-bold text-xs bg-gradient-to-r from-cyan-600 to-purple-600 text-white"
+                          >
+                            {t.goToPricing}
+                          </button>
+                        </div>
+                      )}
 
                       {results.length === 0 ? (
                         <div className="text-center py-10">
@@ -671,7 +697,13 @@ export default function AlanSearchPage({
                       ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           {(() => {
-                            const blurSet = computeBlurIndices(results.length, 0.4, (query || "") + (user?.email || ""));
+                            const blurSet = previewMode
+                              ? computeBlurIndices(
+                                results.length,
+                                previewRatio,
+                                (query || "") + (user?.email || "")
+                              )
+                              : new Set<number>();
                             return results.map((result, index) => {
                             const iconKey =
                               result.icon?.toLowerCase() ||

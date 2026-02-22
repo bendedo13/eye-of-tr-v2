@@ -19,11 +19,8 @@ from app.models.admin_audit import AdminAuditLog
 from app.models.cms import BlogPost, MediaAsset, SiteSetting
 from app.models.notification import Notification, NotificationType
 from app.models.subscription import Payment
-from app.models.user import User
-from app.models.bank_transfer import BankTransferRequest
-from app.models.guest_bank_inquiry import GuestBankInquiry
+from app.models.user import User, UserProfile
 from app.models.investigation import InvestigationRequest
-from app.models.pricing import PricingOverride
 from app.services.scraper_service import scraper_service
 from app.services.credit_service import CreditService
 from app.services.pricing_service import PricingService
@@ -309,15 +306,23 @@ def admin_users(
     for r in payment_rows:
         paid_by_user[int(r.user_id)] = {"total_paid": float(r.total_paid or 0.0), "last_paid_at": r.last_paid_at}
 
+    profile_rows = db.query(UserProfile).filter(UserProfile.user_id.in_(user_ids)).all()
+    profile_by_user: dict[int, UserProfile] = {int(p.user_id): p for p in profile_rows if p.user_id is not None}
+
     out = []
     for u in users:
         a = activity_by_user.get(u.id, {})
         p = paid_by_user.get(u.id, {})
+        profile = profile_by_user.get(u.id)
         out.append(
             {
                 "id": u.id,
                 "email": u.email,
                 "username": u.username,
+                "full_name": profile.full_name if profile else None,
+                "phone": profile.phone if profile else None,
+                "address": profile.address if profile else None,
+                "credit_limit": profile.credit_limit if profile else None,
                 "role": u.role,
                 "tier": u.tier,
                 "credits": u.credits,
@@ -345,8 +350,29 @@ def admin_update_user(user_id: int, request: Request, payload: dict[str, Any], d
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
+    if "email" in payload:
+        email = str(payload.get("email") or "").strip().lower()
+        if not email or "@" not in email:
+            raise HTTPException(status_code=400, detail="Invalid email")
+        existing_email = db.query(User).filter(User.email == email, User.id != user.id).first()
+        if existing_email:
+            raise HTTPException(status_code=409, detail="Email already in use")
+        user.email = email
+    if "username" in payload:
+        username = str(payload.get("username") or "").strip()
+        if len(username) < 3:
+            raise HTTPException(status_code=400, detail="Username must be at least 3 characters")
+        existing_username = db.query(User).filter(User.username == username, User.id != user.id).first()
+        if existing_username:
+            raise HTTPException(status_code=409, detail="Username already taken")
+        user.username = username
+
     if "credits" in payload:
         user.credits = int(payload["credits"])
+    if payload.get("reset_credits"):
+        user.credits = 0
+    if "credits_delta" in payload:
+        user.credits = int(user.credits or 0) + int(payload["credits_delta"])
     if "is_active" in payload:
         user.is_active = bool(payload["is_active"])
     if "tier" in payload:
@@ -354,10 +380,94 @@ def admin_update_user(user_id: int, request: Request, payload: dict[str, Any], d
     if "role" in payload:
         user.role = str(payload["role"])
 
+    profile_fields = {"full_name", "phone", "address", "credit_limit"}
+    if any(field in payload for field in profile_fields):
+        profile = db.query(UserProfile).filter(UserProfile.user_id == user.id).first()
+        if not profile:
+            profile = UserProfile(user_id=user.id)
+            db.add(profile)
+        if "full_name" in payload:
+            profile.full_name = (payload.get("full_name") or "").strip() or None
+        if "phone" in payload:
+            profile.phone = (payload.get("phone") or "").strip() or None
+        if "address" in payload:
+            profile.address = (payload.get("address") or "").strip() or None
+        if "credit_limit" in payload:
+            limit_value = payload.get("credit_limit")
+            profile.credit_limit = int(limit_value) if str(limit_value).strip() != "" else None
+
     _audit(db=db, request=request, action="user.update", resource_type="user", resource_id=str(user.id), meta=payload)
     db.commit()
     db.refresh(user)
     return {"status": "ok"}
+
+
+@router.get("/users/{user_id}/searches")
+def admin_user_searches(
+    user_id: int,
+    request: Request,
+    limit: int = 50,
+    offset: int = 0,
+    status_filter: str | None = None,
+    db: Session = Depends(get_db),
+):
+    _require_admin_key(request)
+    q = db.query(SearchLog).filter(SearchLog.user_id == user_id)
+    if status_filter == "success":
+        q = q.filter(SearchLog.is_successful.is_(True))
+    if status_filter == "failed":
+        q = q.filter(SearchLog.is_successful.is_(False))
+    rows = q.order_by(desc(SearchLog.created_at)).offset(offset).limit(min(limit, 200)).all()
+    items = []
+    for s in rows:
+        items.append(
+            {
+                "id": s.id,
+                "user_id": s.user_id,
+                "search_type": s.search_type,
+                "query": s.query,
+                "file_name": s.file_name,
+                "results_found": s.results_found,
+                "is_successful": bool(s.is_successful),
+                "providers_used": s.providers_used,
+                "search_duration_ms": s.search_duration_ms,
+                "credits_used": s.credits_used,
+                "created_at": s.created_at,
+            }
+        )
+    return {"items": items}
+
+
+@router.get("/users/{user_id}/search-stats")
+def admin_user_search_stats(user_id: int, request: Request, db: Session = Depends(get_db)):
+    _require_admin_key(request)
+    total_searches = db.query(func.count(SearchLog.id)).filter(SearchLog.user_id == user_id).scalar() or 0
+    successful_searches = (
+        db.query(func.count(SearchLog.id))
+        .filter(SearchLog.user_id == user_id, SearchLog.is_successful.is_(True))
+        .scalar()
+        or 0
+    )
+    avg_duration = (
+        db.query(func.avg(SearchLog.search_duration_ms))
+        .filter(SearchLog.user_id == user_id, SearchLog.search_duration_ms.isnot(None))
+        .scalar()
+    )
+    top_queries_rows = (
+        db.query(SearchLog.query, func.count(SearchLog.id).label("count"))
+        .filter(SearchLog.user_id == user_id, SearchLog.query.isnot(None))
+        .group_by(SearchLog.query)
+        .order_by(desc("count"))
+        .limit(5)
+        .all()
+    )
+    top_queries = [{"query": r.query, "count": int(r.count)} for r in top_queries_rows if r.query]
+    return {
+        "total_searches": int(total_searches),
+        "successful_searches": int(successful_searches),
+        "avg_duration_ms": float(avg_duration) if avg_duration is not None else None,
+        "top_queries": top_queries,
+    }
 
 
 @router.get("/payments")
@@ -387,214 +497,6 @@ def admin_payments(request: Request, status_filter: str | None = None, limit: in
     return {"items": items}
 
 
-@router.get("/bank-transfers")
-def admin_bank_transfers(
-    request: Request,
-    status_filter: str | None = None,
-    limit: int = 100,
-    offset: int = 0,
-    db: Session = Depends(get_db),
-):
-    _require_admin_key(request)
-    q = db.query(BankTransferRequest, User).join(User, User.id == BankTransferRequest.user_id)
-    if status_filter:
-        q = q.filter(BankTransferRequest.status == status_filter)
-    rows = q.order_by(desc(BankTransferRequest.created_at)).offset(offset).limit(min(limit, 500)).all()
-    items = []
-    for r, u in rows:
-        items.append(
-            {
-                "id": r.id,
-                "user_id": r.user_id,
-                "email": u.email,
-                "username": u.username,
-                "plan_id": r.plan_id,
-                "plan_name": r.plan_name,
-                "credits_requested": r.credits_requested,
-                "amount": r.amount,
-                "currency": r.currency,
-                "status": r.status,
-                "user_note": r.user_note,
-                "admin_note": r.admin_note,
-                "created_at": r.created_at,
-                "reviewed_at": r.reviewed_at,
-            }
-        )
-    return {"items": items}
-
-
-@router.get("/guest-bank-inquiries")
-def admin_guest_bank_inquiries(
-    request: Request,
-    limit: int = 200,
-    offset: int = 0,
-    db: Session = Depends(get_db),
-):
-    _require_admin_key(request)
-    rows = (
-        db.query(GuestBankInquiry)
-        .order_by(desc(GuestBankInquiry.created_at))
-        .offset(offset)
-        .limit(min(limit, 500))
-        .all()
-    )
-    items = [
-        {
-            "id": r.id,
-            "name": r.name,
-            "email": r.email,
-            "phone": r.phone,
-            "desired_plan": r.desired_plan,
-            "desired_credits": r.desired_credits,
-            "message": r.message,
-            "status": r.status,
-            "created_at": r.created_at,
-        }
-        for r in rows
-    ]
-    return {"items": items}
-
-
-@router.post("/bank-transfers/{request_id}/approve")
-def admin_approve_bank_transfer(
-    request_id: int,
-    request: Request,
-    payload: dict[str, Any],
-    db: Session = Depends(get_db),
-):
-    _require_admin_key(request)
-    req = db.query(BankTransferRequest).filter(BankTransferRequest.id == request_id).first()
-    if not req:
-        raise HTTPException(status_code=404, detail="Not found")
-    if req.status != "pending":
-        raise HTTPException(status_code=400, detail="Request already processed")
-
-    user = db.query(User).filter(User.id == req.user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    credits_awarded = 0
-    plan_label = req.plan_name or req.plan_id or "Credit Topup"
-
-    if req.plan_id:
-        plan = next((p for p in PRICING_PLANS if p.get("id") == req.plan_id), None)
-        if plan:
-            if plan.get("id") == "unlimited":
-                user.tier = "unlimited"
-                user.credits = 999999
-            else:
-                user.tier = "premium"
-                credits_to_add = int(plan.get("credits") or 0)
-                if credits_to_add > 0:
-                    CreditService.add_credits(user, db, credits_to_add, "bank_transfer_plan")
-                    credits_awarded = credits_to_add
-        elif req.credits_requested:
-            CreditService.add_credits(user, db, req.credits_requested, "bank_transfer")
-            credits_awarded = req.credits_requested
-    elif req.credits_requested:
-        CreditService.add_credits(user, db, req.credits_requested, "bank_transfer")
-        credits_awarded = req.credits_requested
-
-    req.status = "approved"
-    req.reviewed_at = datetime.now(timezone.utc)
-    req.admin_note = payload.get("admin_note") if payload else None
-
-    payment = Payment(
-        user_id=user.id,
-        amount=req.amount,
-        currency=req.currency,
-        plan_name=str(plan_label),
-        status="completed",
-        payment_method="bank_transfer",
-        completed_at=datetime.now(timezone.utc),
-    )
-    db.add(payment)
-
-    message = (payload or {}).get("message") or (
-        f"Havale ödemeniz onaylandı. {credits_awarded} kredi hesabınıza tanımlandı."
-        if credits_awarded
-        else f"Havale ödemeniz onaylandı. {plan_label} planı aktif edildi."
-    )
-    db.add(
-        Notification(
-            title="Ödeme Onaylandı",
-            message=message,
-            type=NotificationType.SUCCESS.value,
-            target_audience="specific",
-            target_user_id=user.id,
-        )
-    )
-
-    _audit(
-        db=db,
-        request=request,
-        action="bank_transfer.approve",
-        resource_type="bank_transfer",
-        resource_id=str(req.id),
-        meta={"user_id": user.id, "plan_id": req.plan_id, "credits_awarded": credits_awarded},
-    )
-
-    db.commit()
-    return {"status": "ok"}
-
-
-@router.post("/bank-transfers/{request_id}/reject")
-def admin_reject_bank_transfer(
-    request_id: int,
-    request: Request,
-    payload: dict[str, Any],
-    db: Session = Depends(get_db),
-):
-    _require_admin_key(request)
-    req = db.query(BankTransferRequest).filter(BankTransferRequest.id == request_id).first()
-    if not req:
-        raise HTTPException(status_code=404, detail="Not found")
-    if req.status != "pending":
-        raise HTTPException(status_code=400, detail="Request already processed")
-
-    user = db.query(User).filter(User.id == req.user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    note = (payload or {}).get("admin_note") or (payload or {}).get("message")
-    if not note:
-        raise HTTPException(status_code=400, detail="Rejection reason required")
-
-    req.status = "rejected"
-    req.reviewed_at = datetime.now(timezone.utc)
-    req.admin_note = note
-
-    payment = Payment(
-        user_id=user.id,
-        amount=req.amount,
-        currency=req.currency,
-        plan_name=str(req.plan_name or req.plan_id or "Credit Topup"),
-        status="failed",
-        payment_method="bank_transfer",
-    )
-    db.add(payment)
-
-    db.add(
-        Notification(
-            title="Ödeme Reddedildi",
-            message=str(note),
-            type=NotificationType.ERROR.value,
-            target_audience="specific",
-            target_user_id=user.id,
-        )
-    )
-
-    _audit(
-        db=db,
-        request=request,
-        action="bank_transfer.reject",
-        resource_type="bank_transfer",
-        resource_id=str(req.id),
-        meta={"user_id": user.id, "reason": note},
-    )
-
-    db.commit()
-    return {"status": "ok"}
 
 
 @router.get("/referrals")
@@ -1117,52 +1019,73 @@ async def admin_update_seo_keywords(request: Request, db: Session = Depends(get_
 
 # --- Pricing Management ---
 
+def _validate_plan_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    plan_id = str(payload.get("id", "")).strip()
+    if not plan_id:
+        raise HTTPException(status_code=400, detail="Plan id is required")
+    name = payload.get("name")
+    if not isinstance(name, dict) or not name.get("tr") or not name.get("en"):
+        raise HTTPException(status_code=400, detail="Plan name must include tr and en")
+    features = payload.get("features")
+    if not isinstance(features, dict) or not isinstance(features.get("tr"), list) or not isinstance(features.get("en"), list):
+        raise HTTPException(status_code=400, detail="Plan features must include tr and en lists")
+    try:
+        price_try = float(payload.get("price_try"))
+        price_usd = float(payload.get("price_usd"))
+    except (TypeError, ValueError):
+        raise HTTPException(status_code=400, detail="Price values must be numeric")
+    if price_try < 0 or price_usd < 0:
+        raise HTTPException(status_code=400, detail="Price values must be non-negative")
+    try:
+        credits = int(payload.get("credits"))
+    except (TypeError, ValueError):
+        raise HTTPException(status_code=400, detail="Credits must be a number")
+    if credits < 0:
+        raise HTTPException(status_code=400, detail="Credits must be non-negative")
+    billing_period = str(payload.get("billing_period", "monthly")).strip().lower()
+    if billing_period not in ("monthly", "yearly", "once"):
+        raise HTTPException(status_code=400, detail="billing_period must be monthly, yearly, or once")
+    is_one_time = bool(payload.get("is_one_time", False))
+    recommended = bool(payload.get("recommended", False))
+    shopify_url = str(payload.get("shopify_url", "")).strip()
+    return {
+        "id": plan_id,
+        "name": {"tr": str(name.get("tr")).strip(), "en": str(name.get("en")).strip()},
+        "price_try": price_try,
+        "price_usd": price_usd,
+        "credits": credits,
+        "billing_period": billing_period,
+        "is_one_time": is_one_time,
+        "recommended": recommended,
+        "features": {
+            "tr": [str(item).strip() for item in features.get("tr", []) if str(item).strip()],
+            "en": [str(item).strip() for item in features.get("en", []) if str(item).strip()],
+        },
+        "shopify_url": shopify_url,
+    }
+
+
 @router.get("/pricing")
 def admin_get_pricing(request: Request, db: Session = Depends(get_db)):
-    """Get all pricing plans with override status indicator.
-    
-    Returns all plans with both database and default values, indicating
-    which prices are using database overrides versus defaults.
-    """
     _require_admin_key(request)
-    
-    # Get all plans with overrides applied
     plans = PricingService.get_all_plans(db)
-    
-    # Get all override records to determine status
-    overrides = db.query(PricingOverride).all()
-    override_map = {o.plan_id: o for o in overrides}
-    
-    # Enhance plans with override status
-    result = []
-    for plan in plans:
-        plan_id = plan["id"]
-        override = override_map.get(plan_id)
-        
-        # Get base plan for comparison
-        base_plan = next((p for p in PRICING_PLANS if p["id"] == plan_id), None)
-        
-        plan_data = {
-            "id": plan_id,
-            "name": plan.get("name", ""),
-            "price_try": plan.get("price_try"),
-            "price_usd": plan.get("price_usd"),
-            "credits": plan.get("credits"),
-            "search_normal": plan.get("search_normal"),
-            "search_detailed": plan.get("search_detailed"),
-            "search_location": plan.get("search_location"),
-            "has_override": override is not None,
-            "default_price_try": base_plan.get("price_try") if base_plan else None,
-            "default_price_usd": base_plan.get("price_usd") if base_plan else None,
-        }
-        
-        if override:
-            plan_data["updated_by"] = override.updated_by
-            plan_data["updated_at"] = override.updated_at
-        
-        result.append(plan_data)
-    
-    return {"plans": result}
+    return {"plans": plans}
+
+
+@router.post("/pricing")
+def admin_create_pricing_plan(request: Request, payload: dict[str, Any], db: Session = Depends(get_db)):
+    _require_admin_key(request)
+    plan_payload = _validate_plan_payload(payload)
+    saved = PricingService.save_plan(plan_payload, db)
+    _audit(
+        db=db,
+        request=request,
+        action="pricing.create",
+        resource_type="pricing",
+        resource_id=plan_payload["id"],
+        meta={"plan_id": plan_payload["id"]}
+    )
+    return {"status": "ok", "plan": saved}
 
 
 @router.put("/pricing/{plan_id}")
@@ -1172,141 +1095,52 @@ def admin_update_pricing(
     payload: dict[str, Any],
     db: Session = Depends(get_db),
 ):
-    """Update pricing for a specific plan.
-    
-    Validates price values are positive numbers, updates or creates
-    pricing_overrides record, records admin user ID and timestamp,
-    and returns updated plan data.
-    """
     _require_admin_key(request)
-    
-    # Extract price values from payload
-    price_try = payload.get("price_try")
-    price_usd = payload.get("price_usd")
-    
-    # Validate that at least one price is provided
-    if price_try is None and price_usd is None:
-        raise HTTPException(
-            status_code=400,
-            detail="At least one price (price_try or price_usd) must be provided"
-        )
-    
-    # Validate price values are positive numbers
-    if price_try is not None:
-        try:
-            price_try = float(price_try)
-            if price_try < 0:
-                raise HTTPException(
-                    status_code=400,
-                    detail="price_try must be a positive number"
-                )
-        except (ValueError, TypeError):
-            raise HTTPException(
-                status_code=400,
-                detail="price_try must be a valid number"
-            )
-    
-    if price_usd is not None:
-        try:
-            price_usd = float(price_usd)
-            if price_usd < 0:
-                raise HTTPException(
-                    status_code=400,
-                    detail="price_usd must be a positive number"
-                )
-        except (ValueError, TypeError):
-            raise HTTPException(
-                status_code=400,
-                detail="price_usd must be a valid number"
-            )
-    
-    # Get admin user ID (use a default admin ID of 1 if not available)
-    # In a real system, this would come from the authenticated admin user
-    admin_user_id = 1
-    admin_email = _admin_email(request)
-    if admin_email:
-        admin_user = db.query(User).filter(User.email == admin_email).first()
-        if admin_user:
-            admin_user_id = admin_user.id
-    
-    try:
-        # Update pricing using PricingService
-        updated_plan = PricingService.update_plan_pricing(
-            plan_id=plan_id,
-            price_try=price_try,
-            price_usd=price_usd,
-            db=db,
-            admin_user_id=admin_user_id
-        )
-        
-        # Audit the change
-        _audit(
-            db=db,
-            request=request,
-            action="pricing.update",
-            resource_type="pricing",
-            resource_id=plan_id,
-            meta={
-                "price_try": price_try,
-                "price_usd": price_usd,
-                "admin_user_id": admin_user_id
-            }
-        )
-        
-        return {
-            "status": "ok",
-            "plan": updated_plan
-        }
-    
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        logger.error(f"Error updating pricing for plan {plan_id}: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail="Failed to update pricing"
-        )
+    payload["id"] = plan_id
+    plan_payload = _validate_plan_payload(payload)
+    saved = PricingService.save_plan(plan_payload, db)
+    _audit(
+        db=db,
+        request=request,
+        action="pricing.update",
+        resource_type="pricing",
+        resource_id=plan_id,
+        meta={"plan_id": plan_id}
+    )
+    return {"status": "ok", "plan": saved}
 
 
 @router.delete("/pricing/{plan_id}")
-def admin_reset_pricing(
+def admin_delete_pricing_plan(
     plan_id: str,
     request: Request,
     db: Session = Depends(get_db),
 ):
-    """Reset plan pricing to defaults by removing database overrides.
-    
-    Removes pricing override for specified plan and returns default plan data.
-    """
     _require_admin_key(request)
-    
-    try:
-        # Reset pricing using PricingService
-        default_plan = PricingService.reset_plan_pricing(
-            plan_id=plan_id,
-            db=db
-        )
-        
-        # Audit the change
-        _audit(
-            db=db,
-            request=request,
-            action="pricing.reset",
-            resource_type="pricing",
-            resource_id=plan_id,
-            meta={"reset_to_defaults": True}
-        )
-        
-        return {
-            "status": "ok",
-            "plan": default_plan
-        }
-    
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    except Exception as e:
-        logger.error(f"Error resetting pricing for plan {plan_id}: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail="Failed to reset pricing"
-        )
+    removed = PricingService.delete_plan(plan_id, db)
+    if not removed:
+        raise HTTPException(status_code=404, detail="Plan not found")
+    _audit(
+        db=db,
+        request=request,
+        action="pricing.delete",
+        resource_type="pricing",
+        resource_id=plan_id,
+        meta={"plan_id": plan_id}
+    )
+    return {"status": "ok"}
+
+
+@router.post("/pricing/reset")
+def admin_reset_pricing(request: Request, db: Session = Depends(get_db)):
+    _require_admin_key(request)
+    plans = PricingService.reset_to_defaults(db)
+    _audit(
+        db=db,
+        request=request,
+        action="pricing.reset_defaults",
+        resource_type="pricing",
+        resource_id="pricing.plans",
+        meta={"count": len(plans)}
+    )
+    return {"status": "ok", "plans": plans}

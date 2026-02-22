@@ -118,16 +118,14 @@ async def run_job(job_id: int) -> None:
         if job.status in ("cancelled", "failed", "succeeded"):
             return
             
-        # --- UNLIMITED KONTROLÜ ---
         user = db.query(User).filter(User.id == job.owner_user_id).first()
-        if not user or user.tier != "unlimited":
+        if not user or (user.tier != "basic" and user.role != "admin"):
             job.status = "failed"
-            job.message = "Erişim Reddedildi: Bu özellik sadece Unlimited paket kullanıcıları içindir."
+            job.message = "Erişim Reddedildi: Bu özellik için aktif abonelik gereklidir."
             job.finished_at = now_utc()
             db.commit()
             await job_bus.publish(job_id, JobEvent(type="error", payload={"message": job.message}))
             return
-        # ---------------------------
 
         if not job.consent_received:
             job.status = "failed"

@@ -139,7 +139,7 @@ async def analyze_location_search(
     # Credit check
     is_free_user = True
     has_free_credit = (getattr(user, "location_search_credits", 0) or 0) > 0
-    has_paid_credit = user.tier in ["basic", "pro", "premium", "unlimited"] or user.credits > 0
+    has_paid_credit = user.credits > 0
 
     if not has_free_credit and not has_paid_credit:
         raise HTTPException(
@@ -154,7 +154,7 @@ async def analyze_location_search(
         db.refresh(user)
         is_free_user = True
         logger.info(f"User {user.email} - consumed 1 location_search_credit, remaining: {user.location_search_credits}")
-    elif has_paid_credit and user.tier != "unlimited":
+    elif has_paid_credit:
         if user.credits < 1:
             raise HTTPException(status_code=status.HTTP_402_PAYMENT_REQUIRED, detail="Yetersiz kredi")
         user.credits -= 1
@@ -162,9 +162,6 @@ async def analyze_location_search(
         db.refresh(user)
         is_free_user = False
         logger.info(f"User {user.email} - consumed 1 regular credit for location search, remaining: {user.credits}")
-    else:
-        # Unlimited tier
-        is_free_user = False
 
     try:
         # Extract EXIF GPS
@@ -199,11 +196,11 @@ async def analyze_location_search(
                         "altitude_found": _has_altitude(content),
                         "direction_found": _has_direction(content),
                     },
-                    "teaser_message": "Bu fotoğrafta detaylı konum bilgisi tespit edildi. Tam koordinatlar, adres ve harita görünümü için premium erişim gereklidir.",
+                    "teaser_message": "Bu fotoğrafta detaylı konum bilgisi tespit edildi. Tam koordinatlar, adres ve harita görünümü için aktif abonelik gereklidir.",
                     "unlock_cta": "Detaylı Raporu Aç",
                     "remaining_credits": {
                         "location_search": user.location_search_credits,
-                        "regular": user.credits if user.tier != "unlimited" else "∞",
+                        "regular": user.credits,
                     },
                     "mandatory_notice": "Bu sonuçlar EXIF metadata verilerinden elde edilmiş olup, tahmini niteliktedir. Tüm sorumluluk kullanıcıya aittir.",
                 }
@@ -232,7 +229,7 @@ async def analyze_location_search(
                     },
                     "remaining_credits": {
                         "location_search": user.location_search_credits,
-                        "regular": user.credits if user.tier != "unlimited" else "∞",
+                        "regular": user.credits,
                     },
                     "mandatory_notice": "Bu sonuçlar EXIF metadata verilerinden elde edilmiş olup, tahmini niteliktedir. Tüm sorumluluk kullanıcıya aittir.",
                 }
@@ -254,7 +251,7 @@ async def analyze_location_search(
                 },
                 "remaining_credits": {
                     "location_search": user.location_search_credits,
-                    "regular": user.credits if user.tier != "unlimited" else "∞",
+                    "regular": user.credits,
                 },
                 "mandatory_notice": "Bu sonuçlar EXIF metadata verilerinden elde edilmiş olup, tahmini niteliktedir.",
             }
@@ -264,7 +261,7 @@ async def analyze_location_search(
         if is_free_user and has_free_credit:
             user.location_search_credits = (user.location_search_credits or 0) + 1
             db.commit()
-        elif not is_free_user and user.tier != "unlimited":
+        elif not is_free_user:
             user.credits += 1
             db.commit()
         raise
@@ -274,7 +271,7 @@ async def analyze_location_search(
         if is_free_user and has_free_credit:
             user.location_search_credits = (user.location_search_credits or 0) + 1
             db.commit()
-        elif not is_free_user and user.tier != "unlimited":
+        elif not is_free_user:
             user.credits += 1
             db.commit()
         raise HTTPException(status_code=500, detail="Konum analizi başarısız oldu")

@@ -20,7 +20,7 @@ class Notification(Base):
     type = Column(String, default=NotificationType.INFO.value)
     media_url = Column(String, nullable=True)
     action_url = Column(String, nullable=True) # Link to redirect
-    target_audience = Column(String, default="all") # all, active, premium, specific
+    target_audience = Column(String, default="all") # all, basic, free, specific
     target_user_id = Column(Integer, nullable=True) # If specific user
     expires_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

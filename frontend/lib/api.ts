@@ -201,28 +201,6 @@ export async function subscribe(token: string, planId: string, currency: string 
   return api.post<any>("/pricing/subscribe", { plan_id: planId, currency }, { token });
 }
 
-export async function requestBankTransfer(
-  token: string,
-  payload: { plan_id?: string | null; credits?: number | null; amount: number; currency?: string; note?: string }
-) {
-  return api.post<any>("/pricing/bank-transfer", payload, { token });
-}
-
-export async function createGuestBankInquiry(payload: {
-  name: string;
-  email: string;
-  phone?: string;
-  desired_plan?: string;
-  desired_credits?: number;
-  message?: string;
-}) {
-  return api.post<any>("/public/bank-transfer-inquiry", payload);
-}
-
-export async function confirmPayment(token: string, paymentId: number) {
-  return api.post<any>(`/pricing/confirm-payment/${paymentId}`, undefined, { token });
-}
-
 export async function getCurrentSubscription(token: string) {
   return api.get<any>("/pricing/subscription", { token });
 }

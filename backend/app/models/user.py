@@ -1,5 +1,5 @@
 """User model with credits, subscription, and referral system"""
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, Float
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, Float, Text, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import secrets
@@ -18,7 +18,7 @@ class User(Base):
     hashed_password = Column(String(255), nullable=False)
     
     # Subscription & Credits
-    tier = Column(String(20), default="free", nullable=False)  # free, premium, unlimited
+    tier = Column(String(20), default="free", nullable=False)  # free, basic
     credits = Column(Integer, default=1, nullable=False)  # Yeni kayıt = 1 ücretsiz kredi
     role = Column(String(20), default="user", nullable=False)  # user, admin
     is_active = Column(Boolean, default=True, nullable=False)
@@ -48,6 +48,7 @@ class User(Base):
     notification_reads = relationship("NotificationRead", back_populates="user")
     support_tickets = relationship("SupportTicket", foreign_keys=[SupportTicket.user_id], back_populates="user")
     support_messages = relationship("SupportMessage", back_populates="user")
+    profile = relationship("UserProfile", back_populates="user", uselist=False)
     
     @property
     def success_rate(self) -> float:
@@ -60,3 +61,19 @@ class User(Base):
     def generate_referral_code() -> str:
         """Benzersiz referral code oluştur"""
         return secrets.token_urlsafe(8)[:8].upper()
+
+
+class UserProfile(Base):
+    __tablename__ = "user_profiles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False, index=True)
+    full_name = Column(String(120), nullable=True)
+    phone = Column(String(40), nullable=True)
+    address = Column(Text, nullable=True)
+    credit_limit = Column(Integer, nullable=True)
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    user = relationship("User", back_populates="profile")

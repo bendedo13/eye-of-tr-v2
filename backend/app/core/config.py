@@ -130,11 +130,6 @@ class Settings(BaseSettings):
     SMTP_STARTTLS: bool = True
     SMTP_TIMEOUT: int = 20
 
-    # LemonSqueezy
-    LEMONSQUEEZY_API_KEY: Optional[str] = None
-    LEMONSQUEEZY_STORE_ID: Optional[str] = None
-    LEMONSQUEEZY_WEBHOOK_SECRET: str = ""
-
     # OpenAI Configuration
     OPENAI_API_KEY: Optional[str] = None
     OPENAI_MODEL: str = "gpt-4o-mini"  # Default to cost-effective model
