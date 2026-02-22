@@ -24,7 +24,7 @@ from app.models.investigation import InvestigationRequest
 from app.services.scraper_service import scraper_service
 from app.services.credit_service import CreditService
 from app.services.pricing_service import PricingService
-from app.api.pricing import PRICING_PLANS
+from app.services.pricing_defaults import PRICING_PLANS
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 

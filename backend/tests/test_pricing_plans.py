@@ -10,14 +10,18 @@ class TestPricingPlans(unittest.TestCase):
 
     def test_only_basic_and_credit_plans_exist(self):
         ids = {p["id"] for p in self.plans}
-        self.assertEqual(ids, {"basic_monthly", "credit_pack"})
+        self.assertEqual(ids, {"basic_monthly", "basic_yearly", "credit_pack"})
 
     def test_prices_match_defaults(self):
         basic = next(p for p in self.plans if p["id"] == "basic_monthly")
+        yearly = next(p for p in self.plans if p["id"] == "basic_yearly")
         credit = next(p for p in self.plans if p["id"] == "credit_pack")
 
         self.assertEqual(basic["price_try"], 299)
         self.assertAlmostEqual(basic["price_usd"], 14.99)
+
+        self.assertEqual(yearly["price_try"], 2990)
+        self.assertAlmostEqual(yearly["price_usd"], 149.99)
 
         self.assertEqual(credit["price_try"], 59.99)
         self.assertAlmostEqual(credit["price_usd"], 2.99)

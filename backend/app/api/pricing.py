@@ -10,60 +10,10 @@ from app.db.database import get_db
 from app.models.user import User
 from app.models.subscription import Subscription, Payment
 from app.services.pricing_service import PricingService
+from app.services.pricing_defaults import PRICING_PLANS
 
 router = APIRouter(prefix="/api/pricing", tags=["pricing"])
 logger = logging.getLogger(__name__)
-
-
-# Simplified pricing: monthly, yearly, one-time credits.
-PRICING_PLANS = [
-    {
-        "id": "basic_monthly",
-        "name": {"tr": "Basit Aylık", "en": "Basic Monthly"},
-        "price_try": 299,
-        "price_usd": 14.99,
-        "credits": 100,
-        "billing_period": "monthly",
-        "tier": "basic",
-        "features": {
-            "tr": ["Tüm özellikler", "Bulanıksız sonuçlar", "Öncelikli destek"],
-            "en": ["All features", "No blur", "Priority support"],
-        },
-        "recommended": True,
-        "shopify_url": "",
-    },
-    {
-        "id": "basic_yearly",
-        "name": {"tr": "Basit Yıllık", "en": "Basic Yearly"},
-        "price_try": 2990,
-        "price_usd": 149.99,
-        "credits": 1200,
-        "billing_period": "yearly",
-        "tier": "basic",
-        "features": {
-            "tr": ["Tüm özellikler", "Bulanıksız sonuçlar", "Öncelikli destek"],
-            "en": ["All features", "No blur", "Priority support"],
-        },
-        "recommended": False,
-        "shopify_url": "",
-    },
-    {
-        "id": "credit_pack",
-        "name": {"tr": "Kredi Satın Alma", "en": "Credit Purchase"},
-        "price_try": 59.99,
-        "price_usd": 2.99,
-        "credits": 10,
-        "billing_period": "once",
-        "is_one_time": True,
-        "tier": "credit",
-        "features": {
-            "tr": ["Abonelik gerektirmez", "İstediğin zaman kullan", "Tek seferlik ödeme"],
-            "en": ["No subscription needed", "Use anytime", "One-time payment"],
-        },
-        "recommended": False,
-        "shopify_url": "",
-    },
-]
 
 
 def _resolve_plan_for_locale(plan: dict, locale: str = "tr", currency: str = "TRY") -> dict:

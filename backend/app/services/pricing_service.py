@@ -6,7 +6,7 @@ from typing import Optional
 from copy import deepcopy
 
 from app.models.cms import SiteSetting
-from app.api.pricing import PRICING_PLANS
+from app.services.pricing_defaults import PRICING_PLANS
 
 logger = logging.getLogger(__name__)
 
