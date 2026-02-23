@@ -1,28 +1,22 @@
-version: '3.8'
-
 services:
-  frontend:
-    image: node:18-alpine
+  faceseek_frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: faceseek_frontend
-    working_dir: /app
-    volumes:
-      - .:/app
     ports:
-      - "8080:3000"
-    command: sh -c "npm install && npm run dev"
+      - "8085:3000"
     networks:
       - face_seek_network
 
-  backend:
-    image: python:3.10-slim
+  faceseek_backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: faceseek_backend
-    working_dir: /app
-    volumes:
-      - .:/app
-    command: sh -c "pip install fastapi uvicorn && uvicorn main:app --host 0.0.0.0 --port 8000"
     networks:
       - face_seek_network
 
 networks:
   face_seek_network:
-    external: true
+    driver: bridge
