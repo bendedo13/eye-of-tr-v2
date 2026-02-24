@@ -1,4 +1,3 @@
-```python
 import asyncio
 import time
 from typing import List, Dict, Optional
@@ -107,4 +106,3 @@ class AlanSearchService:
                 "query": query,
                 "count": 0
             }
-```

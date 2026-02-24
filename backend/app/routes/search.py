@@ -1,4 +1,3 @@
-```python
 from fastapi import APIRouter, Query, HTTPException
 from typing import Optional
 from app.services.search_service import AlanSearchService
@@ -26,4 +25,3 @@ async def search(q: str = Query(..., min_length=1)):
             status_code=500,
             detail="Arama sırasında bir hata oluştu"
         )
-```
