@@ -1,0 +1,17 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/[locale]/layout,_N_T_/[locale]/legal/layout,_N_T_/[locale]/legal/disclaimer/layout,_N_T_/[locale]/legal/disclaimer/page,_N_T_/en/legal/disclaimer"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/$d$locale/legal/disclaimer/__PAGE__",
+    "/$d$locale/legal/disclaimer",
+    "/$d$locale/legal",
+    "/$d$locale",
+    "/_index",
+    "/_head"
+  ]
+}
