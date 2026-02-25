@@ -185,8 +185,6 @@
     "language-tags": "1.0.9",
     "levn": "0.4.1",
     "lightningcss": "1.30.2",
-    "lightningcss-linux-x64-gnu": "1.30.2",
-    "lightningcss-linux-x64-musl": "1.30.2",
     "locate-path": "6.0.0",
     "lodash.includes": "4.3.0",
     "lodash.isboolean": "3.0.3",
@@ -327,5 +325,13 @@
     "yocto-queue": "0.1.0",
     "zod": "4.3.6",
     "zod-validation-error": "4.0.2"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3"
   }
 }
