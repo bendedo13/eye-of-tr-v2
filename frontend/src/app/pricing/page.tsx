@@ -2,236 +2,228 @@
 
 import { useState } from 'react';
 import { Check } from 'lucide-react';
-import Navbar from '@/components/Navbar';
+import Link from 'next/link';
 
 export default function PricingPage() {
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'credit'>('monthly');
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
 
-  const plans = {
-    monthly: [
-      {
-        name: 'Başlangıç',
-        price: 299,
-        currency: '₺',
-        period: '/ay',
-        usPrice: 14.99,
-        usCurrency: '$',
-        description: 'Küçük projeler için ideal',
-        features: [
-          'Aylık 100 arama',
-          'Temel AlanSearch',
-          'Arama geçmişi',
-          'E-posta desteği',
-          '7 gün veri tutma'
-        ],
-        cta: 'Başla',
-        highlighted: false
-      },
-      {
-        name: 'Profesyonel',
-        price: 799,
-        currency: '₺',
-        period: '/ay',
-        usPrice: 39.99,
-        usCurrency: '$',
-        description: 'İşletmeler için',
-        features: [
-          'Aylık 1000 arama',
-          'Gelişmiş AlanSearch',
-          'Location Search',
-          'Arama geçmişi ve analitik',
-          'Öncelikli destek',
-          '30 gün veri tutma',
-          'API erişimi'
-        ],
-        cta: 'Satın Al',
-        highlighted: true
-      },
-      {
-        name: 'Kurumsal',
-        price: 2499,
-        currency: '₺',
-        period: '/ay',
-        usPrice: 124.99,
-        usCurrency: '$',
-        description: 'Kurumlar için özel',
-        features: [
-          'Sınırsız arama',
-          'Tüm özellikler',
-          'Özel integration',
-          '24/7 canlı destek',
-          '90 gün veri tutma',
-          'API v2 erişimi',
-          'Batch işlem',
-          'Kişisel hesap yöneticisi'
-        ],
-        cta: 'İletişime Geç',
-        highlighted: false
-      }
-    ],
-    credit: [
-      {
-        name: 'Küçük Paket',
-        price: 100,
-        currency: '₺',
-        period: '50 arama',
-        usPrice: 2,
-        usCurrency: '$',
-        description: 'Hızlı deneme için',
-        features: [
-          '50 arama kredisi',
-          '90 gün geçerlilik',
-          'AlanSearch kullanımı',
-          'E-posta desteği'
-        ],
-        cta: 'Satın Al',
-        highlighted: false
-      },
-      {
-        name: 'Orta Paket',
-        price: 250,
-        currency: '₺',
-        period: '150 arama',
-        usPrice: 5,
-        usCurrency: '$',
-        description: 'Düzenli kullanım için',
-        features: [
-          '150 arama kredisi',
-          '180 gün geçerlilik',
-          'AlanSearch + Location',
-          'Arama analitik',
-          'Öncelikli destek'
-        ],
-        cta: 'Satın Al',
-        highlighted: true
-      },
-      {
-        name: 'Büyük Paket',
-        price: 750,
-        currency: '₺',
-        period: '500 arama',
-        usPrice: 15,
-        usCurrency: '$',
-        description: 'Yoğun kullanım için',
-        features: [
-          '500 arama kredisi',
-          '1 yıl geçerlilik',
-          'Tüm arama türleri',
-          'Batch işlem',
-          'API erişimi',
-          '24/7 destek'
-        ],
-        cta: 'Satın Al',
-        highlighted: false
-      }
-    ]
-  };
-
-  const currentPlans = plans[billingCycle];
+  const plans = [
+    {
+      name: 'Başlangıç',
+      monthlyPrice: 0,
+      yearlyPrice: 0,
+      credits: 5,
+      description: 'Küçük projeler için',
+      features: [
+        '5 Arama/Ay',
+        'Temel Arama',
+        'Email Destek',
+        '30 Gün Geçmiş',
+      ],
+      cta: 'Başla',
+      popular: false,
+    },
+    {
+      name: 'Profesyonel',
+      monthlyPrice: 299,
+      monthlyPriceCurrency: 'TL',
+      yearlyPrice: 14.99,
+      yearlyPriceCurrency: 'USD',
+      credits: 100,
+      description: 'Aktif kullanıcılar için',
+      features: [
+        'Sınırsız Arama',
+        'AlanSearch + Location',
+        'Öncelikli Destek',
+        '1 Yıl Geçmiş',
+        'Batch İşleme',
+      ],
+      cta: 'Satın Al',
+      popular: true,
+    },
+    {
+      name: 'Kredi Paketi',
+      monthlyPrice: 100,
+      monthlyPriceCurrency: 'TL',
+      yearlyPrice: 2,
+      yearlyPriceCurrency: 'USD',
+      credits: 50,
+      description: 'İsteğe bağlı satın alma',
+      features: [
+        '50 Arama Kredisi',
+        '1 Yıl Geçerlilik',
+        'Herhangi Zaman Kullan',
+        'İade Yok',
+      ],
+      cta: 'Kredi Satın Al',
+      popular: false,
+    },
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
-      <Navbar />
-      
-      <div className="max-w-7xl mx-auto px-4 pt-32 pb-20">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-12 px-4">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-white mb-4">
-            Fiyatlandırma Planları
+          <h1 className="text-4xl font-bold text-white mb-4">
+            Şeffaf Fiyatlandırma
           </h1>
-          <p className="text-xl text-slate-300 mb-8">
-            Bütçenize uygun seçeneği bulun
+          <p className="text-xl text-slate-400 mb-8">
+            Her bütçe için uygun plan seç
           </p>
 
+          {/* Billing Toggle */}
           <div className="flex justify-center gap-4 mb-12">
             <button
               onClick={() => setBillingCycle('monthly')}
-              className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+              className={`px-6 py-2 rounded-lg font-medium transition ${
                 billingCycle === 'monthly'
                   ? 'bg-blue-600 text-white'
-                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                  : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
               }`}
             >
-              Aylık Abonelik
+              Aylık
             </button>
             <button
-              onClick={() => setBillingCycle('credit')}
-              className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-                billingCycle === 'credit'
+              onClick={() => setBillingCycle('yearly')}
+              className={`px-6 py-2 rounded-lg font-medium transition ${
+                billingCycle === 'yearly'
                   ? 'bg-blue-600 text-white'
-                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                  : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
               }`}
             >
-              Kredi Paketi
+              Yıllık / USD
             </button>
           </div>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {currentPlans.map((plan, idx) => (
+        {/* Pricing Cards */}
+        <div className="grid md:grid-cols-3 gap-8 mb-12">
+          {plans.map((plan) => (
             <div
-              key={idx}
-              className={`rounded-xl p-8 transition-all ${
-                plan.highlighted
-                  ? 'bg-gradient-to-b from-blue-600 to-blue-700 text-white scale-105 shadow-2xl'
-                  : 'bg-slate-800 text-slate-100 hover:bg-slate-700'
+              key={plan.name}
+              className={`rounded-xl p-8 transition transform hover:scale-105 ${
+                plan.popular
+                  ? 'bg-gradient-to-br from-blue-600 to-blue-700 ring-2 ring-blue-400 shadow-2xl'
+                  : 'bg-slate-800 border border-slate-700 hover:border-slate-600'
               }`}
             >
-              {plan.highlighted && (
-                <div className="bg-yellow-400 text-slate-900 text-sm font-bold px-3 py-1 rounded-full inline-block mb-4">
-                  EN POPÜLERİ
+              {plan.popular && (
+                <div className="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-sm font-bold w-fit mb-4">
+                  POPULER
                 </div>
               )}
 
-              <h2 className="text-2xl font-bold mb-2">{plan.name}</h2>
-              <p className={`text-sm mb-6 ${plan.highlighted ? 'text-blue-100' : 'text-slate-400'}`}>
+              <h3 className={`text-2xl font-bold mb-2 ${plan.popular ? 'text-white' : 'text-slate-100'}`}>
+                {plan.name}
+              </h3>
+              <p className={`text-sm mb-6 ${plan.popular ? 'text-blue-100' : 'text-slate-400'}`}>
                 {plan.description}
               </p>
 
+              {/* Price */}
               <div className="mb-6">
-                <div className="flex items-baseline gap-1 mb-2">
-                  <span className="text-4xl font-bold">{plan.price}</span>
-                  <span className="text-lg">{plan.currency}</span>
-                </div>
-                <p className={`text-sm ${plan.highlighted ? 'text-blue-100' : 'text-slate-400'}`}>
-                  {plan.period}
-                </p>
-                <div className="text-xs mt-2 opacity-75">
-                  {plan.usPrice}{plan.usCurrency} (USD)
-                </div>
-              </div>
-
-              <button
-                className={`w-full py-3 rounded-lg font-semibold mb-8 transition-all ${
-                  plan.highlighted
-                    ? 'bg-white text-blue-600 hover:bg-blue-50'
-                    : 'bg-blue-600 text-white hover:bg-blue-700'
-                }`}
-              >
-                {plan.cta}
-              </button>
-
-              <div className="space-y-3">
-                {plan.features.map((feature, fidx) => (
-                  <div key={fidx} className="flex gap-3">
-                    <Check className="w-5 h-5 flex-shrink-0 text-green-400" />
-                    <span className="text-sm">{feature}</span>
+                {billingCycle === 'monthly' ? (
+                  <div className={`text-4xl font-bold ${plan.popular ? 'text-white' : 'text-slate-100'}`}>
+                    {plan.monthlyPrice === 0 ? (
+                      'Ücretsiz'
+                    ) : (
+                      <>
+                        {plan.monthlyPrice}
+                        <span className="text-lg ml-1">{plan.monthlyPriceCurrency || 'TL'}</span>
+                      </>
+                    )}
+                    <span className={`text-sm ${plan.popular ? 'text-blue-100' : 'text-slate-400'}`}>
+                      {plan.monthlyPrice !== 0 && '/ay'}
+                    </span>
                   </div>
-                ))}
+                ) : (
+                  <div className={`text-4xl font-bold ${plan.popular ? 'text-white' : 'text-slate-100'}`}>
+                    ${plan.yearlyPrice}
+                    <span className={`text-sm ${plan.popular ? 'text-blue-100' : 'text-slate-400'}`}>
+                      /yıl
+                    </span>
+                  </div>
+                )}
+                {plan.credits > 0 && (
+                  <p className={`text-sm mt-2 ${plan.popular ? 'text-blue-100' : 'text-slate-400'}`}>
+                    {plan.credits} Arama Kredisi
+                  </p>
+                )}
               </div>
+
+              {/* CTA Button */}
+              <Link href={`/auth/register?plan=${plan.name.toLowerCase().replace(' ', '-')}`}>
+                <button
+                  className={`w-full py-3 rounded-lg font-semibold transition mb-8 ${
+                    plan.popular
+                      ? 'bg-white text-blue-600 hover:bg-slate-100'
+                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                  }`}
+                >
+                  {plan.cta}
+                </button>
+              </Link>
+
+              {/* Features */}
+              <ul className="space-y-4">
+                {plan.features.map((feature, idx) => (
+                  <li key={idx} className="flex gap-3">
+                    <Check
+                      size={20}
+                      className={plan.popular ? 'text-white' : 'text-blue-400'}
+                    />
+                    <span className={plan.popular ? 'text-white' : 'text-slate-300'}>
+                      {feature}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </div>
           ))}
         </div>
 
-        <div className="mt-16 text-center">
-          <h3 className="text-2xl font-bold text-white mb-4">
-            Emin değil misiniz?
-          </h3>
-          <p className="text-slate-300 mb-6">
-            Ücretsiz demo hesabı oluşturun ve tüm özellikleri keşfedin
-          </p>
-          <button className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-3 rounded-lg font-semibold hover:shadow-lg transition-all">
-            Ücretsiz Başla
-          </button>
+        {/* FAQ */}
+        <div className="bg-slate-800 border border-slate-700 rounded-xl p-8 max-w-3xl mx-auto">
+          <h2 className="text-2xl font-bold text-white mb-8">Sık Sorulan Sorular</h2>
+          
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold text-slate-100 mb-2">
+                Kredi paketini nasıl kullanırım?
+              </h3>
+              <p className="text-slate-400">
+                Kredi satın aldıktan sonra hesabınıza yüklenir. Her aramada bir kredi kullanılır. 1 yıl içinde kullanmayan krediler sona erer.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold text-slate-100 mb-2">
+                Plan değiştirebilir miyim?
+              </h3>
+              <p className="text-slate-400">
+                Evet, istediğiniz zaman yükseltebilir veya indirebilirsiniz. Ödeme oranlanacaktır.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold text-slate-100 mb-2">
+                İptal etmek istersen?
+              </h3>
+              <p className="text-slate-400">
+                Hesap ayarlarından istediğiniz zaman iptal edebilirsiniz. Kalan dönem ödemeniz iade edilir.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold text-slate-100 mb-2">
+                Kurumsal çözüm var mı?
+              </h3>
+              <p className="text-slate-400">
+                Evet, <Link href="/contact" className="text-blue-400 hover:text-blue-300">iletişime geçin</Link> ve özel fiyatlandırmayı öğrenin.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
