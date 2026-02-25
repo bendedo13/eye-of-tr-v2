@@ -1,6 +1,0 @@
-1:"$Sreact.fragment"
-2:I[4480,["/_next/static/chunks/da33202e78d38bc3.js","/_next/static/chunks/06986acec2257bce.js","/_next/static/chunks/d8d96da651f6c890.js","/_next/static/chunks/c90615754b996819.js"],"default"]
-3:I[73890,["/_next/static/chunks/f568f01c487f8a8b.js","/_next/static/chunks/c24a0e9f218687ca.js"],"OutletBoundary"]
-4:"$Sreact.suspense"
-0:{"buildId":"ysAYpOQkGJVQXQv-yD-1T","rsc":["$","$1","c",{"children":[[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"WebSite\",\"name\":\"FaceSeek\",\"url\":\"https://face-seek.com\",\"potentialAction\":{\"@type\":\"SearchAction\",\"target\":\"https://face-seek.com/tr/search?q={search_term_string}\",\"query-input\":\"required name=search_term_string\"},\"description\":\"KVKK Uyumlu Y?z Arama Motoru\"}"}}],["$","$L2",null,{"locale":"tr"}]],[["$","script","script-0",{"src":"/_next/static/chunks/d8d96da651f6c890.js","async":true}],["$","script","script-1",{"src":"/_next/static/chunks/c90615754b996819.js","async":true}]],["$","$L3",null,{"children":["$","$4",null,{"name":"Next.MetadataOutlet","children":"$@5"}]}]]}],"loading":null,"isPartial":false}
-5:null

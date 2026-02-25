@@ -1,24 +1,42 @@
+yaml
+version: '3.8'
 services:
-  faceseek_frontend:
+  frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
-    container_name: faceseek_frontend
+      cache_from: []  # Cache kullanmasın
     ports:
-      - "3002:3000"
-    networks:
-      - face_seek_network
+      - "3002:3002"
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - backend
+    restart: always
 
-  faceseek_backend:
+  backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile
-    container_name: faceseek_backend
+      cache_from: []  # Cache kullanmasın
     ports:
-      - "8003:8000"
-    networks:
-      - face_seek_network
+      - "8003:8003"
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/faceseek
+    depends_on:
+      - db
+    restart: always
 
-networks:
-  face_seek_network:
-    driver: bridge
+  db:
+    image: postgres:15
+    ports:
+      - "5434:5432"
+    environment:
+      - POSTGRES_DB=faceseek
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    restart: always
+
+  redis:
+    image: redis:7
+    ports:
+      - "6381:6379"
+    restart: always
