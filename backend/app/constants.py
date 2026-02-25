@@ -1,26 +1,34 @@
+from typing import Dict, Any
 
-# Pricing Plans - Circular import'tan korumalı
-PRICING_PLANS = {
+PRICING_PLANS: Dict[str, Any] = {
     "free": {
         "name": "Ücretsiz",
-        "searches_per_day": 5,
-        "monthly_price_try": 0,
-        "monthly_price_usd": 0,
-        "features": ["Günde 5 arama", "Temel AlanSearch"]
+        "price_try": 0,
+        "price_usd": 0.0,
+        "credits": 5,
+        "monthly_credits": 5,
+        "features": [
+            "5 arama kredisi",
+            "Temel yüz tanıma",
+            "Google Dork arama",
+            "Standart destek",
+        ],
     },
-    "premium": {
-        "name": "Premium",
-        "searches_per_day": None,  # Sınırsız
-        "monthly_price_try": 299,
-        "monthly_price_usd": 14.99,
-        "features": ["Sınırsız arama", "Gelişmiş filtreleme", "Hızlı sonuçlar"]
+    "monthly": {
+        "name": "Aylık Plan",
+        "price_try": 299,
+        "price_usd": 14.99,
+        "credits": 500,
+        "monthly_credits": 500,
+        "features": [
+            "500 arama kredisi/ay",
+            "Gelişmiş yüz tanıma",
+            "Google Dork arama",
+            "Konum bazlı arama",
+            "Gelişmiş filtreler",
+            "CSV dışa aktarma",
+            "Öncelikli destek",
+        ],
     },
     "credits": {
-        "name": "Kredi Paketi",
-        "credits": 100,
-        "validity_days": 180,
-        "price_try": 100,
-        "price_usd": 2,
-        "features": ["100 arama kredisi", "6 ay geçerlilik"]
-    }
-}
+        "name": "Kr
