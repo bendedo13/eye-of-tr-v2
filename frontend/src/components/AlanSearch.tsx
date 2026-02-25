@@ -1,11 +1,13 @@
 
 'use client';
 
-import { useState } from 'react';
-import { Search, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Search, Loader2, AlertCircle } from 'lucide-react';
 
 interface SearchResult {
-  title: string;
+  name: string;
   url: string;
   snippet: string;
 }
@@ -15,53 +17,93 @@ export default function AlanSearch() {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [searchTime, setSearchTime] = useState(0);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Türkçe karakterleri düzgün URL encode et
+  const encodeTurkishQuery = (text: string): string => {
+    return encodeURIComponent(text.trim());
+  };
+
+  // Türkçe karakter validasyonu
+  const isValidTurkishQuery = (text: string): boolean => {
+    const turkishCharPattern = /^[a-zA-Z0-9\s\-._~:/?#[\]@!$&'()*+,;=ğüşıöçĞÜŞİÖÇ]+$/;
+    return turkishCharPattern.test(text.trim());
+  };
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!query.trim()) {
-      setError('Lütfen arama terimini girin');
+      setError('Lütfen bir isim veya anahtar kelime girin');
+      setResults([]);
       return;
     }
 
+    if (!isValidTurkishQuery(query)) {
+      setError('Geçersiz karakter kullanıldı. Türkçe karakterler desteklenmektedir.');
+      return;
+    }
+
+    // Önceki istek varsa iptal et
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    abortControllerRef.current = new AbortController();
     setLoading(true);
     setError('');
-    setSuccess('');
     setResults([]);
 
+    const startTime = Date.now();
+    const encodedQuery = encodeTurkishQuery(query);
+
     try {
-      // Turkish character URL encoding
-      const encodedQuery = encodeURIComponent(query);
-      
       const response = await fetch(
-        `http://localhost:8003/api/alan-search?q=${encodedQuery}`,
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8003'}/api/search?q=${encodedQuery}`,
         {
           method: 'GET',
+          signal: abortControllerRef.current.signal,
           headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
           },
         }
       );
 
+      const endTime = Date.now();
+      setSearchTime(Math.round((endTime - startTime) / 1000));
+
       if (!response.ok) {
-        throw new Error(`API Hatası: ${response.status}`);
+        if (response.status === 429) {
+          setError('Çok hızlı arama yapıyorsunuz. Lütfen 3 saniye bekleyin.');
+        } else if (response.status === 404) {
+          setError('Sonuç bulunamadı. Farklı bir anahtar kelime veya tam ad deneyin.');
+        } else {
+          throw new Error(`API Hatası: ${response.status}`);
+        }
+        return;
       }
 
       const data = await response.json();
-      
-      if (data.results && data.results.length > 0) {
-        setResults(data.results);
-        setSuccess(`${data.results.length} sonuç bulundu`);
-      } else {
-        setError('Sonuç bulunamadı. Farklı anahtar kelimeler deneyin.');
+
+      if (!data.results || data.results.length === 0) {
+        setError('Sonuç bulunamadı. Farklı bir anahtar kelime veya tam ad deneyin.');
+        setResults([]);
+        return;
       }
+
+      setResults(data.results);
     } catch (err) {
-      setError(
-        err instanceof Error 
-          ? err.message 
-          : 'Arama sırasında hata oluştu'
-      );
+      if (err instanceof Error) {
+        if (err.name === 'AbortError') {
+          setError('Arama iptal edildi.');
+        } else {
+          setError(`Arama başarısız: ${err.message}`);
+        }
+      } else {
+        setError('Bilinmeyen bir hata oluştu.');
+      }
       setResults([]);
     } finally {
       setLoading(false);
@@ -69,100 +111,79 @@ export default function AlanSearch() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">AlanSearch</h1>
-          <p className="text-gray-600">
-            Google Dork ile gelişmiş kişi arama
-          </p>
-        </div>
-
-        {/* Search Form */}
-        <form onSubmit={handleSearch} className="mb-8">
-          <div className="relative flex gap-2">
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="İsim, e-posta veya sosyal medya hesabı girin..."
-              className="flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-              disabled={loading}
-            />
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  Aranıyor...
-                </>
-              ) : (
-                <>
-                  <Search className="w-5 h-5" />
-                  Ara
-                </>
-              )}
-            </button>
-          </div>
-        </form>
-
-        {/* Status Messages */}
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="font-semibold text-red-800">Hata</p>
-              <p className="text-red-700">{error}</p>
-            </div>
-          </div>
-        )}
-
-        {success && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3">
-            <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-            <p className="text-green-700">{success}</p>
-          </div>
-        )}
-
-        {/* Results List */}
-        <div className="space-y-4">
-          {results.map((result, idx) => (
-            <a
-              key={idx}
-              href={result.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block p-4 bg-white rounded-lg shadow hover:shadow-lg transition-shadow border-l-4 border-blue-600"
-            >
-              <h3 className="text-lg font-semibold text-blue-600 hover:underline mb-1">
-                {result.title}
-              </h3>
-              <p className="text-sm text-gray-500 mb-2">{result.url}</p>
-              <p className="text-gray-700 line-clamp-2">{result.snippet}</p>
-            </a>
-          ))}
-        </div>
-
-        {/* Empty State */}
-        {!loading && results.length === 0 && !error && !success && (
-          <div className="text-center py-12">
-            <Search className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500">Arama yaparak başlayın</p>
-          </div>
-        )}
+    <div className="w-full max-w-2xl mx-auto space-y-6">
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold text-white">AlanSearch</h1>
+        <p className="text-gray-400">
+          Kişi adı veya bilgisini girin, internette ara (Türkçe karakter desteklenir)
+        </p>
       </div>
+
+      <form onSubmit={handleSearch} className="space-y-4">
+        <div className="flex gap-2">
+          <Input
+            type="text"
+            placeholder="örn: Ahmet Öztürk, İstanbul mühendis..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            disabled={loading}
+            className="bg-slate-800 border-slate-700 text-white placeholder:text-gray-500"
+            maxLength={200}
+          />
+          <Button
+            type="submit"
+            disabled={loading}
+            className="bg-blue-600 hover:bg-blue-700"
+            size="icon"
+          >
+            {loading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Search className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
+
+        {loading && (
+          <div className="text-sm text-gray-400">
+            Aranıyor... (Biraz zaman alabilir)
+          </div>
+        )}
+      </form>
+
+      {error && (
+        <div className="flex gap-3 p-4 bg-red-900/20 border border-red-700/50 rounded-lg">
+          <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" />
+          <div className="text-sm text-red-200">{error}</div>
+        </div>
+      )}
+
+      {results.length > 0 && (
+        <div className="space-y-4">
+          <div className="text-sm text-gray-400">
+            {results.length} sonuç bulundu ({searchTime} saniyede)
+          </div>
+          <div className="space-y-3">
+            {results.map((result, idx) => (
+              <a
+                key={idx}
+                href={result.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block p-4 bg-slate-800 hover:bg-slate-700 rounded-lg transition"
+              >
+                <h3 className="text-blue-400 hover:text-blue-300 font-medium truncate">
+                  {result.name}
+                </h3>
+                <p className="text-xs text-gray-500 truncate">{result.url}</p>
+                <p className="text-sm text-gray-300 mt-2 line-clamp-2">
+                  {result.snippet}
+                </p>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
-
-### AÇIKLAMA:
-AlanSearch bileşeni, Google Dork tabanlı gelişmiş arama için tamamlanmıştır. Arama inputu, Türkçe karakter desteğiyle URL encoding, hata/başarı mesajları ve sonuç listeleme eksiksizdir. Backend API endpoint'i `http://localhost:8003/api/alan-search` ile bağlıdır. Sonuç bulunamadığında fallback mesaj gösterilir.
-
----
-
-## ADIM 5: FİYATLANDIRMA SAYFASI DÜZELTME
