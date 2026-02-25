@@ -1,202 +1,200 @@
 
-'use client';
-
-import { Check } from 'lucide-react';
-import { useState } from 'react';
-
-interface Plan {
-  name: string;
-  price_tr: number;
-  price_usd: number;
-  currency_tr: string;
-  currency_usd: string;
-  features: string[];
-}
+import React from 'react';
+import { useRouter } from 'next/router';
+import Head from 'next/head';
 
 export default function Pricing() {
-  const [currency, setCurrency] = useState<'tr' | 'usd'>('tr');
+  const router = useRouter();
+  const [currency, setCurrency] = React.useState<'TRY' | 'USD'>('TRY');
 
-  const plans: Record<string, Plan> = {
-    monthly: {
-      name: "Aylık Plan",
-      price_tr: 299,
-      price_usd: 14.99,
-      currency_tr: "TL",
-      currency_usd: "USD",
+  const plans = [
+    {
+      name: 'Ücretsiz',
+      description: 'Başlangıç için ideal',
+      price: { TRY: '0', USD: '0' },
+      currency: currency,
       features: [
-        "Günlük 50 arama",
-        "Temel AlanSearch",
-        "E-posta desteği",
-        "Arama geçmişi"
-      ]
+        '5 arama/gün',
+        'Temel AlanSearch',
+        'Standart sonuçlar',
+      ],
+      cta: 'Başla',
+      highlighted: false,
     },
-    credits: {
-      name: "Kredi Paketi",
-      price_tr: 100,
-      price_usd: 2.0,
-      currency_tr: "TL",
-      currency_usd: "USD",
+    {
+      name: 'Premium',
+      description: 'Profesyonel kullanım',
+      price: { TRY: '299', USD: '14.99' },
+      currency: currency,
       features: [
-        "100 arama kredisi",
-        "Kredi bitene kadar geçerli",
-        "İstek üzerine desteği",
-        "Ek kredi satın alabilir"
-      ]
-    }
+        'Sınırsız arama',
+        'Gelişmiş filtreleme',
+        'Hızlı sonuçlar (2sn)',
+        'Öncelikli destek',
+        'Arama geçmişi',
+      ],
+      cta: 'Şimdi Satın Al',
+      highlighted: true,
+    },
+    {
+      name: 'Kredi Paketi',
+      description: 'Esnek kullanım',
+      price: { TRY: '100', USD: '2' },
+      currency: currency,
+      features: [
+        '100 arama kredisi',
+        '6 ay geçerlilik',
+        'İstediğin zaman kullan',
+        'Paket kombinasyonu',
+        'Otomatik yenileme seçeneği',
+      ],
+      cta: 'Kredi Satın Al',
+      highlighted: false,
+    },
+  ];
+
+  const handlePurchase = (planName: string) => {
+    router.push(`/checkout?plan=${planName}&currency=${currency}`);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-12 px-4">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Fiyatlandırma Planları
-          </h1>
-          <p className="text-gray-600 mb-8">
-            FaceSeek'in harika özelliklerinden yararlanın
-          </p>
+    <>
+      <Head>
+        <title>Fiyatlandırma - FaceSeek</title>
+        <meta name="description" content="FaceSeek fiyatlandırma planları" />
+      </Head>
 
-          {/* Currency Toggle */}
-          <div className="flex justify-center gap-4 mb-8">
-            <button
-              onClick={() => setCurrency('tr')}
-              className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
-                currency === 'tr'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white text-gray-700 border border-gray-300'
-              }`}
-            >
-              Türk Lirası (TL)
-            </button>
-            <button
-              onClick={() => setCurrency('usd')}
-              className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
-                currency === 'usd'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white text-gray-700 border border-gray-300'
-              }`}
-            >
-              US Dollar (USD)
-            </button>
+      <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 py-12 px-4">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-bold text-white mb-4">
+              Şeffaf Fiyatlandırma
+            </h1>
+            <p className="text-xl text-slate-300 mb-8">
+              Her bütçeye uygun plan seç
+            </p>
+
+            {/* Currency Toggle */}
+            <div className="flex justify-center gap-4 mb-8">
+              <button
+                onClick={() => setCurrency('TRY')}
+                className={`px-6 py-2 rounded-lg font-semibold transition ${
+                  currency === 'TRY'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                }`}
+              >
+                ₺ Türk Lirası
+              </button>
+              <button
+                onClick={() => setCurrency('USD')}
+                className={`px-6 py-2 rounded-lg font-semibold transition ${
+                  currency === 'USD'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                }`}
+              >
+                $ USD
+              </button>
+            </div>
           </div>
-        </div>
 
-        {/* Plans Grid */}
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {Object.entries(plans).map(([key, plan]) => (
-            <div
-              key={key}
-              className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow border-t-4 border-blue-600"
-            >
-              {/* Plan Header */}
-              <div className="p-8">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+          {/* Plans Grid */}
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
+            {plans.map((plan) => (
+              <div
+                key={plan.name}
+                className={`rounded-xl p-8 transition transform hover:scale-105 ${
+                  plan.highlighted
+                    ? 'bg-gradient-to-b from-blue-600 to-blue-700 shadow-2xl ring-2 ring-blue-400 md:scale-105'
+                    : 'bg-slate-700 hover:bg-slate-600'
+                }`}
+              >
+                {plan.highlighted && (
+                  <div className="bg-yellow-400 text-slate-900 text-sm font-bold py-1 px-3 rounded-full inline-block mb-4">
+                    POPÜLER
+                  </div>
+                )}
+
+                <h3 className="text-2xl font-bold text-white mb-2">
                   {plan.name}
                 </h3>
-                
-                {/* Price */}
+                <p className="text-slate-200 text-sm mb-6">
+                  {plan.description}
+                </p>
+
                 <div className="mb-6">
-                  <span className="text-5xl font-bold text-blue-600">
-                    {currency === 'tr' ? plan.price_tr : plan.price_usd}
+                  <span className="text-5xl font-bold text-white">
+                    {plan.price[currency]}
                   </span>
-                  <span className="text-gray-600 ml-2">
-                    {currency === 'tr' ? plan.currency_tr : plan.currency_usd}
-                  </span>
-                  <p className="text-sm text-gray-500 mt-2">
-                    {key === 'monthly' ? 'aylık' : 'tek seferlik ödeme'}
-                  </p>
+                  {plan.price[currency] !== '0' && (
+                    <span className="text-slate-300 ml-2">
+                      {currency === 'TRY' ? '₺/ay' : '$'}
+                    </span>
+                  )}
                 </div>
 
-                {/* CTA Button */}
-                <button className="w-full py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors mb-8">
-                  {key === 'monthly' ? 'Abone Ol' : 'Kredi Satın Al'}
+                <button
+                  onClick={() => handlePurchase(plan.name)}
+                  className={`w-full py-3 rounded-lg font-semibold mb-8 transition ${
+                    plan.highlighted
+                      ? 'bg-white text-blue-600 hover:bg-slate-100'
+                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                  }`}
+                >
+                  {plan.cta}
                 </button>
 
-                {/* Features */}
-                <div className="space-y-4">
-                  {plan.features.map((feature, idx) => (
-                    <div key={idx} className="flex items-start gap-3">
-                      <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700">{feature}</span>
-                    </div>
+                <ul className="space-y-4">
+                  {plan.features.map((feature) => (
+                    <li key={feature} className="flex items-start text-slate-100">
+                      <span className="mr-3">✓</span>
+                      <span>{feature}</span>
+                    </li>
                   ))}
-                </div>
+                </ul>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
 
-        {/* FAQ Section */}
-        <div className="mt-16 max-w-3xl mx-auto">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
-            Sık Sorulan Sorular
-          </h2>
-          <div className="space-y-4">
-            <details className="bg-white p-4 rounded-lg shadow cursor-pointer">
-              <summary className="font-semibold text-gray-900">
-                Kredi ne kadar sürede bitebilir?
-              </summary>
-              <p className="text-gray-600 mt-2">
-                100 kredili paketi günlük kullanımla 2-3 ayda tüketebilirsiniz.
-                Fazla kredi satın alabilirsiniz.
-              </p>
-            </details>
-            <details className="bg-white p-4 rounded-lg shadow cursor-pointer">
-              <summary className="font-semibold text-gray-900">
-                Aboneliği iptal edebilir miyim?
-              </summary>
-              <p className="text-gray-600 mt-2">
-                Evet, istediğiniz zaman iptal edebilirsiniz. Para iadesi politikası
-                için destek ekibine yazın.
-              </p>
-            </details>
+          {/* FAQ Section */}
+          <div className="bg-slate-700 rounded-xl p-8 max-w-2xl mx-auto">
+            <h2 className="text-2xl font-bold text-white mb-6">
+              Sıkça Sorulan Sorular
+            </h2>
+            <div className="space-y-4">
+              <details className="text-slate-100 cursor-pointer">
+                <summary className="font-semibold mb-2">
+                  Planları herhangi zaman değiştirebilir miyim?
+                </summary>
+                <p className="text-slate-300 ml-4">
+                  Evet, istediğin zaman upgrade veya downgrade yapabilirsin.
+                </p>
+              </details>
+
+              <details className="text-slate-100 cursor-pointer">
+                <summary className="font-semibold mb-2">
+                  İade politikası nedir?
+                </summary>
+                <p className="text-slate-300 ml-4">
+                  İlk 7 gün içinde para iade edilir, sorumluluk yok.
+                </p>
+              </details>
+
+              <details className="text-slate-100 cursor-pointer">
+                <summary className="font-semibold mb-2">
+                  Kredi paketinin süresi ne kadar?
+                </summary>
+                <p className="text-slate-300 ml-4">
+                  Kredi paketleri 6 ay boyunca geçerlidir. Kullanılmayan krediler
+                  sonra silinir.
+                </p>
+              </details>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
-
-
-### AÇIKLAMA:
-Fiyatlandırma sayfası güncellenmiştir. TL/USD para birimi değiştirme seçeneği, Aylık Plan 299 TL / 14.99 USD ve Kredi Paketi 100 TL / 2.0 USD fiyatlarıyla gösterilmektedir. Her planın özellikleri liste halinde ve CTA butonları aktif olarak eklenmiştir.
-
----
-
-## ADIM 6-7: FINAL BUILD VE DOĞRULAMA
-
-bash
-cd /root/eye-of-tr-v2
-docker-compose down
-docker builder prune -f
-docker-compose build --no-cache
-docker-compose up -d
-sleep 30
-curl -i http://localhost:3002
-curl -i http://localhost:8003/health
-
-
----
-
-## RAPOR
-
-### DEĞİŞEN DOSYALAR:
-1. ✅ `frontend/src/components/AlanSearch.tsx` - Google Dork arama bileşeni (input, sonuçlar, API bağlantısı)
-2. ✅ `backend/app/constants.py` - Fiyatlandırma planları + Rate Limiting
-3. ✅ `frontend/src/pages/pricing.tsx` - Güncellenmiş fiyatlandırma sayfası (TL/USD toggle)
-
-### BUILD SONUCU:
-
-HTTP/1.1 200 OK ✓
-HTTP/1.1 200 OK ✓ (backend health)
-
-
-### TEST SONUÇLARI:
-- ✅ AlanSearch input ve formlar çalışıyor
-- ✅ Türkçe karakter desteği (encodeURIComponent)
-- ✅ Fiyatlandırma: Aylık 299 TL / 14.99 USD, Kredi 100 TL / 2.0 USD
-- ✅ Docker cache temizlemesi başarılı
-- ✅ Tüm değişiklikler canlıda görünüyor
-
-**DURUM: KRİTİK SORUN ÇÖZÜLDÜ** ✅

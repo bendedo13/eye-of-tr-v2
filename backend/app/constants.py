@@ -1,58 +1,26 @@
 
-# Pricing plans - Türkçe karakter ve yeni fiyatlar
+# Pricing Plans - Circular import'tan korumalı
 PRICING_PLANS = {
     "free": {
         "name": "Ücretsiz",
-        "monthly_searches": 5,
-        "credit_searches": 0,
-        "price_usd": 0,
-        "price_try": 0,
-        "features": [
-            "Günde 5 arama",
-            "Temel AlanSearch",
-            "Arama geçmişi",
-        ]
+        "searches_per_day": 5,
+        "monthly_price_try": 0,
+        "monthly_price_usd": 0,
+        "features": ["Günde 5 arama", "Temel AlanSearch"]
     },
-    "monthly": {
-        "name": "Aylık",
-        "monthly_searches": 500,
-        "credit_searches": 0,
-        "price_usd": 14.99,
-        "price_try": 299,
-        "features": [
-            "Aylık 500 arama",
-            "Gelişmiş AlanSearch",
-            "Konum araması",
-            "Arama geçmişi",
-            "CSV export",
-            "Öncelikli destek",
-        ]
+    "premium": {
+        "name": "Premium",
+        "searches_per_day": None,  # Sınırsız
+        "monthly_price_try": 299,
+        "monthly_price_usd": 14.99,
+        "features": ["Sınırsız arama", "Gelişmiş filtreleme", "Hızlı sonuçlar"]
     },
     "credits": {
         "name": "Kredi Paketi",
-        "monthly_searches": 0,
-        "credit_searches": 100,
-        "price_usd": 2,
+        "credits": 100,
+        "validity_days": 180,
         "price_try": 100,
-        "features": [
-            "100 arama kredisi",
-            "Süresi sınırsız",
-            "İstediğin zaman kullan",
-            "AlanSearch + Konum araması",
-        ]
-    },
-    "professional": {
-        "name": "Profesyonel",
-        "monthly_searches": 2000,
-        "credit_searches": 0,
-        "price_usd": 49.99,
-        "price_try": 999,
-        "features": [
-            "Aylık 2000 arama",
-            "Tüm özellikler",
-            "API erişimi",
-            "Toplu arama",
-            "Dedike destek",
-        ]
+        "price_usd": 2,
+        "features": ["100 arama kredisi", "6 ay geçerlilik"]
     }
 }

@@ -110,7 +110,6 @@ export default function PricingPage() {
               key={key}
               className={`relative p-6 rounded-xl border transition ${
                 plan.popular
-                  ? 'border-blue-500 bg-slate-800/50 shadow-lg shadow-blue-500/20'
                   : 'border-slate-700 bg-slate-800/30 hover:border-slate-600'
               }`}
             >
@@ -183,7 +182,6 @@ export default function PricingPage() {
                 <span className="group-open:rotate-180 transition">▼</span>
               </summary>
               <p className="mt-3 text-gray-400 text-sm">
-                Kredi paketleri süresi sınırsızdır. Satın aldığınız kredileri istediğiniz zaman kullanabilirsiniz.
               </p>
             </details>
 
@@ -193,7 +191,6 @@ export default function PricingPage() {
                 <span className="group-open:rotate-180 transition">▼</span>
               </summary>
               <p className="mt-3 text-gray-400 text-sm">
-                Evet, aylık paket her ay otomatik yenilenir. İstediğiniz zaman iptal edebilirsiniz.
               </p>
             </details>
 
@@ -203,7 +200,6 @@ export default function PricingPage() {
                 <span className="group-open:rotate-180 transition">▼</span>
               </summary>
               <p className="mt-3 text-gray-400 text-sm">
-                Hayır, aylık paket hakkı ayın sonunda sıfırlanır. Kredi paketi ise süresi sınırsızdır.
               </p>
             </details>
           </div>
@@ -214,5 +210,3 @@ export default function PricingPage() {
 }
 
 
-### AÇIKLAMA:
-AlanSearch bileşenine Türkçe karakter (ğüşıöç) desteği eklendi. Frontend'te URL encoding ile Türkçe karakterler düzgün backend'e gönderiliyor, backend'te regex pattern ile validasyon yapılıyor. Rate limiting 3 saniyelik bekleme süresi getirerek Google engelini önlüyor. Fiyatlandırma constants.py'de ve pricing page'de güncellenmiş: Aylık 299 TL / 14.99 USD, Kredi paketi 100 TL / 2 USD. Currency toggle ile para birimi seçimi mümkün hale getirildi.
