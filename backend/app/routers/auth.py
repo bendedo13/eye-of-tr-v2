@@ -27,7 +27,7 @@ _users: Dict[str, dict] = {}
 
 
 class RegisterRequest(BaseModel):
-    fullName: str
+    fullName: Optional[str] = None
     email: str
     password: str
     plan: str = "free"
@@ -61,20 +61,20 @@ async def register(req: RegisterRequest):
     """Yeni kullanıcı kaydı."""
     logger.info("Register attempt: email=%s", req.email)
 
-    full_name = req.fullName.strip()
-    if len(full_name) < 3:
-        raise HTTPException(
-            status_code=400, detail="Ad Soyad en az 3 karakter olmalıdır"
-        )
-    if len(req.password) < 6:
-        raise HTTPException(
-            status_code=400, detail="Şifre en az 6 karakter olmalıdır"
-        )
-
     email = req.email.strip().lower()
     if not email or "@" not in email:
         raise HTTPException(
             status_code=400, detail="Geçerli bir e-posta adresi girin"
+        )
+
+    if req.fullName and req.fullName.strip():
+        full_name = req.fullName.strip()
+    else:
+        # Derive display name from email local-part when fullName is omitted
+        full_name = email.split("@")[0]
+    if len(req.password) < 6:
+        raise HTTPException(
+            status_code=400, detail="Şifre en az 6 karakter olmalıdır"
         )
 
     if email in _users:

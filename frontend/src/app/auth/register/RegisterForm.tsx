@@ -26,14 +26,6 @@ export default function RegisterForm() {
 
   // Form validasyonu
   const validateForm = (): boolean => {
-    if (!formData.fullName.trim()) {
-      setError('Ad Soyad gereklidir');
-      return false;
-    }
-    if (formData.fullName.trim().length < 3) {
-      setError('Ad Soyad en az 3 karakter olmalıdır');
-      return false;
-    }
     if (!formData.email.trim()) {
       setError('E-posta adresi gereklidir');
       return false;
@@ -88,7 +80,13 @@ export default function RegisterForm() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.detail || data.message || 'Kayıt başarısız oldu. Lütfen tekrar deneyin.');
+        if (response.status === 422 && Array.isArray(data.detail)) {
+          // Pydantic validation errors – show first human-readable message
+          const firstMsg = data.detail[0]?.msg || 'Geçersiz istek';
+          setError(firstMsg);
+        } else {
+          setError(data.detail || data.message || 'Kayıt başarısız oldu. Lütfen tekrar deneyin.');
+        }
         return;
       }
 
@@ -164,7 +162,7 @@ export default function RegisterForm() {
             {/* Ad Soyad Alanı */}
             <div className="space-y-2">
               <label htmlFor="fullName" className="block text-sm font-medium text-slate-200">
-                Ad Soyad
+                Ad Soyad <span className="text-slate-400 font-normal">(isteğe bağlı)</span>
               </label>
               <input
                 id="fullName"
