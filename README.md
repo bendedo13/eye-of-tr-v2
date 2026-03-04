@@ -46,8 +46,39 @@ cd frontend && npx tsc --noEmit
 ## API Endpoint'leri
 
 - `GET /health` – Sağlık kontrolü
+- `GET /api/health` – Sağlık kontrolü (Next.js rewrite uyumlu)
 - `GET /api/search?q=<sorgu>` – AlanSearch (Türkçe destekli, 3 sn rate limit)
 - `GET /api/location-search?q=<konum>` – Konum arama (Nominatim, 1 sn rate limit)
+- `POST /api/auth/register` – Kullanıcı kaydı (`fullName`, `email`, `password`, `plan`)
+- `POST /api/auth/login` – Kullanıcı girişi (`email`, `password`, `rememberMe`)
+- `GET /api/auth/users/count` – Toplam kayıtlı kullanıcı sayısı
+
+## Admin Paneli
+
+`http://localhost:3002/admin` adresinden erişilebilir. Backend sağlık durumu, kullanıcı sayısı, aktif özellikler ve endpoint listesini gösterir.
+
+## Doğrulama Komutları
+
+```bash
+# 1. Python syntax
+cd backend && python3 -m py_compile app/main.py
+
+# 2. Python import
+python3 -c "import sys; sys.path.insert(0,'backend'); from app.main import app; print('OK')"
+
+# 3. TypeScript
+cd frontend && node_modules/.bin/tsc --noEmit
+
+# 4. Sağlık kontrolü
+curl http://localhost:8003/health          # {"status":"ok"}
+curl http://localhost:8003/api/health      # {"status":"ok"}
+
+# 5. Register endpoint testi
+curl -s -X POST http://localhost:8003/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"fullName":"Test Kullanıcı","email":"test@example.com","password":"test123","plan":"free"}' \
+  | python3 -m json.tool
+```
 
 ## Çevre Değişkenleri
 

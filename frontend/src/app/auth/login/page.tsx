@@ -46,9 +46,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8003'}/api/auth/login`,
-        {
+      const response = await fetch('/api/auth/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -58,13 +56,12 @@ export default function LoginPage() {
             password,
             rememberMe,
           }),
-        }
-      );
+        });
 
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.message || 'Giriş başarısız oldu. Lütfen tekrar deneyin.');
+        setError(data.detail || data.message || 'Giriş başarısız oldu. Lütfen tekrar deneyin.');
         return;
       }
 
