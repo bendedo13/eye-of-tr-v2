@@ -35,7 +35,7 @@ export default function ForgotPasswordPage() {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8003'}/api/auth/forgot-password`,
+        `/api/auth/forgot-password`,
         {
           method: 'POST',
           headers: {
