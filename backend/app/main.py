@@ -1,11 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes import search
+from fastapi.responses import JSONResponse
+from app.routers import search, location
 import logging
 
-# ... existing code ...
+logger = logging.getLogger(__name__)
 
-app = FastAPI(title="FaceSeek API")
+app = FastAPI(title="EyeOfTR API")
 
 # CORS middleware
 app.add_middleware(
@@ -18,5 +19,9 @@ app.add_middleware(
 
 # Routes
 app.include_router(search.router)
+app.include_router(location.router)
 
-# ... rest of code ...
+
+@app.get("/health")
+async def health():
+    return JSONResponse({"status": "ok"})

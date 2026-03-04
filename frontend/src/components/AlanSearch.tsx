@@ -60,7 +60,7 @@ export default function AlanSearch() {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8003'}/api/search?q=${encodedQuery}`,
+        `/api/search?q=${encodedQuery}`,
         {
           method: 'GET',
           signal: abortControllerRef.current.signal,
@@ -133,8 +133,7 @@ export default function AlanSearch() {
           <Button
             type="submit"
             disabled={loading}
-            className="bg-blue-600 hover:bg-blue-700"
-            size="icon"
+            className="bg-blue-600 hover:bg-blue-700 px-3 py-2"
           >
             {loading ? (
               <Loader2 className="h-4 w-4 animate-spin" />

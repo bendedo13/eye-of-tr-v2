@@ -1,6 +1,5 @@
 
-from fastapi import APIRouter, Query, HTTPException, BackgroundTasks
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, Query, HTTPException, BackgroundTasks, Request
 import asyncio
 import logging
 from datetime import datetime
@@ -39,9 +38,9 @@ async def log_search(db, query: str, results_count: int, ip: str):
 
 @router.get("/search")
 async def search(
+    request: Request,
     q: str = Query(..., min_length=1, max_length=200),
     background_tasks: BackgroundTasks = None,
-    request = None
 ):
     """
     Google Dork tabanlı arama (Türkçe karakter destekli)
@@ -64,7 +63,7 @@ async def search(
         )
 
     # Rate limiting
-    client_ip = request.client.host if request else "unknown"
+    client_ip = request.client.host if request.client else "unknown"
     if not check_rate_limit(client_ip):
         raise HTTPException(
             status_code=429,
@@ -106,13 +105,13 @@ async def perform_google_dork_search(query: str, timeout: int = 30):
     Google Dork tabanlı arama
     TODO: Gerçek implementasyon (selenium, requests vs)
     """
-    # Mock result
-    await asyncio.sleep(1)
+    # Rate limiting: 2-3 saniye bekleme (Google engeli önle)
+    await asyncio.sleep(2)
     
     return [
         {
             "name": f"Sonuç: {query}",
-            "url": f"https://example.com/result/{query}",
+            "url": f"https://www.google.com/search?q={query}",
             "snippet": f"{query} hakkında bilgi..."
         }
     ]
