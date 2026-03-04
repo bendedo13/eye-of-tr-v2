@@ -1,12 +1,14 @@
+import json
 import logging
 import os
 import secrets
 from datetime import datetime, timedelta, timezone
-from typing import Dict, Optional
+from pathlib import Path
+from typing import Dict, List, Optional
 from uuid import uuid4
 
-from fastapi import APIRouter, HTTPException
-from jose import jwt
+from fastapi import APIRouter, Depends, HTTPException, Header
+from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel
 
@@ -22,8 +24,36 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# In-memory user store (persists as long as server runs; no DB required)
-_users: Dict[str, dict] = {}
+# Persistent user store (JSON file)
+_DATA_DIR = Path(os.getenv("DATA_DIR", "/app/data"))
+_USERS_FILE = _DATA_DIR / "users.json"
+
+
+def _load_users() -> Dict[str, dict]:
+    """Load users from JSON file."""
+    try:
+        if _USERS_FILE.exists():
+            data = _USERS_FILE.read_text(encoding="utf-8")
+            return json.loads(data) if data.strip() else {}
+    except Exception as exc:
+        logger.error("Failed to load users file: %s", exc)
+    return {}
+
+
+def _save_users(users: Dict[str, dict]) -> None:
+    """Save users to JSON file."""
+    try:
+        _DATA_DIR.mkdir(parents=True, exist_ok=True)
+        _USERS_FILE.write_text(
+            json.dumps(users, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+    except Exception as exc:
+        logger.error("Failed to save users file: %s", exc)
+
+
+# Load persisted users on startup
+_users: Dict[str, dict] = _load_users()
 
 
 class RegisterRequest(BaseModel):
@@ -54,6 +84,22 @@ def _create_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     )
     to_encode["exp"] = expire
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+
+async def _get_current_user(authorization: str = Header(...)) -> dict:
+    """Verify JWT token from Authorization header and return user dict."""
+    token = authorization.removeprefix("Bearer ").strip()
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: Optional[str] = payload.get("sub")
+        if email is None:
+            raise HTTPException(status_code=401, detail="Geçersiz token")
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Geçersiz veya süresi dolmuş token")
+    user = _users.get(email)
+    if user is None:
+        raise HTTPException(status_code=401, detail="Kullanıcı bulunamadı")
+    return user
 
 
 @router.post("/register")
@@ -92,6 +138,7 @@ async def register(req: RegisterRequest):
         "plan": req.plan,
         "createdAt": datetime.now(timezone.utc).isoformat(),
     }
+    _save_users(_users)
 
     token = _create_token({"sub": email, "name": full_name})
     logger.info("Register success: email=%s id=%s", email, user_id)
@@ -137,6 +184,41 @@ async def login(req: LoginRequest):
 
 
 @router.get("/users/count")
-async def users_count():
+async def users_count(_user: dict = Depends(_get_current_user)):
     """Admin: toplam kayıtlı kullanıcı sayısı."""
     return {"count": len(_users)}
+
+
+@router.get("/users")
+async def users_list(_user: dict = Depends(_get_current_user)):
+    """Admin: kayıtlı kullanıcı listesi (şifre hariç)."""
+    return {
+        "users": [
+            {
+                "id": u["id"],
+                "fullName": u["fullName"],
+                "email": u["email"],
+                "plan": u["plan"],
+                "createdAt": u.get("createdAt", ""),
+            }
+            for u in _users.values()
+        ]
+    }
+
+
+@router.delete("/users/{user_id}")
+async def delete_user(user_id: str, _user: dict = Depends(_get_current_user)):
+    """Admin: kullanıcı sil."""
+    target_email: Optional[str] = None
+    for email, user in _users.items():
+        if user["id"] == user_id:
+            target_email = email
+            break
+
+    if target_email is None:
+        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
+
+    del _users[target_email]
+    _save_users(_users)
+    logger.info("User deleted: id=%s email=%s", user_id, target_email)
+    return {"message": "Kullanıcı silindi", "id": user_id}

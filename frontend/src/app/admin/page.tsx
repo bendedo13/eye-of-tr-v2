@@ -3,10 +3,18 @@
 const REFRESH_INTERVAL_MS = 30_000;
 
 import { useEffect, useState, useCallback } from 'react';
-import { Activity, Users, Search, MapPin, RefreshCw, CheckCircle, XCircle } from 'lucide-react';
+import { Activity, Users, Search, MapPin, RefreshCw, CheckCircle, XCircle, Trash2 } from 'lucide-react';
 
 interface HealthStatus {
   status: 'ok' | 'error' | 'loading';
+}
+
+interface UserInfo {
+  id: string;
+  fullName: string;
+  email: string;
+  plan: string;
+  createdAt: string;
 }
 
 interface Stats {
@@ -21,7 +29,29 @@ export default function AdminPage() {
     healthStatus: { status: 'loading' },
     lastChecked: null,
   });
+  const [users, setUsers] = useState<UserInfo[]>([]);
   const [loading, setLoading] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const getAuthHeaders = useCallback((): Record<string, string> => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  }, []);
+
+  const fetchUsers = useCallback(async () => {
+    try {
+      const res = await fetch('/api/auth/users', {
+        cache: 'no-store',
+        headers: getAuthHeaders(),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUsers(data.users ?? []);
+      }
+    } catch {
+      setUsers([]);
+    }
+  }, [getAuthHeaders]);
 
   const fetchStats = useCallback(async () => {
     setLoading(true);
@@ -42,7 +72,10 @@ export default function AdminPage() {
     // User count
     let userCount: number | null = null;
     try {
-      const res = await fetch('/api/auth/users/count', { cache: 'no-store' });
+      const res = await fetch('/api/auth/users/count', {
+        cache: 'no-store',
+        headers: getAuthHeaders(),
+      });
       if (res.ok) {
         const data = await res.json();
         userCount = data.count ?? null;
@@ -53,7 +86,30 @@ export default function AdminPage() {
 
     setStats({ healthStatus, userCount, lastChecked: now });
     setLoading(false);
-  }, []);
+
+    // Also fetch user list
+    await fetchUsers();
+  }, [fetchUsers, getAuthHeaders]);
+
+  const handleDeleteUser = async (userId: string) => {
+    if (!confirm('Bu kullanıcıyı silmek istediğinize emin misiniz?')) return;
+
+    setDeletingId(userId);
+    try {
+      const res = await fetch(`/api/auth/users/${userId}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+      });
+      if (res.ok) {
+        // Refresh data after deletion
+        await fetchStats();
+      }
+    } catch {
+      // silently ignore
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   useEffect(() => {
     fetchStats();
@@ -152,9 +208,57 @@ export default function AdminPage() {
           </div>
         </div>
 
+        {/* Kullanıcı Listesi */}
+        <div className="bg-slate-800 border border-slate-700 rounded-xl p-6">
+          <h2 className="text-lg font-semibold text-white mb-4">Kayıtlı Kullanıcılar</h2>
+          {users.length === 0 ? (
+            <p className="text-slate-400 text-sm">Henüz kayıtlı kullanıcı yok.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-slate-400 border-b border-slate-700">
+                    <th className="text-left pb-3 pr-4">Ad Soyad</th>
+                    <th className="text-left pb-3 pr-4">E-posta</th>
+                    <th className="text-left pb-3 pr-4">Plan</th>
+                    <th className="text-left pb-3 pr-4">Kayıt Tarihi</th>
+                    <th className="text-left pb-3">İşlem</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-700/50">
+                  {users.map((user) => (
+                    <tr key={user.id}>
+                      <td className="py-2.5 pr-4 text-slate-200">{user.fullName}</td>
+                      <td className="py-2.5 pr-4 text-slate-300 font-mono text-xs">{user.email}</td>
+                      <td className="py-2.5 pr-4">
+                        <span className="px-2 py-0.5 text-xs rounded bg-blue-900/40 text-blue-300">
+                          {user.plan}
+                        </span>
+                      </td>
+                      <td className="py-2.5 pr-4 text-slate-400 text-xs">
+                        {user.createdAt ? new Date(user.createdAt).toLocaleString('tr-TR') : '—'}
+                      </td>
+                      <td className="py-2.5">
+                        <button
+                          onClick={() => handleDeleteUser(user.id)}
+                          disabled={deletingId === user.id}
+                          className="flex items-center gap-1 px-2 py-1 text-xs text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded transition disabled:opacity-50"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          Sil
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
         {/* API Endpoint Listesi */}
         <div className="bg-slate-800 border border-slate-700 rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">API Endpoint'leri</h2>
+          <h2 className="text-lg font-semibold text-white mb-4">API Endpoint&apos;leri</h2>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -172,6 +276,8 @@ export default function AdminPage() {
                   { method: 'POST', path: '/api/auth/register', desc: 'Kullanıcı kaydı' },
                   { method: 'POST', path: '/api/auth/login', desc: 'Kullanıcı girişi' },
                   { method: 'GET', path: '/api/auth/users/count', desc: 'Toplam kullanıcı sayısı' },
+                  { method: 'GET', path: '/api/auth/users', desc: 'Kullanıcı listesi' },
+                  { method: 'DELETE', path: '/api/auth/users/:id', desc: 'Kullanıcı sil' },
                 ].map((ep) => (
                   <tr key={ep.path}>
                     <td className="py-2.5 pr-4">
@@ -179,6 +285,8 @@ export default function AdminPage() {
                         className={`font-mono text-xs px-1.5 py-0.5 rounded ${
                           ep.method === 'GET'
                             ? 'bg-blue-900/40 text-blue-300'
+                            : ep.method === 'DELETE'
+                            ? 'bg-red-900/40 text-red-300'
                             : 'bg-green-900/40 text-green-300'
                         }`}
                       >
