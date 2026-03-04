@@ -33,9 +33,17 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  const getAuthHeaders = useCallback((): Record<string, string> => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  }, []);
+
   const fetchUsers = useCallback(async () => {
     try {
-      const res = await fetch('/api/auth/users', { cache: 'no-store' });
+      const res = await fetch('/api/auth/users', {
+        cache: 'no-store',
+        headers: getAuthHeaders(),
+      });
       if (res.ok) {
         const data = await res.json();
         setUsers(data.users ?? []);
@@ -43,7 +51,7 @@ export default function AdminPage() {
     } catch {
       setUsers([]);
     }
-  }, []);
+  }, [getAuthHeaders]);
 
   const fetchStats = useCallback(async () => {
     setLoading(true);
@@ -64,7 +72,10 @@ export default function AdminPage() {
     // User count
     let userCount: number | null = null;
     try {
-      const res = await fetch('/api/auth/users/count', { cache: 'no-store' });
+      const res = await fetch('/api/auth/users/count', {
+        cache: 'no-store',
+        headers: getAuthHeaders(),
+      });
       if (res.ok) {
         const data = await res.json();
         userCount = data.count ?? null;
@@ -78,7 +89,7 @@ export default function AdminPage() {
 
     // Also fetch user list
     await fetchUsers();
-  }, [fetchUsers]);
+  }, [fetchUsers, getAuthHeaders]);
 
   const handleDeleteUser = async (userId: string) => {
     if (!confirm('Bu kullanıcıyı silmek istediğinize emin misiniz?')) return;
@@ -87,6 +98,7 @@ export default function AdminPage() {
     try {
       const res = await fetch(`/api/auth/users/${userId}`, {
         method: 'DELETE',
+        headers: getAuthHeaders(),
       });
       if (res.ok) {
         // Refresh data after deletion

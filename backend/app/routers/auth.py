@@ -7,8 +7,8 @@ from pathlib import Path
 from typing import Dict, List, Optional
 from uuid import uuid4
 
-from fastapi import APIRouter, HTTPException
-from jose import jwt
+from fastapi import APIRouter, Depends, HTTPException, Header
+from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel
 
@@ -84,6 +84,22 @@ def _create_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     )
     to_encode["exp"] = expire
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+
+async def _get_current_user(authorization: str = Header(...)) -> dict:
+    """Verify JWT token from Authorization header and return user dict."""
+    token = authorization.removeprefix("Bearer ").strip()
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: Optional[str] = payload.get("sub")
+        if email is None:
+            raise HTTPException(status_code=401, detail="Geçersiz token")
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Geçersiz veya süresi dolmuş token")
+    user = _users.get(email)
+    if user is None:
+        raise HTTPException(status_code=401, detail="Kullanıcı bulunamadı")
+    return user
 
 
 @router.post("/register")
@@ -168,13 +184,13 @@ async def login(req: LoginRequest):
 
 
 @router.get("/users/count")
-async def users_count():
+async def users_count(_user: dict = Depends(_get_current_user)):
     """Admin: toplam kayıtlı kullanıcı sayısı."""
     return {"count": len(_users)}
 
 
 @router.get("/users")
-async def users_list():
+async def users_list(_user: dict = Depends(_get_current_user)):
     """Admin: kayıtlı kullanıcı listesi (şifre hariç)."""
     return {
         "users": [
@@ -191,7 +207,7 @@ async def users_list():
 
 
 @router.delete("/users/{user_id}")
-async def delete_user(user_id: str):
+async def delete_user(user_id: str, _user: dict = Depends(_get_current_user)):
     """Admin: kullanıcı sil."""
     target_email: Optional[str] = None
     for email, user in _users.items():
