@@ -73,8 +73,8 @@ export default function LoginPage() {
         }
       }
 
-      // Dashboard'a yönlendir
-      router.push('/dashboard');
+      // Dashboard yoksa ana sayfaya yönlendir
+      router.push('/');
     } catch (err) {
       setError(
         err instanceof Error

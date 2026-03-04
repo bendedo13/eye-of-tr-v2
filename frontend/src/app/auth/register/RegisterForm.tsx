@@ -95,8 +95,8 @@ export default function RegisterForm() {
         localStorage.setItem('authToken', data.token);
       }
 
-      // Dashboard'a yönlendir
-      router.push('/dashboard');
+      // Dashboard yoksa ana sayfaya yönlendir
+      router.push('/');
     } catch (err) {
       setError(
         err instanceof Error
