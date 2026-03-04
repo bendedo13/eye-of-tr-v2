@@ -72,9 +72,7 @@ export default function RegisterForm() {
     setLoading(true);
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8003'}/api/auth/register`,
-        {
+      const response = await fetch('/api/auth/register', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -85,13 +83,12 @@ export default function RegisterForm() {
             password: formData.password,
             plan: formData.plan,
           }),
-        }
-      );
+        });
 
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.message || 'Kayıt başarısız oldu. Lütfen tekrar deneyin.');
+        setError(data.detail || data.message || 'Kayıt başarısız oldu. Lütfen tekrar deneyin.');
         return;
       }
 
