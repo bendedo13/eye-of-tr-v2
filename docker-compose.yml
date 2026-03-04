@@ -6,6 +6,10 @@ services:
     container_name: faceseek_frontend
     ports:
       - "3002:3000"
+    environment:
+      - BACKEND_URL=http://faceseek_backend:8000
+    depends_on:
+      - faceseek_backend
     networks:
       - face_seek_network
 
@@ -16,9 +20,14 @@ services:
     container_name: faceseek_backend
     ports:
       - "8003:8000"
+    volumes:
+      - backend_data:/app/data
     networks:
       - face_seek_network
 
 networks:
   face_seek_network:
     driver: bridge
+
+volumes:
+  backend_data:
