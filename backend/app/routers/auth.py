@@ -47,6 +47,17 @@ def _verify_password(plain: str, hashed: str) -> bool:
     return pwd_context.verify(plain, hashed)
 
 
+# Seed demo user so the demo credentials shown on the login page actually work
+_users["demo@example.com"] = {
+    "id": "demo-user-001",
+    "fullName": "Demo Kullanıcı",
+    "email": "demo@example.com",
+    "password": _hash_password("demo123456"),
+    "plan": "free",
+    "createdAt": datetime.now(timezone.utc).isoformat(),
+}
+
+
 def _create_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + (
