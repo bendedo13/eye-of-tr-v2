@@ -1,10 +1,7 @@
 .aider*
 .env
 frontend/node_modules/
-backend/venv/
-*.pyc
-__pycache__/
-frontend/node_modules/
+frontend/.next/
 backend/venv/
 *.pyc
 __pycache__/

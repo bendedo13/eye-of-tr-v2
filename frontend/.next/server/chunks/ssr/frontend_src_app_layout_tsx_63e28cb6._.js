@@ -1,3 +1,0 @@
-module.exports=[35829,a=>{"use strict";var b=a.i(18332);function c({children:a}){return(0,b.jsx)("html",{lang:"tr",children:(0,b.jsx)("body",{className:"bg-slate-900 text-white",children:a})})}a.s(["default",()=>c,"metadata",0,{title:"EyeOfTR - Gelişmiş Arama Platformu",description:"AlanSearch ve Konum Arama ile gelişmiş bilgi arama platformu"}])}];
-
-//# sourceMappingURL=frontend_src_app_layout_tsx_63e28cb6._.js.map
