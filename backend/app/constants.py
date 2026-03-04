@@ -31,4 +31,16 @@ PRICING_PLANS: Dict[str, Any] = {
         ],
     },
     "credits": {
-        "name": "Kr
+        "name": "Kredi Paketi",
+        "price_try": 100,
+        "price_usd": 2.0,
+        "credits": 50,
+        "monthly_credits": 50,
+        "features": [
+            "50 Arama Kredisi",
+            "1 Yıl Geçerlilik",
+            "Herhangi Zaman Kullan",
+            "İade Yok",
+        ],
+    },
+}
